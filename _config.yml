@@ -115,8 +115,8 @@ content:
           네이버로부터 api제공 받아서 네이버 쇼핑의 검색 결과를 가져와서 보여주는 방식을 사용
           카카오소셜 로그인 기능을 통해 회원가입과 카카오톡 소셜로그인 둘다 가능하게 함
 
-      - layout: Flappy Bird (clone codding) (개인 프로젝트)
-        title: 인터넷 쇼핑몰 사이트 만들기(개인 프로젝트)
+      - layout: top-middle
+        title: Flappy Bird (clone codding) (개인 프로젝트)
         # link: https://www.youtube.com/watch?v=2StcVXOVi8I
         # link_text: Project Website
         # additional_links:
