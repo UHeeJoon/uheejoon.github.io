@@ -46,7 +46,7 @@ additional_links:
 # google_analytics: "UA-00000000-0"
 
 # About Section
-# about_title: About Me
+about_title: About Me
 about_profile_image: images/tmp_profile.jpg
 about_content: | # this will include new lines to allow paragraphs
 웹 서비스 백엔드 개발자를 목표로 하여 Spring을 공부중인 학생입니다.
