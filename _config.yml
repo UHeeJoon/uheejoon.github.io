@@ -6,10 +6,11 @@ favicon: images/favicon.ico
 version: 2
 
 # Personal info
-name: YooHeeJoon
-title: Junior Backend Development
-email: yhj3855@naver.com // yhjyhj3855@gmail.com
-web: www.github.com/sproogen/resume-theme
+name: 유희준
+title: 백엔드 엔지니어
+email: yhj3855@naver.com
+email: yhjyhj3855@gmail.com
+web: https://velog.io/@uheejoon
 
 # Dark Mode (true/false/never)
 darkmode: true
@@ -46,31 +47,91 @@ additional_links:
 
 # About Section
 # about_title: About Me
-about_profile_image: images/profile.jpg
+about_profile_image: images/tmp_profile.jpg
 about_content: | # this will include new lines to allow paragraphs
-  Hi, my name's Brett and I'm a senior network system administrator. As well as administrating systems I also have experience making software and web apps. I have worked at a number of companies gaining teamwork and leadership skills.
+웹 서비스 백엔드 개발자를 목표로 하여 Spring을 공부중인 학생입니다.
+현재 가장 관심이 깊은 언어는 <mark>Java</mark>이며 Java를 활용한 서비스 개발을 희망하고 있습니다.
+지금까지 해본 개발 경험들 중에서는 백엔드에서 서비스를 구현하는 것에 가장 큰 재미를 느껴 지금 공부를 하는 것이 너무 즐겁습니다.
 
-  I am most skilled in: <mark>AWS</mark> and <mark>Eating Pizza</mark>
+평소에 취미로 백준이나 프로그래머스에서 코딩테스트 문제들을 매일매일 풀고 있으며 이를 토대로 백준 문제풀이 블로그를 운영하고 있습니다. 
+학교에서 하는 공부가 부족하다고 느껴 현재 방과 후에 월 ~ 금 7시부터 10시까지 하는 학원을 꾸준히 다닐 정도로 배움에 대한 <mark>의욕이 강합</mark>니다.
+
+무언가를 해 나아가는 것에 있어서 <mark>배우려는 의지</mark>가 가장 중요하다고 생각합니다. 
+현재 저의 수준을 객관적으로 바라보면서 제게 부족한게 무엇인지 스스로 깨닫고 부족한 것을 메꾸기 위하여 배워 나가아가는 것에 집중하고 노력하고 있습니다.
 
 content:
   - title: Projects # Title for the section
     layout: list # Type of content section (list/text)
     content:
       - layout: top-middle
-        title: Super awesome project
-        link: github.com/sproogen
+        title: 2호선 뭐먹지 (팀 프로젝트)
+        # link: https://www.youtube.com/watch?v=2StcVXOVi8I
         # link_text: Project Website
         additional_links:
-          - title:  sproogen/modern-resume-theme
-            icon: fab fa-github
-            url: github.com/sproogen/modern-resume-theme
+          - title:  2호선 뭐먹지 (유튜브)
+            icon: fab fa-youtube
+            url: https://www.youtube.com/watch?v=2StcVXOVi8I
           # - title:  Github page for project (eg. sproogen/modern-resume-theme)
           #   icon: fab fa-github
           #   url: Link to project (eg. sproogen.github.io/modern-resume-theme)
         quote: >
-          This is probably one of the greatest apps ever created, if you don't agree you're probably wrong.
+         사용 기술 : Python, Jinja2, HTML5/CSS3, JavaScript, MongoDB, Robo3T
         description: | # this will include new lines to allow paragraphs
-          I started this project as a way if learning <mark>React</mark> and it has since grown into a fully fledged app. I have learned many skills through this and been I'm very proud of having this in my portfolio. If you don't have a project as awesome as this I would advise you make one.
+          크롤링한 데이터를 바탕으로 해당 역 주변의 식당 리스트를 가져오고 별점과 리뷰를 남길 수 있으며 직접 쓴 리뷰를 수정, 제거할 수 있는 마이페이도 구현 또한 쿠키 세션기능을 활용해 로그아웃 기능을 구현
+          Domain과 AWS를 구매하여 실질적인 서비스가 가능하도록 배포
+          이 프로젝트에서 전반적인 서비스 구현(크롤링 / 데이터 저장, 조회, 수정, 삭제/ 별점 남기기/ 페이지 렌더링)을 담당
+
+      - layout: top-middle
+        title: 싸이월드 만들기 (개인 프로젝트)
+        # link: https://www.youtube.com/watch?v=2StcVXOVi8I
+        # link_text: Project Website
+        # additional_links:
+        #   - title:  
+        #     icon: fab fa-youtube
+        #     url: 
+          # - title:  Github page for project (eg. sproogen/modern-resume-theme)
+          #   icon: fab fa-github
+          #   url: Link to project (eg. sproogen.github.io/modern-resume-theme)
+        quote: >
+          사용 기술 : HTML5/CSS3, JavaScript
+        description: | # this will include new lines to allow paragraphs
+          Figma를 통해 만들 웹의 디자인을 제공받고 해당 Figma의 정보대로 만들기
+
+      - layout: top-middle
+        title: 인터넷 쇼핑몰 사이트 만들기 (개인 프로젝트)
+        # link: https://www.youtube.com/watch?v=2StcVXOVi8I
+        # link_text: Project Website
+        # additional_links:
+        #   - title:  
+        #     icon: fab fa-youtube
+        #     url: 
+          # - title:  Github page for project (eg. sproogen/modern-resume-theme)
+          #   icon: fab fa-github
+          #   url: Link to project (eg. sproogen.github.io/modern-resume-theme)
+        quote: >
+          사용 기술 : HTML5/CSS3, JavaScript, tymeleaf, Spring, Spring Security, JPA, H2
+        description: | # this will include new lines to allow paragraphs
+          가상의 인터넷 쇼핑몰 사이트를 상상해서 사장, 사용자, 관리자 페이지를 Spring Security를 사용해서 분할
+          네이버로부터 api제공 받아서 네이버 쇼핑의 검색 결과를 가져와서 보여주는 방식을 사용
+          카카오소셜 로그인 기능을 통해 회원가입과 카카오톡 소셜로그인 둘다 가능하게 함
+
+      - layout: Flappy Bird (clone codding) (개인 프로젝트)
+        title: 인터넷 쇼핑몰 사이트 만들기(개인 프로젝트)
+        # link: https://www.youtube.com/watch?v=2StcVXOVi8I
+        # link_text: Project Website
+        # additional_links:
+        #   - title:  
+        #     icon: fab fa-youtube
+        #     url: 
+          # - title:  Github page for project (eg. sproogen/modern-resume-theme)
+          #   icon: fab fa-github
+          #   url: Link to project (eg. sproogen.github.io/modern-resume-theme)
+        quote: >
+          사용 기술 : Unity, C#
+        description: | # this will include new lines to allow paragraphs
+          유튜브와 구글링을 통한 Flappy Bird라는 유니티 기반 모바일 게임 클론 코딩
+
+
 
   - title: Experience # Title for the section
     layout: list # Type of content section (list/text)
@@ -110,7 +171,7 @@ content:
       - [Becoming a ninja](https://www.youtube.com/watch?v=vtg4o__aRMg)
 
       Look at this cool image  
-      ![Trees](/modern-resume-theme/images/landscape-trees.jpg "Trees")
+      ![Trees](/uheejoon.github.io/images/landscape-trees.jpg "Trees")
 
 # Footer
 footer_show_references: true
