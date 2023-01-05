@@ -45,9 +45,10 @@ additional_links:
 # google_analytics: "UA-00000000-0"
 
 content:
-  layout: text
-  content: |
-    현재 제작중입니다...
+  - title: 현재 문서 정보
+    layout: text
+    content: |
+      현재 제작중입니다...
 
 # About Section
 about_title: About Me
