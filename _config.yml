@@ -112,7 +112,7 @@ content:
           - 이 프로젝트에서 전반적인 서비스 구현(크롤링 / 데이터 저장, 조회, 수정, 삭제/ 별점 남기기/ 페이지 렌더링)을 담당
 
       - layout: left
-        title: 싸이월드 만들기 (개인 프로젝트)
+        title: 싸이월드 만들기 <br/> (개인 프로젝트)
         # link: https://www.youtube.com/watch?v=2StcVXOVi8I
         # link_text: Project Website
         # additional_links:
@@ -166,33 +166,36 @@ content:
 
 
 
-  - title: Experience # Title for the section
-    layout: list # Type of content section (list/text)
-    content:
-      - layout: left
-        title: The Boring Company
-        link: boringcompany.com
-        # link_text: boringcompany.com
-        sub_title: Senior Network System Administrator
-        caption: November 2017 - Present
-        quote: >
-          Solving 21st century problems by diging holes and making game changing products like the *not a flamethrower*
-        description: | # this will include new lines to allow paragraphs
-            Every company needs its networks properly administered and The Boring Compay is no exception. Digging holes is hard and I play my part making sure the whole company stays connected. I lead a team of 5 people and enjoy driving the company to try new technologies.
+  # - title: Experience # Title for the section
+  #   layout: list # Type of content section (list/text)
+  #   content:
+  #     - layout: left
+  #       title: The Boring Company
+  #       link: boringcompany.com
+  #       # link_text: boringcompany.com
+  #       sub_title: Senior Network System Administrator
+  #       caption: November 2017 - Present
+  #       quote: >
+  #         Solving 21st century problems by diging holes and making game changing products like the *not a flamethrower*
+  #       description: | # this will include new lines to allow paragraphs
+  #           Every company needs its networks properly administered and The Boring Compay is no exception. Digging holes is hard and I play my part making sure the whole company stays connected. I lead a team of 5 people and enjoy driving the company to try new technologies.
 
   - title: Education # Title for the section
     layout: list # Type of content section (list/text)
     content:
       - layout: left
-        title: Harvard University
-        caption: 2010 - 2013
-        sub_title: BSc Computer Science
-        quote: >
-          Established in 1636, Harvard is the oldest higher education institution in the United States, and is widely regarded in terms of its influence, reputation, and academic pedigree as a leading university in not just the US but also the world.
+        title: 한신대학교
+        caption: 2019.02 - 
+        sub_title: 정보통신학부
         description: | # this will include new lines to allow paragraphs
-          During my time at Harvard I learnt most of my key skills that have I have taken through my career such as teamwork and working to tight deadlines. I thouroughly enjoyed my time as university and learnt a lot about a healthy work life balance.
+          재학중 (이수학기 : 4)
 
-          I spent a lot of my free time as a committee member of the *Harvard Mountaineering Club* taking on roles such as *Trip Secretary* and *Vice-President*.
+     - layout: left
+        title: 코리아IT아카데이아 웹개발 종합반
+        caption: 2022.08 - 2023.01
+        description: | # this will include new lines to allow paragraphs
+          Java, Html, Jsp, Spring을 통한 웹 개발과 개발 과정의 이해 <br/>
+          시스템적, 메모리적인 이해를 중점적으로 하고 있으며 언어의 깊은 이해를 목표로 하여 공부 중
 
   - title: A Little More About Me
     layout: text
