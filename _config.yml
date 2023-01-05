@@ -8,9 +8,6 @@ version: 2
 # Personal info
 name: 유희준
 title: 백엔드 엔지니어
-content: 
-  quote: >
-    제작 중.. 
 email: yhjyhj3855@gmail.com
 web: https://velog.io/@uheejoon
 
@@ -46,6 +43,11 @@ additional_links:
 # gtm: "GTM-0000000"
 # gtag: "UA-00000000-0"
 # google_analytics: "UA-00000000-0"
+
+content:
+  layout: text
+  content: |
+    현재 제작중입니다...
 
 # About Section
 about_title: About Me
