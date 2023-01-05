@@ -8,6 +8,9 @@ version: 2
 # Personal info
 name: 유희준
 title: 백엔드 엔지니어
+  content: 
+    quote: >
+      제작 중.. 
 email: yhjyhj3855@gmail.com
 web: https://velog.io/@uheejoon
 
@@ -74,7 +77,7 @@ content:
           #   icon: fab fa-github
           #   url: Link to project (eg. sproogen.github.io/modern-resume-theme)
         quote: >
-         사용 기술 : Python, Jinja2, HTML5/CSS3, JavaScript, MongoDB, Robo3T
+          사용 기술 : Python, Jinja2, HTML5/CSS3, JavaScript, MongoDB, Robo3T
         description: | # this will include new lines to allow paragraphs
           - 크롤링한 데이터를 바탕으로 해당 역 주변의 식당 리스트를 가져오고 별점과 리뷰를 남길 수 있으며 직접 쓴 리뷰를 수정, 제거할 수 있는 마이페이도 구현 또한 쿠키 세션기능을 활용해 로그아웃 기능을 구현
           - Domain과 AWS를 구매하여 실질적인 서비스가 가능하도록 배포
