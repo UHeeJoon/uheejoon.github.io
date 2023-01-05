@@ -190,7 +190,7 @@ content:
         description: | # this will include new lines to allow paragraphs
           재학중 (이수학기 : 4)
 
-     - layout: left
+      - layout: left
         title: 코리아IT아카데이아 웹개발 종합반
         caption: 2022.08 - 2023.01
         description: | # this will include new lines to allow paragraphs
