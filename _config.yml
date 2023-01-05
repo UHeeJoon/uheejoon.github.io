@@ -9,7 +9,7 @@ version: 2
 name: 유희준
 title: 백엔드 엔지니어
 email: yhjyhj3855@gmail.com
-web: https://velog.io/@uheejoon
+website: https://velog.io/@uheejoon
 
 # Dark Mode (true/false/never)
 darkmode: true
@@ -44,12 +44,6 @@ additional_links:
 # gtag: "UA-00000000-0"
 # google_analytics: "UA-00000000-0"
 
-content:
-  - title: 현재 문서 정보
-    layout: text
-    content: |
-      현재 제작중입니다...
-
 # About Section
 about_title: About Me
 about_profile_image: images/tmp_profile.jpg
@@ -65,6 +59,30 @@ about_content: |
   현재 저의 수준을 객관적으로 바라보면서 제게 부족한게 무엇인지 스스로 깨닫고 부족한 것을 메꾸기 위하여 배워 나가아가는 것에 집중하고 노력하고 있습니다.
 
 content:
+  - title: Skill
+  layout: list
+  content: 
+    - layout: left
+      title: Back-end
+      description: |
+      - JAVA, NodeJS, Spring Boot, Spring MVC, Spring Security, Python
+      - JPA, MyBatis, AWS
+      - Junit5
+      - Gradle, Maven
+      - IntelliJ, EClipse
+
+    - layout: left
+      title : Database
+      description: |
+        - MySql, Oracle, H2
+        - MongoDB, Robo3T
+
+    - layout: left
+      title : Front-end
+      description: |
+        - React.js, JavaScript(ECAM6), Typescript
+        - HTML5/CSS3
+
   - title: Projects # Title for the section
     layout: list # Type of content section (list/text)
     content:
@@ -176,7 +194,7 @@ content:
       - [Becoming a ninja](https://www.youtube.com/watch?v=vtg4o__aRMg)
 
       Look at this cool image  
-      ![Trees](/uheejoon.github.io/images/landscape-trees.jpg "Trees")
+      ![Trees](images/landscape-trees.jpg "Trees")
 
 # Footer
 footer_show_references: true
