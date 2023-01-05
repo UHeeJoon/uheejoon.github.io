@@ -93,7 +93,7 @@ content:
     layout: list # Type of content section (list/text)
     content:
       - layout: left
-        title: 2호선 뭐먹지 (팀 프로젝트)
+        title: 2호선 뭐먹지 <br/> (팀 프로젝트)
         # link: https://www.youtube.com/watch?v=2StcVXOVi8I
         # link_text: Project Website
         additional_links:
@@ -129,7 +129,7 @@ content:
           - Figma를 통해 만들 웹의 디자인을 제공받고 해당 Figma의 정보대로 만들기
 
       - layout: left
-        title: 인터넷 쇼핑몰 사이트 만들기 (개인 프로젝트)
+        title: 인터넷 쇼핑몰 사이트 만들기 <br/> (개인 프로젝트)
         # link: https://www.youtube.com/watch?v=2StcVXOVi8I
         # link_text: Project Website
         # additional_links:
@@ -148,7 +148,7 @@ content:
           - 카카오소셜 로그인 기능을 통해 회원가입과 카카오톡 소셜로그인 둘다 가능하게 함
 
       - layout: left
-        title: Flappy Bird (clone codding) (개인 프로젝트)
+        title: Flappy Bird <br/> (clone codding) <br/> (개인 프로젝트)
         # link: https://www.youtube.com/watch?v=2StcVXOVi8I
         # link_text: Project Website
         # additional_links:
