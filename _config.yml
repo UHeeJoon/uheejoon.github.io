@@ -60,28 +60,28 @@ about_content: |
 
 content:
   - title: Skill
-  layout: list
-  content: 
-    - layout: left
-      title: Back-end
-      description: |
-      - JAVA, NodeJS, Spring Boot, Spring MVC, Spring Security, Python
-      - JPA, MyBatis, AWS
-      - Junit5
-      - Gradle, Maven
-      - IntelliJ, EClipse
+    layout: list
+    content: 
+      - layout: left
+        title: Back-end
+        description: |
+        - JAVA, NodeJS, Spring Boot, Spring MVC, Spring Security, Python
+        - JPA, MyBatis, AWS
+        - Junit5
+        - Gradle, Maven
+        - IntelliJ, EClipse
 
-    - layout: left
-      title : Database
-      description: |
-        - MySql, Oracle, H2
-        - MongoDB, Robo3T
+      - layout: left
+        title : Database
+        description: |
+          - MySql, Oracle, H2
+          - MongoDB, Robo3T
 
-    - layout: left
-      title : Front-end
-      description: |
-        - React.js, JavaScript(ECAM6), Typescript
-        - HTML5/CSS3
+      - layout: left
+        title : Front-end
+        description: |
+          - React.js, JavaScript(ECAM6), Typescript
+          - HTML5/CSS3
 
   - title: Projects # Title for the section
     layout: list # Type of content section (list/text)
