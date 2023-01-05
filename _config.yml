@@ -65,7 +65,7 @@ content:
       - layout: left
         title: Back-end
         description: |
-          - JAVA, NodeJS, Spring Boot, Spring MVC, Spring Security, Python
+          - JAVA, Node.js, Spring Boot, Spring MVC, Spring Security, Python
           - JPA, MyBatis, AWS
           - Junit5
           - Gradle, Maven
@@ -80,13 +80,19 @@ content:
       - layout: left
         title : Front-end
         description: |
-          - React.js, JavaScript(ECAM6), Typescript
+          - React.js, JavaScript, Typescript
           - HTML5/CSS3
+      - layout: left
+        title : Etc
+        description: |
+          - Jsp, Tymeleaf, jinja2
+          - git/github, Vim, Unix
+          - C#, VS C/C++ (MFC), Unity
 
   - title: Projects # Title for the section
     layout: list # Type of content section (list/text)
     content:
-      - layout: top-middle
+      - layout: left
         title: 2호선 뭐먹지 (팀 프로젝트)
         # link: https://www.youtube.com/watch?v=2StcVXOVi8I
         # link_text: Project Website
@@ -97,7 +103,7 @@ content:
           # - title:  Github page for project (eg. sproogen/modern-resume-theme)
           #   icon: fab fa-github
           #   url: Link to project (eg. sproogen.github.io/modern-resume-theme)
-        quote: >
+        sub_title: |
           사용 기술 : Python, Jinja2, HTML5/CSS3, JavaScript, MongoDB, Robo3T
         description: | # this will include new lines to allow paragraphs
           - 크롤링한 데이터를 바탕으로 해당 역 주변의 식당 리스트를 가져오고 별점과 리뷰를 남길 수 있으며 직접 쓴 리뷰를 수정, 제거할 수 있는 마이페이도 구현 또한 쿠키 세션기능을 활용해 로그아웃 기능을 구현
