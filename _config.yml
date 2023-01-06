@@ -203,8 +203,8 @@ content:
         caption: 2022.07
         description: | # this will include new lines to allow paragraphs
           수업시간때 배운것을 토대로 정리하며 RDBMS에대해 알게 됨
-        link: https://uheejoon.notion.site/DBMS-bd5e6d9d137b4dae98ef000d52bdae0a
-        link_text: RDBMS(개인노션 \#공부중)
+          link: https://uheejoon.notion.site/DBMS-bd5e6d9d137b4dae98ef000d52bdae0a
+          link_text: RDBMS(개인노션 #공부중)
 
 
       - layout: left
