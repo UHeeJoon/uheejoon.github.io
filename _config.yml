@@ -197,6 +197,24 @@ content:
           Java, Html, Jsp, Spring을 통한 웹 개발과 개발 과정의 이해 <br/>
           시스템적, 메모리적인 이해를 중점적으로 하고 있으며 언어의 깊은 이해를 목표로 하여 공부 중
 
+
+      - layout: left
+        title: 코리아IT아카데이아 SQLD 자격증반
+        caption: 2022.07
+        description: | # this will include new lines to allow paragraphs
+          수업시간때 배운것을 토대로 정리하며 RDBMS에대해 알게 됨
+        link: https://uheejoon.notion.site/DBMS-bd5e6d9d137b4dae98ef000d52bdae0a
+        link_text: RDBMS(개인노션 \#공부중)
+
+
+      - layout: left
+        title: 항해99
+        caption: 2021.10 - 2021.11
+        description: | # this will include new lines to allow paragraphs
+          자바와 스프링, 웹 서버, 크롤링, API, Spring MVC패턴, git/git hub등 개발자의 기본기들에 대해 배우게 되었고 <br/>
+          어떤식으로 공부를 해야하고 내가 개발자로써 성장하기 위해 무엇을 해야하는지를 배우게된 그 무엇보다 값졌던 1달간의 짧은 여정
+        
+
   - title: A Little More About Me
     layout: text
     content: | # this will include new lines to allow paragraphs
