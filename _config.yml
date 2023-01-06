@@ -31,7 +31,7 @@ instagram_username: u.heejoon
 
 # Additional icon links
 additional_links:
-- title: itsgoingto.be
+- title: 기술 블로그
   icon: fas fa-globe
   url: https://velog.io/@uheejoon
 # - title: another link
@@ -93,11 +93,11 @@ content:
     layout: list # Type of content section (list/text)
     content:
       - layout: left
-        title: 2호선 뭐먹지 <br/> (팀 프로젝트)
+        title: 2호선 뭐먹지? <br/> (팀 프로젝트)
         # link: https://www.youtube.com/watch?v=2StcVXOVi8I
         # link_text: Project Website
         additional_links:
-          - title:  2호선 뭐먹지 (유튜브)
+          - title:  2호선 뭐먹지? (유튜브)
             icon: fab fa-youtube
             url: https://www.youtube.com/watch?v=2StcVXOVi8I
           # - title:  Github page for project (eg. sproogen/modern-resume-theme)
@@ -107,7 +107,7 @@ content:
           사용 기술 : <br/>
           Python, Jinja2, HTML5/CSS3, JavaScript, MongoDB, Robo3T
         description: | # this will include new lines to allow paragraphs
-          - 크롤링한 데이터를 바탕으로 해당 역 주변의 식당 리스트를 가져오고 별점과 리뷰를 남길 수 있으며 직접 쓴 리뷰를 수정, 제거할 수 있는 마이페이도 구현 또한 쿠키 세션기능을 활용해 로그아웃 기능을 구현
+          - 크롤링한 데이터를 바탕으로 해당 역 주변의 식당 리스트를 가져오고 별점과 리뷰를 남길 수 있으며 직접 쓴 리뷰를 수정, 제거할 수 있는 마이페이지도 구현 또한 쿠키 세션기능을 활용해 로그아웃 기능을 구현
           - Domain과 AWS를 구매하여 실질적인 서비스가 가능하도록 배포
           - 이 프로젝트에서 전반적인 서비스 구현(크롤링 / 데이터 저장, 조회, 수정, 삭제/ 별점 남기기/ 페이지 렌더링)을 담당
 
@@ -186,23 +186,22 @@ content:
       - layout: left
         title: 한신대학교
         caption: 2019.02 - 
-        sub_title: 정보통신학부
         description: | # this will include new lines to allow paragraphs
-          재학중 (이수학기 : 4)
+          정보통신학부 재학중 (이수학기 : 4)
 
       - layout: left
         title: 코리아IT아카데이아 웹개발 종합반
         caption: 2022.08 - 2023.01
         description: | # this will include new lines to allow paragraphs
           Java, Html, Jsp, Spring을 통한 웹 개발과 개발 과정의 이해 <br/>
-          시스템적, 메모리적인 이해를 중점적으로 하고 있으며 언어의 깊은 이해를 목표로 하여 공부 중
+          시스템적, 메모리적인 이해를 중점적으로 하고 있으며 언어의 깊은 이해를 목표로 하여 공부 함
 
 
       - layout: left
         title: 코리아IT아카데이아 SQLD 자격증반
         caption: 2022.07
         description: | # this will include new lines to allow paragraphs
-          <a src="https://uheejoon.notion.site/DBMS-bd5e6d9d137b4dae98ef000d52bdae0a">RDBMS(개인노션 #공부중)</a><br/>
+          [RDBMS(개인노션 #공부중)](https://uheejoon.notion.site/DBMS-bd5e6d9d137b4dae98ef000d52bdae0a)
           수업시간때 배운것을 토대로 정리하며 RDBMS에대해 알게 됨
 
 
@@ -217,14 +216,14 @@ content:
   - title: A Little More About Me
     layout: text
     content: | # this will include new lines to allow paragraphs
-      Alongside my interests in networks and software engineering some of my other interests and hobbies are:
-      - Rock climbing
-      - Gaming
-      - Knitting
-      - [Becoming a ninja](https://www.youtube.com/watch?v=vtg4o__aRMg)
 
-      Look at this cool image  
-      ![Trees](images/landscape-trees.jpg "Trees")
+  # Alongside my interests in networks and software engineering some of my other interests and hobbies are:
+  # - Rock climbing
+  # - Gaming
+  # - Knitting
+  # - [Becoming a ninja](https://www.youtube.com/watch?v=vtg4o__aRMg 
+  # Look at this cool image  
+  # ![Trees](images/landscape-trees.jpg "Trees")
 
 # Footer
 footer_show_references: true
