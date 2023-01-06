@@ -130,15 +130,6 @@ content:
 
       - layout: left
         title: 인터넷 쇼핑몰 사이트 만들기 <br/> (개인 프로젝트)
-        # link: https://www.youtube.com/watch?v=2StcVXOVi8I
-        # link_text: Project Website
-        # additional_links:
-        #   - title:  
-        #     icon: fab fa-youtube
-        #     url: 
-          # - title:  Github page for project (eg. sproogen/modern-resume-theme)
-          #   icon: fab fa-github
-          #   url: Link to project (eg. sproogen.github.io/modern-resume-theme)
         sub_title: |
           사용 기술 : <br/>
           HTML5/CSS3, JavaScript, tymeleaf, Spring, Spring Security, JPA, H2
@@ -149,15 +140,6 @@ content:
 
       - layout: left
         title: Flappy Bird <br/> (clone codding) <br/> (개인 프로젝트)
-        # link: https://www.youtube.com/watch?v=2StcVXOVi8I
-        # link_text: Project Website
-        # additional_links:
-        #   - title:  
-        #     icon: fab fa-youtube
-        #     url: 
-          # - title:  Github page for project (eg. sproogen/modern-resume-theme)
-          #   icon: fab fa-github
-          #   url: Link to project (eg. sproogen.github.io/modern-resume-theme)
         sub_title: |
           사용 기술 : <br/>
           Unity, C#
@@ -201,7 +183,7 @@ content:
         title: 코리아IT아카데이아 SQLD 자격증반
         caption: 2022.07
         description: | # this will include new lines to allow paragraphs
-          [RDBMS(개인노션 #공부중)](https://uheejoon.notion.site/DBMS-bd5e6d9d137b4dae98ef000d52bdae0a)
+          [RDBMS(개인노션 #공부중)](https://uheejoon.notion.site/DBMS-bd5e6d9d137b4dae98ef000d52bdae0a) <br/>
           수업시간때 배운것을 토대로 정리하며 RDBMS에대해 알게 됨
 
 
