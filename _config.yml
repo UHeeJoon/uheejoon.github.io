@@ -193,7 +193,7 @@ content:
         description: | # this will include new lines to allow paragraphs
           자바와 스프링, 웹 서버, 크롤링, API, Spring MVC패턴, git/git hub등 개발자의 기본기들에 대해 배우게 되었고 <br/>
           어떤식으로 공부를 해야하고 내가 개발자로써 성장하기 위해 무엇을 해야하는지를 배우게된 그 무엇보다 값졌던 1달간의 짧은 여정
-        
+          
 
   - title: A Little More About Me
     layout: text
