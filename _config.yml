@@ -112,6 +112,14 @@ content:
           - 이 프로젝트에서 전반적인 서비스 구현(크롤링 / 데이터 저장, 조회, 수정, 삭제/ 별점 남기기/ 페이지 렌더링)을 담당
 
       - layout: left
+        title: BodeumMe <br/> (팀 프로젝트)
+        sub_title: |
+          사용 기술 : <br/>
+          Spring boot, Oracle, Mybatis, Thymeleaf, JavaScript, Junit5, Gradle
+        description: | # this will include new lines to allow paragraphs
+          - 프로젝트 후 수정 중...
+
+      - layout: left
         title: 싸이월드 만들기 <br/> (개인 프로젝트)
         # link: https://www.youtube.com/watch?v=2StcVXOVi8I
         # link_text: Project Website
@@ -145,6 +153,8 @@ content:
           Unity, C#
         description: | # this will include new lines to allow paragraphs
           - 유튜브와 구글링을 통한 Flappy Bird라는 유니티 기반 모바일 게임 클론 코딩
+
+
 
 
 
