@@ -7,7 +7,7 @@ version: 2
 
 # Personal info
 name: 유희준
-title: 백엔드 엔지니어
+title: 백엔드 공부중입니다
 email: yhjyhj3855@gmail.com
 website: https://velog.io/@uheejoon
 
@@ -50,10 +50,10 @@ about_profile_image: images/tmp_profile.jpg
 about_content: | 
   웹 서비스 백엔드 개발자를 목표로 하여 Spring을 공부중인 학생입니다.
   현재 가장 관심이 깊은 언어는 <mark>Java</mark>이며 Java를 활용한 서비스 개발을 희망하고 있습니다.
-  지금까지 해본 개발 경험들 중에서는 백엔드에서 서비스를 구현하는 것에 가장 큰 재미를 느껴 지금 공부를 하는 것이 너무 즐겁습니다.
+  지금까지 해본 개발 경험들 중에서는 백엔드 서비스를 구현하는 것에 가장 큰 재미를 느껴 주도적으로 공부를 해 나아가고 있습니다.
 
   평소에 취미로 백준이나 프로그래머스에서 코딩테스트 문제들을 매일매일 풀고 있으며 이를 토대로 백준 문제풀이 블로그를 운영하고 있습니다. 
-  학교에서 하는 공부가 부족하다고 느껴 현재 방과 후에 월 ~ 금 7시부터 10시까지 하는 학원을 꾸준히 다닐 정도로 배움에 대한 <mark>의욕이 강합</mark>니다.
+  학교에서 하는 공부가 부족하다고 느껴 방과 후에 월 ~ 금 7시부터 10시까지 하는 학원을 꾸준히 다닐 정도로 배움에 대한 <mark>의욕이 강합</mark>니다.
 
   무언가를 해 나아가는 것에 있어서 <mark>배우려는 의지</mark>가 가장 중요하다고 생각합니다. 
   현재 저의 수준을 객관적으로 바라보면서 제게 부족한게 무엇인지 스스로 깨닫고 부족한 것을 메꾸기 위하여 배워 나가아가는 것에 집중하고 노력하고 있습니다.
@@ -115,9 +115,12 @@ content:
         title: BodeumMe <br/> (팀 프로젝트)
         sub_title: |
           사용 기술 : <br/>
-          Spring boot, Oracle, Mybatis, Thymeleaf, JavaScript, Junit5, Gradle
+          Spring boot, Oracle, Mybatis, Thymeleaf, HTML5/CSS3, JavaScript, Junit5, Gradle
         description: | # this will include new lines to allow paragraphs
           - 프로젝트 후 수정 중...
+          - 포스팅 기능을 맡아서 개발 (포스트 정렬 및 조회, 세부사항 확인)
+          - UML 다이어그램 작성, 순서도 작성과 같은 설계단계부터 프로젝트를 진행
+          - UI는 크몽이라는 사이트를 클론 코딩해서 사용
 
       - layout: left
         title: 싸이월드 만들기 <br/> (개인 프로젝트)
@@ -175,26 +178,26 @@ content:
   - title: Education # Title for the section
     layout: list # Type of content section (list/text)
     content:
-      - layout: left
-        title: 한신대학교
-        caption: 2019.02 - 
-        description: | # this will include new lines to allow paragraphs
-          정보통신학부 재학중 (이수학기 : 4)
+      # - layout: left
+      #   title: 한신대학교
+      #   caption: 2019.02 - 
+      #   description: | # this will include new lines to allow paragraphs
+      #     정보통신학부 재학중 (이수학기 : 4)
 
       - layout: left
         title: 코리아IT아카데이아 웹개발 종합반
         caption: 2022.08 - 2023.01
         description: | # this will include new lines to allow paragraphs
           Java, Html, Jsp, Spring을 통한 웹 개발과 개발 과정의 이해 <br/>
-          시스템적, 메모리적인 이해를 중점적으로 하고 있으며 언어의 깊은 이해를 목표로 하여 공부 함
-
+          Java, Jsp, Spring, Spring Boot 순으로 배워 나아가면서 기술 스택이 성장하게 됨 <br/>
+          
 
       - layout: left
         title: 코리아IT아카데이아 SQLD 자격증반
         caption: 2022.07
         description: | # this will include new lines to allow paragraphs
           [RDBMS(개인노션 #공부중)](https://uheejoon.notion.site/DBMS-bd5e6d9d137b4dae98ef000d52bdae0a) <br/>
-          수업시간때 배운것을 토대로 정리하며 RDBMS에대해 알게 됨
+          수업시간 때 배운것을 토대로 정리하며 RDBMS에대해 알게 됨
 
 
       - layout: left
@@ -205,9 +208,9 @@ content:
           어떤식으로 공부를 해야하고 내가 개발자로써 성장하기 위해 무엇을 해야하는지를 배우게된 그 무엇보다 값졌던 1달간의 짧은 여정
           
 
-  - title: A Little More About Me
-    layout: text
-    content: | # this will include new lines to allow paragraphs
+  # - title: A Little More About Me
+  #   layout: text
+  #   content: | # this will include new lines to allow paragraphs
 
   # Alongside my interests in networks and software engineering some of my other interests and hobbies are:
   # - Rock climbing
