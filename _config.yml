@@ -107,7 +107,7 @@ content:
           사용 기술 : <br/>
           Python, Jinja2, HTML5/CSS3, JavaScript, MongoDB, Robo3T, AWS
         description: | # this will include new lines to allow paragraphs
-          - Python의 beautifulsoup을 사용항 크롤링한 데이터를 바탕으로 해당 역 주변의 식당 리스트를 가져오고 별점과 리뷰를 남길 수 있으며 직접 쓴 리뷰를 수정, 제거할 수 있는 마이페이지도 구현 또한 쿠키 세션기능을 활용해 로그아웃 기능을 구현
+          - Python의 beautifulsoup을 사용해 크롤링한 데이터를 바탕으로 해당 역 주변의 식당 리스트를 가져오고 별점과 리뷰를 남길 수 있으며 직접 쓴 리뷰를 수정, 제거할 수 있는 마이페이지도 구현 또한 쿠키 세션기능을 활용해 로그아웃 기능을 구현
           - Domain과 AWS를 구매하여 실질적인 서비스가 가능하도록 배포
           - 이 프로젝트에서 전반적인 서비스 구현(크롤링 / 데이터 저장, 조회, 수정, 삭제/ 별점 남기기/ 페이지 렌더링)을 담당
 
@@ -185,7 +185,7 @@ content:
       #     정보통신학부 재학중 (이수학기 : 4)
 
       - layout: left
-        title: 코리아IT아카데이아 웹개발 종합반
+        title: 코리아IT아카데미아 웹개발 종합반
         caption: 2022.08 - 2023.01
         description: | # this will include new lines to allow paragraphs
           Java, Html, Jsp, Spring을 통한 웹 개발과 개발 과정의 이해 <br/>
@@ -193,7 +193,7 @@ content:
 
 
       - layout: left
-        title: 코리아IT아카데이아 SQLD 자격증반
+        title: 코리아IT아카데미아 SQLD 자격증반
         caption: 2022.07
         description: | # this will include new lines to allow paragraphs
           [RDBMS(개인노션 #공부중)](https://uheejoon.notion.site/DBMS-bd5e6d9d137b4dae98ef000d52bdae0a) <br/>
