@@ -49,7 +49,7 @@ about_title: About Me
 about_profile_image: images/tmp_profile.jpg
 about_content: | 
   웹 서비스 백엔드 개발자를 목표로 하여 Spring을 공부중인 학생입니다.
-  현재 가장 관심이 깊은 언어는 <mark>Java</mark>이며 Java를 활용한 서비스 개발을 희망하고 있습니다.
+  가장 관심이 깊은 언어는 <mark>Java</mark>이며 Java를 활용한 서비스 개발을 희망하고 있습니다.
   지금까지 해본 개발 경험들 중에서는 백엔드 서비스를 구현하는 것에 가장 큰 재미를 느껴 주도적으로 공부를 해 나아가고 있습니다.
 
   평소에 취미로 [백준](https://www.acmicpc.net/user/dbgmlwns)이나 프로그래머스에서 코딩테스트 문제들을 매일매일 풀고 있으며 이를 토대로 백준 문제풀이 블로그를 운영하고 있습니다. 
@@ -65,8 +65,8 @@ content:
       - layout: left
         title: Back-end
         description: |
-          - JAVA, Node.js, Spring Boot, Spring MVC, Spring Security, Python
-          - JPA, MyBatis, AWS
+          - JAVA, MyBatis, Spring Boot, Spring MVC, Python
+          - JPA, AWS, Node.js, Spring Security
           - Junit5
           - Gradle, Maven
           - IntelliJ, EClipse
@@ -74,14 +74,14 @@ content:
       - layout: left
         title : Database
         description: |
-          - MySql, Oracle, H2
+          - Oracle, MySql, H2
           - MongoDB, Robo3T
 
       - layout: left
         title : Front-end
         description: |
-          - React.js, JavaScript, Typescript
-          - HTML5/CSS3
+          - JavaScript, React.js
+          - HTML5/CSS3, Typescript
       - layout: left
         title : Etc
         description: |
@@ -92,6 +92,17 @@ content:
   - title: Projects # Title for the section
     layout: list # Type of content section (list/text)
     content:
+      - layout: left
+        title: BodeumMe <br/> (팀 프로젝트)
+        sub_title: |
+          사용 기술 : <br/>
+          Spring boot, Oracle, Mybatis, Thymeleaf, HTML5/CSS3, JavaScript, Junit5, Gradle
+        description: | # this will include new lines to allow paragraphs
+          - 프로젝트 후 수정 중...
+          - 포스팅 기능을 맡아서 개발 (포스트 정렬 및 조회, 세부사항 확인)
+          - UML 다이어그램 작성, 순서도 작성과 같은 설계단계부터 프로젝트를 진행
+          - UI는 크몽이라는 사이트를 클론 코딩해서 사용
+          
       - layout: left
         title: 2호선 뭐먹지? <br/> (팀 프로젝트)
         # link: https://www.youtube.com/watch?v=2StcVXOVi8I
@@ -111,16 +122,6 @@ content:
           - Domain과 AWS를 구매하여 실질적인 서비스가 가능하도록 배포
           - 이 프로젝트에서 전반적인 서비스 구현(크롤링 / 데이터 저장, 조회, 수정, 삭제/ 별점 남기기/ 페이지 렌더링)을 담당
 
-      - layout: left
-        title: BodeumMe <br/> (팀 프로젝트)
-        sub_title: |
-          사용 기술 : <br/>
-          Spring boot, Oracle, Mybatis, Thymeleaf, HTML5/CSS3, JavaScript, Junit5, Gradle
-        description: | # this will include new lines to allow paragraphs
-          - 프로젝트 후 수정 중...
-          - 포스팅 기능을 맡아서 개발 (포스트 정렬 및 조회, 세부사항 확인)
-          - UML 다이어그램 작성, 순서도 작성과 같은 설계단계부터 프로젝트를 진행
-          - UI는 크몽이라는 사이트를 클론 코딩해서 사용
 
       - layout: left
         title: 싸이월드 만들기 <br/> (개인 프로젝트)
