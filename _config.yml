@@ -65,29 +65,35 @@ content:
       - layout: left
         title: Back-end
         description: |
-          - JAVA, MyBatis, Spring Boot, Spring MVC, Python
-          - JPA, AWS, Node.js, Spring Security
-          - Junit5
+          - Java, MyBatis, Spring Boot, Spring MVC, 
+          - JPA, Querydsl, Hibernate, Spring Security, Spring Data JPA/Redis
+          - Kotlin, JWT, Swagger, Spring Batch, Spring Webflux
+          - Python, Node.js(Expess.js)
+          - Junit5, Mockito, Jest
           - Gradle, Maven
-          - IntelliJ, EClipse
+          - IntelliJ, EClipse, Pycharm
 
       - layout: left
-        title : Database
+        title : DevOps
         description: |
-          - Oracle, MySql, H2
-          - MongoDB, Robo3T
+          - Oracle, MySQL, H2, MongoDB, Redis, PostgreSQL
+          - AWS API Gateway, AWS Cloud Watch, AWS RDS, AWS S3, AWS EC2
+          - Jenkins, Apache, nginx, Tomcat
+          - Docker, Apache Kafka, RabbitMQ, Terraform
+          - Istio 
 
       - layout: left
         title : Front-end
         description: |
-          - JavaScript, React.js
-          - HTML5/CSS3, Typescript
+          - JavaScript, HTML5/CSS3, React.js
+          - Graphql, Apollo Graphql, ReactiveX, Redux, Axios
+          - Typescript, Next.js, Npm, Webpack, Vercel
+          - WebStorm
       - layout: left
         title : Etc
         description: |
-          - Jsp, Tymeleaf, jinja2
-          - git/github, Vim, Unix
-          - C#, VS C/C++ (MFC), Unity
+          - React-Native(Expo), Grafana, Prometheus
+          - git/github, GitHub Actions, Postman, Vim, Unix
 
   - title: Projects # Title for the section
     layout: list # Type of content section (list/text)
@@ -190,7 +196,7 @@ content:
         caption: 2022.08 - 2023.01
         description: | # this will include new lines to allow paragraphs
           Java, Html, Jsp, Spring을 통한 웹 개발과 개발 과정의 이해 <br/>
-          Java, Jsp, Spring, Spring Boot 순으로 배워 나아가면서 기술 스택이 성장하게 됨 <br/>
+          Java, Spring, Spring Boot 순으로 배워 나아가면서 기술 스택이 성장하게 됨 <br/>
 
 
       - layout: left
