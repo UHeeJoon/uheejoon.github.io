@@ -9,7 +9,7 @@ version: 2
 name: 유희준
 title: 백엔드 개발자
 email: yhjyhj3855@gmail.com
-website: https://velog.io/@uheejoon
+website: https://codding-til-theory.tistory.com
 
 # Dark Mode (true/false/never)
 darkmode: true
@@ -22,7 +22,7 @@ github_username:  UHeeJoon
 # facebook_username: jekyll
 # flickr_username: jekyll
 instagram_username: u.heejoon
-# linkedin_username: jameswgrant
+linkedin_username: 유희준
 # xing_username: jekyll
 # pinterest_username: jekyll
 # youtube_username: globalmtb
@@ -34,15 +34,6 @@ additional_links:
 - title: 기술 블로그
   icon: fas fa-globe
   url: https://velog.io/@uheejoon
-# - title: another link
-#   icon: font awesome brand icon name (eg. fab fa-twitter) (https://fontawesome.com/icons?d=gallery&m=free)
-#   url: Link url (eg. https://google.com)
-
-# Google Analytics and Tag Manager
-# Using more than one of these may cause issues with reporting
-# gtm: "GTM-0000000"
-# gtag: "UA-00000000-0"
-# google_analytics: "UA-00000000-0"
 
 # About Section
 about_title: About Me
@@ -59,44 +50,45 @@ about_content: |
   현재 저의 수준을 객관적으로 바라보면서 제게 부족한게 무엇인지 스스로 깨닫고 부족한 것을 메꾸기 위하여 배워 나가아가는 것에 집중하고 노력하고 있습니다.
 
 content:
-  - title: Skill
+  - title: 경력
+    layout: list # Type of content section (list/text)
+    content:
+      - layout: left
+        title: 모빌씨앤씨 인턴
+        sub_title: 2024.08 ~ 2025.02
+        description: |
+          - 인턴 연수
+          - 사내 프로젝트 개발
+
+  - title: 기술
     layout: list
     content: 
       - layout: left
         title: Back-end
         description: |
-          - Java, MyBatis, Spring Boot, Spring MVC, 
-          - JPA, Querydsl, Hibernate, Spring Security, Spring Data JPA/Redis
-          - Kotlin, JWT, Swagger, Spring Batch, Spring Webflux
-          - Python, Node.js(Expess.js)
-          - Junit5, Mockito, Jest
-          - Gradle, Maven
-          - IntelliJ, EClipse, Pycharm
+          - Spring MVC, Spring Boot, MyBatis, JPA
+          - Spring Cloud, Resilience4j, gRPC
+          - Spring Webflux
 
       - layout: left
         title : DevOps
         description: |
-          - Oracle, MySQL, H2, MongoDB, Redis, PostgreSQL
-          - AWS API Gateway, AWS Cloud Watch, AWS RDS, AWS S3, AWS EC2
-          - Jenkins, Apache, nginx, Tomcat
-          - Docker, Apache Kafka, RabbitMQ, Terraform
-          - Istio 
+          - RDB, MongoDB, Redis
+          - AWS ECS, Terraform
+          - Docker, Message Queue
 
       - layout: left
         title : Front-end
         description: |
-          - JavaScript, HTML5/CSS3, React.js
-          - Graphql, Apollo Graphql, ReactiveX, Redux, Axios
-          - Typescript, Next.js, Npm, Webpack, Vercel
-          - WebStorm
+          - Next.js, Typescript
       - layout: left
         title : Etc
         description: |
-          - React-Native(Expo), Grafana, Prometheus
-          - git/github, GitHub Actions, Postman, Vim, Unix
+          - Golang, Rust, NestJS
+          - git/github
 
-  - title: Projects # Title for the section
-    layout: list # Type of content section (list/text)
+  - title: 프로젝트
+    layout: list
     content:
       - layout: left
         title: BodeumMe <br/> (팀 프로젝트)
@@ -129,67 +121,14 @@ content:
           - 이 프로젝트에서 전반적인 서비스 구현(크롤링 / 데이터 저장, 조회, 수정, 삭제/ 별점 남기기/ 페이지 렌더링)을 담당
 
 
-      - layout: left
-        title: 싸이월드 만들기 <br/> (개인 프로젝트)
-        # link: https://www.youtube.com/watch?v=2StcVXOVi8I
-        # link_text: Project Website
-        # additional_links:
-        #   - title:  
-        #     icon: fab fa-youtube
-        #     url: 
-          # - title:  Github page for project (eg. sproogen/modern-resume-theme)
-          #   icon: fab fa-github
-          #   url: Link to project (eg. sproogen.github.io/modern-resume-theme)
-        sub_title: |
-          사용 기술 : <br/>
-          HTML5/CSS3, JavaScript
-        description: | # this will include new lines to allow paragraphs
-          - Figma를 통해 만들 웹의 디자인을 제공받고 해당 Figma의 정보대로 만들기
-
-      - layout: left
-        title: 인터넷 쇼핑몰 사이트 만들기 <br/> (개인 프로젝트)
-        sub_title: |
-          사용 기술 : <br/>
-          HTML5/CSS3, JavaScript, tymeleaf, Spring, Spring Security, JPA, H2
-        description: | # this will include new lines to allow paragraphs
-          - 가상의 인터넷 쇼핑몰 사이트를 상상해서 사장, 사용자, 관리자 페이지를 Spring Security를 사용해서 분할
-          - 네이버로부터 api제공 받아서 네이버 쇼핑의 검색 결과를 가져와서 보여주는 방식을 사용
-          - 카카오소셜 로그인 기능을 통해 회원가입과 카카오톡 소셜로그인 둘다 가능하게 함
-
-      - layout: left
-        title: Flappy Bird <br/> (clone codding) <br/> (개인 프로젝트)
-        sub_title: |
-          사용 기술 : <br/>
-          Unity, C#
-        description: | # this will include new lines to allow paragraphs
-          - 유튜브와 구글링을 통한 Flappy Bird라는 유니티 기반 모바일 게임 클론 코딩
-
-
-
-
-
-  # - title: Experience # Title for the section
-  #   layout: list # Type of content section (list/text)
-  #   content:
-  #     - layout: left
-  #       title: The Boring Company
-  #       link: boringcompany.com
-  #       # link_text: boringcompany.com
-  #       sub_title: Senior Network System Administrator
-  #       caption: November 2017 - Present
-  #       quote: >
-  #         Solving 21st century problems by diging holes and making game changing products like the *not a flamethrower*
-  #       description: | # this will include new lines to allow paragraphs
-  #           Every company needs its networks properly administered and The Boring Compay is no exception. Digging holes is hard and I play my part making sure the whole company stays connected. I lead a team of 5 people and enjoy driving the company to try new technologies.
-
   - title: Education # Title for the section
     layout: list # Type of content section (list/text)
     content:
-      # - layout: left
-      #   title: 한신대학교
-      #   caption: 2019.02 - 
-      #   description: | # this will include new lines to allow paragraphs
-      #     정보통신학부 재학중 (이수학기 : 4)
+      - layout: left
+        title: 한신대학교
+        caption: 2019.03 - 2025.02
+        description: | # this will include new lines to allow paragraphs
+          정보통신학부 졸업 예정
 
       - layout: left
         title: 코리아IT아카데미아 웹개발 종합반
@@ -214,19 +153,6 @@ content:
           자바와 스프링, 웹 서버, 크롤링, API, Spring MVC패턴, git/git hub등 개발자의 기본기들에 대해 배우게 되었고 <br/>
           어떤식으로 공부를 해야하고 내가 개발자로써 성장하기 위해 무엇을 해야하는지를 배우게된 그 무엇보다 값졌던 1달간의 짧은 여정
           
-
-  # - title: A Little More About Me
-  #   layout: text
-  #   content: | # this will include new lines to allow paragraphs
-
-  # Alongside my interests in networks and software engineering some of my other interests and hobbies are:
-  # - Rock climbing
-  # - Gaming
-  # - Knitting
-  # - [Becoming a ninja](https://www.youtube.com/watch?v=vtg4o__aRMg 
-  # Look at this cool image  
-  # ![Trees](images/landscape-trees.jpg "Trees")
-
 # Footer
 footer_show_references: true
 # references_title: References on request (Override references text)
