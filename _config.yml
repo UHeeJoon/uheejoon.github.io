@@ -1,5 +1,5 @@
 # Site
-repository: sproogen/resume-theme
+repository: UHeeJoon/uheejoon.github.io
 favicon: images/favicon.ico
 
 # Content configuration version
@@ -9,8 +9,7 @@ version: 2
 name: 유희준
 title: 백엔드 개발자
 email: yhjyhj3855@gmail.com
-blog: | 
-  [기술 블로그](https://codding-til-theory.tistory.com)
+blog: https://codding-til-theory.tistory.com
 
 darkmode: true
 
@@ -29,7 +28,7 @@ about_content: |
   그중에서도 백엔드 서비스 설계 및 구현이 가장 흥미로웠고, 이를 더 잘하기 위해 주도적으로 학습을 이어가고 있습니다. 
   특히, 데이터베이스 설계, API 개발, 서버 운영 등의 영역에 관심이 많으며, 비즈니스 로직을 최적화하고 확장 가능한 서비스를 구축하는 데 집중하고 있습니다.
 
-  <h3>끊임없는 학습과 성장</h3>
+  <mark>끊임없는 학습과 성장</mark>
 
   저는 문제를 해결하는 과정에서 배우는 즐거움을 무엇보다 중요하게 생각합니다. 
   이를 위해 [백준](https://www.acmicpc.net/user/dbgmlwns)및및 프로그래머스에서에서 알고리즘 문제를 꾸준히 풀며, 문제 해결력을 기르고 있습니다.
@@ -38,7 +37,7 @@ about_content: |
   학교에서 배우는 내용만으로는 부족함을 느껴 방과 후에 방과 후 월요일부터 금요일까지 매일 4시간씩 학원을 다니며 추가적으로 학습을 이어갔습니다. 
   학원에서는 Java, Spring, 데이터베이스 설계 등 실무와 밀접한 기술을 집중적으로 학습하며, 이를 개인 프로젝트나 팀 프로젝트에 적극적으로 적용 했습니다.
 
-  <h3>개발자로서의 철학과 태도</h3>
+  <mark>개발자로서의 철학과 태도</mark>
 
   개발자로서 가장 중요한 덕목은 끊임없이 배우려는 태도와 문제를 해결하는 집요함이라고 생각합니다. 
   기술은 빠르게 변화하며, 한 가지 기술만 익히는 것으로는 좋은 개발자가 될 수 없습니다. 
@@ -47,8 +46,8 @@ about_content: |
   현재 저의 수준을 객관적으로 바라보면서 부족한 점을 스스로 인식하고, 이를 보완하기 위해 지속적으로 노력하는 것을 가장 중요하게 생각합니다. 
   단순히 많은 기술을 나열하는 것이 아니라, 각 기술이 어떤 문제를 해결하기 위해 존재하는지 이해하고, 실무에서 효과적으로 적용할 수 있도록 깊이 있게 학습하는 것을 목표로 하고 있습니다.
 
-  <h3>개발자로서의 철학과 태도</h3>
-  
+  <mark>개발자로서의 철학과 태도</mark>
+
   앞으로는 더욱 견고한 백엔드 시스템을 설계하고, 대규모 트래픽을 효율적으로 처리할 수 있는 아키텍처에 대해 연구하고 싶습니다. 
   특히 도메인 주도 설계(DDD)와 MSA(Microservices Architecture)에 대한 이해도를 높이고, 대용량 데이터를 효과적으로 처리할 수 있는 기술 스택을 익히는 것이 목표입니다. 
   또한, CI/CD 및 클라우드 환경(AWS, Docker, Kubernetes 등)에 대한 실무 경험을 쌓아 백엔드 개발뿐만 아니라 서버 운영 및 배포까지 아우를 수 있는 개발자로 성장하고 싶습니다.
@@ -58,8 +57,8 @@ content:
     layout: list # Type of content section (list/text)
     content:
       - layout: left
-        title: 모빌씨앤씨 인턴 (재직 중)
-        sub_title: 2024.08 ~ 2025.02
+        title: 모빌씨앤씨 인턴 
+        caption: 2024.08 ~ 2025.02 (재직 중)
         description: |
           - 백엔드 개발자로서 사내 연수 과정 참여
           - 사내 프로젝트 개발
@@ -96,8 +95,8 @@ content:
     layout: list
     content:
       - layout: left
-        title: 모빌씨앤씨 설문 조사 서비스 개발 <br/> (팀 프로젝트)
-        caption: 2024.11 - 2024.12
+        title: 모빌씨앤씨 설문 조사 서비스 개발
+        caption: 2024.11 - 2024.12 (팀 프로젝트)
         sub_title: |
           사용 기술 : <br/>
           Spring Boot, JPA/Hibernate PostgreSQL, Spring Cloud(Config, Gateway, Eureka), <br/>
@@ -108,8 +107,8 @@ content:
           - Nginx와 SSL을 활용한 보안 강화 및 서버 환경 구축  
 
       - layout: left
-        title: 한신대학교 전공 박람회 사전 예약 서비스 <br/> (1인 개발)
-        caption: 2023.09.04 - 2023.09.10
+        title: 한신대학교 전공 박람회 사전 예약 서비스
+        caption: 2023.09.04 - 2023.09.10 (1인 개발)
         sub_title: |
           사용 기술 : <br/>
           Spring Boot, Spring Session, Mybatis, Thymeleaf, ES6, Ajax, Oracle, AWS EC2
@@ -119,8 +118,8 @@ content:
           - 서비스 운영을 위해 필요한 데이터를 학교 측과 협의하여 확보 후 개발 진행
 
       - layout: left
-        title: BodeumMe <br/> (팀 프로젝트)
-        caption: 
+        title: BodeumMe
+        caption:  (팀 프로젝트)
         sub_title: |
           사용 기술 : <br/>
           Spring Boot, Oracle, Mybatis, Thymeleaf, HTML5/CSS3, ES6, Ajax, Gradle
@@ -129,8 +128,8 @@ content:
           - UML 다이어그램 작성, 순서도 작성과 같은 설계단계부터 프로젝트를 진행
           
       - layout: left
-        title: 2호선 뭐먹지? <br/> (팀 프로젝트)
-        caption: 2021.11.01 - 2021.11.05
+        title: 2호선 뭐먹지?
+        caption: 2021.11.01 - 2021.11.05 (팀 프로젝트)
         additional_links:
           - title:  2호선 뭐먹지? (유튜브)
             icon: fab fa-youtube
