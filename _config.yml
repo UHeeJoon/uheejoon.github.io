@@ -105,6 +105,8 @@ content:
           - 관리자, 응답자, 설문 및 설문 응답 등 핵심 도메인 설계 및 서비스 구현 
           - Backend 리더로서 아키텍처 설계 및 개발 주도  
           - Nginx와 SSL을 활용한 보안 강화 및 서버 환경 구축  
+          - Flyway를 활용한 DB 마이그레이션 자동화 및 버전 관리
+          - Redis Pub/Sub + SSE Emitter 를 이용한 실시간 알림 생성
 
       - layout: left
         title: 한신대학교 전공 박람회 사전 예약 서비스
@@ -116,6 +118,7 @@ content:
           - 학교에서 실제 서비스 할 사전 예약 사이트 제작 의뢰를 받아 1주일간 디자인부터 AWS에 배포까지 진행
           - 요구사항 분석 후 도메인 설계 및 데이터 모델링을 수행하고, 지속적인 피드백을 통해 서비스 안정성 확보
           - 서비스 운영을 위해 필요한 데이터를 학교 측과 협의하여 확보 후 개발 진행
+          - Spring Session을 활용한 사용자 인증 처리
 
       - layout: left
         title: BodeumMe
@@ -126,6 +129,8 @@ content:
         description: | 
           - 포스팅 기능을 맡아서 개발 (포스트 정렬 및 조회, 세부사항 확인)
           - UML 다이어그램 작성, 순서도 작성과 같은 설계단계부터 프로젝트를 진행
+          - MyBatis와 DAO 패턴을 활용한 데이터 액세스 계층 구현
+          - 게시물 검색 기능을 위한 동적 쿼리 설계 및 페이징 처리
           
       - layout: left
         title: 2호선 뭐먹지?
@@ -151,30 +156,31 @@ content:
         title: 한신대학교
         caption: 2019.03 - 2025.02
         description: | # this will include new lines to allow paragraphs
-          정보통신학부 졸업 예정
-
+          정보통신학부 졸업 예정 <br/>
+          데이터베이스, 네트워크, 운영체제, 알고리즘 등 컴퓨터 공학의 핵심 이론 학습
       - layout: left
         title: 코리아IT아카데미아 웹개발 종합반
         caption: 2022.08 - 2023.01 | 2023.03 - 2023.08
         description: | # this will include new lines to allow paragraphs
-          Java, Html, Jsp, Spring을 통한 웹 개발과 개발 과정의 이해 <br/>
-          Java, Spring, Spring Boot 순으로 배워 나아가면서 기술 스택이 성장하게 됨 <br/>
+          Java, HTML, JSP, Spring을 활용한 웹 개발 과정 및 전반적인 시스템 설계 이해 <br/>
+          Spring Boot 및 RESTful API를 활용한 백엔드 서비스 개발 경험 축적 <br/>
+          팀 프로젝트를 통해 요구사항 분석, 설계, 개발, 배포까지의 전 과정을 경험 <br/>
 
 
       - layout: left
         title: 코리아IT아카데미아 SQLD 자격증반
         caption: 2022.07
         description: | # this will include new lines to allow paragraphs
-          [RDBMS(개인노션 #공부중)](https://uheejoon.notion.site/DBMS-bd5e6d9d137b4dae98ef000d52bdae0a) <br/>
-          RDBMS 개념을 체계적으로 학습하고, 이를 바탕으로 개인 노션을 통해 정리하며 깊이 있는 이해를 도모
+          [RDBMS(개인노션)](https://uheejoon.notion.site/DBMS-bd5e6d9d137b4dae98ef000d52bdae0a) <br/>
+          학습 내용을 바탕으로 개인 노션을 통해 정리하며, 데이터베이스 설계 및 관리 역량 강화
 
 
       - layout: left
         title: 항해99
         caption: 2021.11
         description: | # this will include new lines to allow paragraphs
-          자바와 스프링, 웹 서버, 크롤링, API, Spring MVC패턴, git 등 개발자의 기본기들에 대해 배우게 되었고 <br/>
-          어떤식으로 공부를 해야하고 내가 개발자로써 성장하기 위해 무엇을 해야하는지를 배우게된 그 무엇보다 값졌던 1달간의 짧은 여정
+          Java, Spring Boot 기반 웹 애플리케이션 개발, API 설계 및 데이터 처리 방식 학습 <br/>
+          웹 서버 구축, 크롤링, Spring MVC 패턴, Git 협업 등의 필수 개발 역량 습득 <br/>
           
 footer_show_references: true
 
