@@ -58,7 +58,7 @@
           <p class="ov-h">주요 성과</p>
           <ul class="hl" aria-label="주요 결과">
             <li><a href="#s-lock"><span class="hl-label">선착순 접수 p50</span><span class="hl-big">48ms</span><span class="hl-from">이전 521ms</span></a></li>
-            <li><a href="#s-wr"><span class="hl-label">대기열 입장 p95</span><span class="hl-big">3초</span><span class="hl-from">이전 31초</span></a></li>
+            <li hidden><a href="#s-wr"><span class="hl-label">대기열 입장 p95</span><span class="hl-big">3초</span><span class="hl-from">이전 31초</span></a></li>
             <li><a href="#s-loadtest"><span class="hl-label">판매 오픈 첫 1분 p95</span><span class="hl-big">30ms</span><span class="hl-from">첫 시험 4.67초</span></a></li>
             <li><a href="#s-cost"><span class="hl-label">월 클라우드 비용</span><span class="hl-big">약 240달러</span><span class="hl-from">목표 구조 추정 약 890달러</span></a></li>
           </ul>
@@ -125,7 +125,7 @@
             <div class="flow-cap" aria-live="polite">
             <p data-i="0"><b class="mono">1/8</b> 판매가 열리면 10초에 5,000명이 한꺼번에 몰립니다.</p>
             <p data-i="1" hidden><b class="mono">2/8</b> CloudFront와 WAF가 경로별 요청 한도로 과한 요청을 먼저 걸러 냅니다.</p>
-            <p data-i="2" hidden><b class="mono">3/8</b> Valkey 순번으로 줄을 세우고 접수 서버가 감당할 만큼만 들여보냅니다. <a href="#s-wr">자세히 보기 →</a></p>
+            <p data-i="2" hidden><b class="mono">3/8</b> Valkey 순번으로 줄을 세우고 접수 서버가 감당할 만큼만 들여보냅니다. <a href="#s-wr" hidden>자세히 보기 →</a></p>
             <p data-i="3" hidden><b class="mono">4/8</b> 예약과 Outbox를 <b>한 트랜잭션으로 저장</b>하고 사용자에게 바로 응답합니다. 사용자가 기다리는 구간은 여기서 끝납니다. <a href="#s-outbox">자세히 보기 →</a></p>
             <p data-i="4" hidden><b class="mono">5/8</b> 커밋 뒤 등록 작업을 SQS에 발행합니다. 발행에 실패해도 Outbox 행이 남아 주기 작업이 다시 발행합니다. <a href="#s-outbox">자세히 보기 →</a></p>
             <p data-i="5" hidden><b class="mono">6/8</b> worker가 외부 응답 속도에 맞춰 <b>동시 요청 수를 스스로 조절</b>합니다. 큐가 쌓이면 worker 대수가 늘어납니다. <a href="#s-limit">자세히 보기 →</a></p>
@@ -252,9 +252,14 @@
                 <figure class="diagram"><img src="../images/diagrams/nv-judge.png" alt="외부 응답을 판정해 다시 보낼지와 무엇을 멈출지 정하는 worker 흐름" loading="lazy"></figure>
                 <h4>찾은 문제</h4>
                 <ul>
-                  <li>외부 실패는 원인마다 다시 보내도 되는지가 다름. 외부 거절은 다시 보내도 결과가 같고 우리 쪽 문제(400번대)는 고칠 때까지 결과가 같음. 외부 장애(연결 실패, 429, 503, connect timeout)는 잠시 뒤 성공할 수 있음</li>
-                  <li>3초 안에 응답이 없는 read timeout으로 등록 여부를 모르는 요청을 그대로 다시 보내면 같은 예약이 두 번 등록될 위험</li>
+                  <li>외부 실패는 원인마다 다시 보내도 되는지가 달라 재시도 방식 하나로는 처리할 수 없음</li>
                 </ul>
+                <table class="cmp opt"><thead><tr><th>실패 원인</th><th>그대로 다시 보내면</th></tr></thead><tbody>
+                  <tr><td>외부 거절</td><td>다시 보내도 같은 결과</td></tr>
+                  <tr><td>우리 쪽 문제 (400번대)</td><td>고칠 때까지 같은 결과</td></tr>
+                  <tr><td>외부 장애 (연결 실패, 429, 503, connect timeout)</td><td>잠시 뒤 성공할 수 있음</td></tr>
+                  <tr><td>read timeout (3초 안에 응답 없음)</td><td>등록됐는지 몰라 같은 예약이 두 번 등록될 위험</td></tr>
+                </tbody></table>
                 <h4>해결 과정</h4>
                 <ul>
                   <li>외부 거절은 바로 DLQ로 보냄. 우리 쪽 문제는 최대 30분 다시 시도한 뒤 DLQ로 보내고 Slack으로 알림</li>
@@ -275,7 +280,7 @@
                 </ul>
               </div>
             </details>
-            <details id="s-wr" data-toc="대기열 조회 간격">
+            <details id="s-wr" data-toc="대기열 조회 간격" hidden>
               <summary><span class="s-title">대기열 입장 지연을 줄인 조회 간격 수정</span><span class="s-res"><b><s>31초</s> → <em>3초</em></b><small>대기열 입장 p95</small></span></summary>
               <div class="story">
                 <figure class="diagram"><img src="../images/diagrams/nv-waiting.png" alt="상품별 입장 속도가 0이라 30초 간격을 안내하던 수정 전과, 전체 입장 속도와 상품별 상한 중 작은 값으로 계산하는 수정 후" loading="lazy"></figure>

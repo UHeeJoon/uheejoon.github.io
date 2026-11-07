@@ -143,14 +143,14 @@
     var work = document.getElementById('work');
     var cases = document.querySelectorAll('.case[data-toc]');
     if (!work || !cases.length) return;
-    var items = [].slice.call(document.querySelectorAll('.stories details[data-toc]'));
+    var items = [].slice.call(document.querySelectorAll('.stories details[data-toc]:not([hidden])'));
     var nav = document.createElement('nav');
     nav.className = 'toc'; nav.setAttribute('aria-label', '프로젝트 목차');
     var html = '<p class="toc-h">프로젝트 목차</p><ol>';
     cases.forEach(function (c) {
       html += '<li class="toc-case" data-case="' + c.id + '"><a href="#' + c.id + '">' + c.dataset.toc + '</a><ol>';
       var inGrp = false;
-      c.querySelectorAll('.stories > .group, .stories > details[data-toc]').forEach(function (el) {
+      c.querySelectorAll('.stories > .group, .stories > details[data-toc]:not([hidden])').forEach(function (el) {
         if (el.tagName === 'P') {
           if (inGrp) html += '</ol></li>';
           html += '<li class="toc-grp"><span class="toc-g">' + el.textContent + '</span><ol>'; inGrp = true;

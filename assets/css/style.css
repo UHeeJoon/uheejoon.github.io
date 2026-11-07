@@ -1967,3 +1967,7 @@ html.modal-open { overflow: hidden; }
 }
 :root[data-theme="dark"]:has(.nav-proj) .proj-nav a[aria-current="page"]::after,
 :root[data-theme="dark"]:has(.nav-proj) .nav-progress { background: #d9969c; }
+
+/* 잠시 숨긴 항목: display를 정한 규칙보다 우선 */
+[hidden] { display: none !important; }
+@media (min-width: 961px) { .project-page .ov .hl:has(> li[hidden]) { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
