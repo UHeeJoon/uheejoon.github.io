@@ -332,7 +332,7 @@
         <header class="sec-head">
           <p class="mono sec-no">04</p>
           <h2>AI로 개발할 때 지키는 검증 순서</h2>
-          <p class="sec-sub">부트캠프 프로젝트 사전예약 서비스 NOVA에서 Claude Code로 개발하며 쓴 방식입니다. AI가 쓴 코드는 사람이 정한 범위와 테스트를 통과해야 반영됩니다.</p>
+          <p class="sec-sub">Claude Code로 개발할 때 늘 쓰는 방식입니다. AI가 쓴 코드는 사람이 정한 범위와 테스트를 통과해야 반영됩니다.</p>
         </header>
         <div class="ai-grid">
           <article class="ai">
@@ -341,7 +341,7 @@
             <ol class="ai-steps">
               <li><b>spec 먼저</b><span>기능을 PR 하나 크기의 태스크로 나누고, 목표, 바뀌면 안 되는 동작, 범위 밖 작업, 관련 코드와 DB 제약을 먼저 적어 Claude Code는 그 안에서만 작업. 진행 상태를 남겨 대화를 새로 시작해도 이어서 작업</span></li>
               <li><b>테스트로 고정</b><span>목표는 새 테스트로, 지킬 동작은 회귀 테스트로 고정하고 모두 통과할 때까지 AI가 수정 반복</span></li>
-              <li><b>운영과 같은 환경</b><span>Testcontainers로 운영과 같은 버전의 MySQL과 Valkey에서 통합 테스트, Floci의 SQS와 DLQ로 worker의 재처리와 DLQ 이동 확인. GitHub Actions 워크플로는 로컬 Git 서버 Forgejo에서 먼저 돌려 확인</span></li>
+              <li><b>운영과 같은 환경</b><span>Testcontainers로 운영과 같은 버전의 DB와 캐시에서 통합 테스트, Floci의 SQS와 DLQ로 메시지 재처리와 DLQ 이동 확인. GitHub Actions 워크플로는 로컬 Git 서버 Forgejo에서 먼저 돌려 확인</span></li>
               <li><b>PR 리뷰</b><span>태스크마다 PR을 올려 CodeRabbit으로 리뷰하고, 트랜잭션 안의 외부 호출 같은 위험 코드는 설정에 적어 PR마다 확인하고, 못 고친 지적은 spec 태스크로 등록</span></li>
             </ol>
             <p class="ai-res">AI가 바꾼 코드는 목표 테스트와 회귀 테스트를 통과하고 리뷰를 거친 것만 병합</p>
@@ -375,7 +375,7 @@
             <div class="dcard-top"><p class="dcard-area">인증 보안</p><span class="dcard-open">펼쳐 보기</span></div>
             <h3>권한 상승과 계정 탈취 경로를 직접 재현하고 막은 SSO 서버</h3>
             <p class="dcard-src">Svalinn · 멀티테넌트 SSO와 권한 관리 서버 · 2026.07 – 08 · 1인</p>
-            <p class="dcard-desc">옥타코에서 설계에 참여했던 SSO를 혼자 다시 만들며 관리자 권한이 새거나 남의 계정에 들어가는 경로를 직접 재현하고 막았습니다.</p>
+            <p class="dcard-desc">옥타코에서 설계를 맡았던 SSO를 혼자 다시 만들며 관리자 권한이 새거나 남의 계정에 들어가는 경로를 직접 재현하고 막았습니다.</p>
             <ul class="dstats">
               <li><span class="hl-label">토큰 발급 처리량</span><span class="hl-big">초당 563건</span><span class="hl-from">이전 초당 78건, p95 1,049ms → 143ms</span></li>
               <li><span class="hl-label">관리자 요청 검사</span><span class="hl-big">4단계</span><span class="hl-from">URL · 메서드 · 재인증 · DB RLS</span></li>
@@ -528,7 +528,7 @@
               <div class="pm-top"><p class="pm-area">인증 보안</p><a class="deep-repo" href="https://github.com/world-to-code/single-sign-on" target="_blank" rel="noopener">저장소 보기</a></div>
               <h2 class="pm-title" id="p-svalinn-t">권한 상승과 계정 탈취 경로를 직접 재현하고 막은 SSO 서버</h2>
               <p class="pm-meta">Svalinn · 멀티테넌트 SSO와 권한 관리 서버 · 2026.07 – 08 · 1인</p>
-              <p class="pm-desc">여러 고객사가 함께 쓰는 SSO 인증과 권한 관리 서버입니다. 옥타코에서 설계에 참여했던 SSO를 혼자 처음부터 다시 만들며 하위 관리자가 맡은 권한을 넘어서거나 외부 로그인으로 남의 계정에 들어가는 경로를 찾아 막았습니다. 설계, 결함 기준, 검증 방법은 직접 정했고 Claude Code가 짠 코드는 실제 DB와 위조 응답으로 테스트해 확인했습니다.</p>
+              <p class="pm-desc">여러 고객사가 함께 쓰는 SSO 인증과 권한 관리 서버입니다. 옥타코에서 설계를 맡았던 SSO를 혼자 처음부터 다시 만들며 하위 관리자가 맡은 권한을 넘어서거나 외부 로그인으로 남의 계정에 들어가는 경로를 찾아 막았습니다. 설계, 결함 기준, 검증 방법은 직접 정했고 Claude Code가 짠 코드는 실제 DB와 위조 응답으로 테스트해 확인했습니다.</p>
             </header>
             <figure class="diagram pm-fig"><img src="images/diagrams/sv-arch.png" alt="Svalinn 전체 구조: nginx 뒤의 모듈러 모놀리스(권한, 로그인과 MFA, 인증 프로토콜, 고객사 격리, 세션과 로그아웃), PostgreSQL과 Redis, 고객사 사내 로그인과 인사 시스템 연동" loading="lazy"><figcaption>전체 구조. 기능별 모듈로 나눈 Spring Boot 앱 하나가 사내 로그인 시스템과 인사 시스템, 연동 서비스를 잇습니다.</figcaption></figure>
             <section class="pm-sec">
