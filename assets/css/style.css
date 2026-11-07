@@ -1949,43 +1949,21 @@ html.modal-open { overflow: hidden; }
 :root[data-theme="dark"] .footer-links a { color: #f1efea; }
 :root[data-theme="dark"] .footer .copy { color: #9a948b; }
 
-/* 강조의 밑줄과 테두리는 포인트 컬러(버건디) 계열로 */
-.story strong { background: linear-gradient(transparent 64%, color-mix(in srgb, var(--brand) 18%, transparent) 64%); }
-.story ul.res strong { background: linear-gradient(transparent 62%, color-mix(in srgb, var(--brand) 26%, transparent) 62%); }
-.proj-nav a[aria-current="page"]::after { background: var(--brand); }
+/* 메인 카드 링크 밑줄과 모달 배운 점 선은 포인트 컬러(버건디) */
 .pcard-more, .deep-repo { text-decoration-color: color-mix(in srgb, var(--brand) 45%, transparent); }
 .pcard:hover .pcard-more, .dcard:hover .pcard-more, .deep-repo:hover { text-decoration-color: var(--brand); }
-.flow-steps button.on { border-bottom-color: var(--brand) !important; }
-.toc-case.cur > a { border-bottom-color: color-mix(in srgb, var(--brand) 45%, var(--line)); }
-.toc-item a.cur { border-left-color: var(--brand); }
-.nav-progress { background: var(--brand); }
 .pm-learn li, .pm-lesson { border-left-color: color-mix(in srgb, var(--brand) 55%, transparent); }
 
-/* ===== 상세 페이지 색 역할 정리
-   버건디(포인트) = 지금 위치와 눈여겨볼 곳: 현재 프로젝트, 진행 막대, 목차 현재 항목, 흐름 현재 단계, 본문 강조 밑줄, 링크 밑줄
-   초록(대표) = 성과: 주요 성과 숫자, 결과 칸, 체크 표시
-   검정과 회색 = 나머지 글 ===== */
-/* 지금 위치: 글자와 선을 같은 버건디로 */
-.proj-nav a[aria-current="page"] { color: var(--brand); }
-.toc-item a.cur, .toc-case.cur > a { color: var(--brand); }
-.toc-btn b { color: var(--brand); }
-.flow-steps button.on { color: var(--brand); }
-.flow-steps button.on .mono { background: var(--brand); color: #fff; }
-.flow-steps button.done .mono { background: color-mix(in srgb, var(--brand) 22%, var(--line)); }
-/* 머리 정보의 종류 표시도 포인트 */
-.project-page .ov .case-meta li:first-child { color: var(--brand); }
-/* 링크: 글자는 본문색, 밑줄은 옅은 버건디 → 올리면 진하게 */
-.role .role-repo a, .project-page .ov .role-repo dd a, .story .links a, .flow-cap a, .flow-toggle .ft-a {
-  color: var(--ink-2); text-decoration: underline; text-decoration-color: color-mix(in srgb, var(--brand) 40%, transparent);
-  text-decoration-thickness: 1.5px; text-underline-offset: 4px;
-}
-.role .role-repo a:hover, .story .links a:hover, .flow-cap a:hover, .flow-toggle > summary:hover .ft-a { color: var(--brand); text-decoration-color: var(--brand); }
-.flow-toggle .ft-a { font-weight: 600; }
-/* 결과 칸은 초록 안에서 끝냄: 강조는 밑줄 대신 진한 초록 글자 */
-.story ul.res strong { background: none; color: var(--accent); font-weight: 700; }
 
-/* 색 역할 v2: 초록 = 성과와 구획 이름, 버건디 = 지금 위치와 본문 강조, 링크 */
+/* 상세: 초록 = 성과와 구획 이름 */
 .s-res b, .stories details[open] > summary .s-res b { color: var(--accent); }
 .project-page .ov .ov-h, .project-page .ov .role .role-h { color: var(--accent); }
 .story h4:has(+ ul.res) { color: var(--accent); }
 @media (max-width: 640px) { .s-res b, .stories details[open] > summary .s-res b { color: var(--accent); } }
+
+/* 어두운 테마의 프로젝트 상세에서만 초록 대신 버건디 계열 */
+:root[data-theme="dark"]:has(.nav-proj) {
+  --accent: #d9969c; --accent-soft: #2a1a1c; --sage: #d9969c;
+}
+:root[data-theme="dark"]:has(.nav-proj) .proj-nav a[aria-current="page"]::after,
+:root[data-theme="dark"]:has(.nav-proj) .nav-progress { background: #d9969c; }
