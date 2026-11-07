@@ -1,0 +1,219 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Search Platform, 게시글 검색과 에스크로 결제 | 유희준</title>
+  <meta name="description" content="장애가 나도 서비스와 데이터가 버티는 구조를 만드는 백엔드·DevOps 엔지니어 유희준의 포트폴리오">
+  <meta property="og:title" content="Search Platform, 게시글 검색과 에스크로 결제 | 유희준">
+  <meta property="og:description" content="추측하지 않고 측정하고 재현해서 문제를 확인합니다. 멀티테넌트 SSO, 선착순 사전예약, 에스크로 결제를 설계하고 운영했습니다.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://uheejoon.github.io/projects/search-platform.html">
+  <link rel="icon" href="../images/favicon.ico">
+  <link rel="apple-touch-icon" href="../images/apple-touch-icon.png">
+  <link rel="preconnect" href="https://cdn.jsdelivr.net">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap">
+  <link rel="stylesheet" href="../assets/css/style.css?v=20261109w">
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem('theme');
+        if (t) document.documentElement.setAttribute('data-theme', t);
+      } catch (e) {}
+    })();
+  </script>
+</head>
+<body>
+  <a class="skip" href="#main">본문으로 건너뛰기</a>
+
+  <header class="nav nav-proj">
+    <div class="wrap nav-inner">
+      <a class="brand" href="../#top"><span class="prompt">~/</span>uheejoon</a>
+      <nav class="proj-nav" aria-label="프로젝트 이동">
+        <a class="pn-home" href="../#work">← 포트폴리오</a>
+        <span class="pn-sep" aria-hidden="true"></span>
+        <a href="octaco.html">옥타코 SSO</a><a href="nova.html">사전예약 NOVA</a><a href="search-platform.html" aria-current="page">Search Platform</a>
+      </nav>
+      <button class="theme-toggle" type="button" aria-label="밝은 테마와 어두운 테마 전환">
+        <svg class="i-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+        <svg class="i-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+      </button>
+    </div>
+    <span class="nav-progress" aria-hidden="true"></span>
+  </header>
+
+  <main id="main">
+    <section class="section project-page" id="work">
+      <div class="wrap">
+
+        <article class="case" id="case-sp" data-toc="Search Platform">
+          <div class="case-head ov">
+            <div>
+              <ul class="case-meta"><li>개인 프로젝트</li><li>2026.01 – 2026.04, 2026.09</li><li>F-Lab 멘토링</li></ul>
+              <h1 class="case-title">Search Platform, 게시글 검색과 에스크로 결제</h1>
+              <p class="case-desc">중고거래 게시글 검색과 에스크로 결제를 다루는 서비스입니다. 에스크로 결제는 구매자가 낸 돈을 플랫폼이 맡아 두었다가 거래가 끝나면 판매자에게 넘깁니다. 검색은 구현을 단계마다 바꿔 가며 같은 부하로 한계를 잰 뒤 Elasticsearch로 옮겼습니다. 결제, 지갑, 충전 모듈은 Kafka 메시지로만 주고받아 한 트랜잭션으로 묶을 수 없어서 단계마다 실패하면 돈이 어디에 남는지부터 따졌습니다.</p>
+          <p class="ov-h">주요 성과</p>
+          <ul class="hl" aria-label="주요 결과">
+            <li><a href="#s-es"><span class="hl-label">조건이 매번 다른 검색 p95</span><span class="hl-big">549ms</span><span class="hl-from">이전 42.7초 (커서 + LIKE)</span></a></li>
+            <li><a href="#s-presale"><span class="hl-label">같은 게시글 동시 결제</span><span class="hl-big">새 중복 0건</span><span class="hl-from">이전 한 게시글에 최대 41건</span></a></li>
+            <li><a href="#s-saga"><span class="hl-label">구매자 환급 실패 시</span><span class="hl-big">판매자 잔액 복구</span><span class="hl-from">이전 뺀 돈이 어디에도 남지 않음</span></a></li>
+            <li><a href="#s-recon"><span class="hl-label">결제별 원장 대사</span><span class="hl-big">정산 누락 1건 발견</span><span class="hl-from">합계 검사로는 정상</span></a></li>
+          </ul>
+              <div class="role">
+                <p class="role-h">맡은 일</p>
+                <dl>
+                  <div><dt>검색</dt><dd><ul class="role-list"><li>구현 단계별 같은 부하 측정</li><li>Elasticsearch 전환</li><li>Debezium CDC 색인 동기화</li></ul></dd></div>
+                  <div><dt>결제</dt><dd><ul class="role-list"><li>선점 테이블로 이중 판매 차단</li><li>환불 Saga 보상 처리</li><li>원장 기준 결제별 대사</li></ul></dd></div>
+                  <div class="role-tech"><dt>기술</dt><dd><ul class="tags"><li>Java</li><li>Spring Boot</li><li>MySQL</li><li>Elasticsearch</li><li>Kafka</li><li>Debezium</li><li>Redis</li><li>Transactional Outbox</li><li>Saga</li><li>k6</li></ul></dd></div>
+                  <div class="role-repo"><dt>저장소</dt><dd><a href="https://github.com/UHeeJoon/search-platform" target="_blank" rel="noopener">search-platform ↗</a></dd></div>
+                </dl>
+              </div>
+            </div>
+          </div>
+
+          <figure class="diagram arch arch-sm">
+            <img src="../images/diagrams/sp-arch.png" alt="Search Platform 구조: 도메인별 모듈로 나눈 Spring Boot 앱, Kafka로 오가는 Saga와 CDC, MySQL, Redis, Elasticsearch" loading="lazy">
+            <figcaption>도메인별 모듈이 Kafka와 CDC로 이어진 구조</figcaption>
+          </figure>
+
+          <p class="page-sub">항목을 펼치면 찾은 문제와 해결 과정과 결과를 차례로 볼 수 있습니다. 그림은 누르면 크게 보입니다.</p>
+          <div class="stories">
+            <p class="group">검색</p>
+            <details id="s-es" data-toc="Elasticsearch 전환">
+              <summary><span class="s-title">구현마다 같은 부하로 한계를 잰 Elasticsearch 전환</span><span class="s-res"><b><s>42.7초</s> → <em>549ms</em></b><small>조건이 매번 다른 검색 p95</small></span></summary>
+              <div class="story">
+                <figure class="diagram"><img src="../images/diagrams/sp-search.png" alt="쓰기는 MySQL에서 Debezium과 Kafka를 거쳐 Elasticsearch에 반영되고 읽기는 Redis와 Elasticsearch를 거치는 구조" loading="lazy"></figure>
+                <h4>찾은 문제</h4>
+                <ul>
+                  <li>게시글 500만 건에서 제목과 본문 검색, 카테고리와 지역 필터, 등록일 정렬을 하는 API. 요청의 30%는 같은 조건이 반복되고 70%는 조건이 매번 다름</li>
+                  <li>처음엔 가상 사용자 50명이 응답을 받아야 다음 요청을 보내게 했음. 그러면 느린 구현일수록 요청이 덜 나가서 커서 + LIKE도 오류율 2.5%로 정상처럼 보임</li>
+                  <li>그래서 측정 방식부터 바꿔 <strong>응답과 상관없이 초당 25건을 3분 동안</strong> 일정하게 보내고 구현만 바꿔 가며 측정</li>
+                </ul>
+                <h4>해결 과정</h4>
+                <ul>
+                  <li>offset 페이징은 첫 페이지에도 전체 건수를 세느라 거의 처리하지 못해 id 커서로 변경</li>
+                  <li>LIKE는 인덱스를 쓰지 못해 제목에 FULLTEXT 인덱스를 붙였지만 흔한 검색어는 일치하는 문서를 모두 모은 뒤 필터를 걸어 오히려 느려짐</li>
+                  <li>Redis 캐시는 반복 검색만 빨라지고 조건이 매번 다른 70%는 그대로</li>
+                  <li>검색을 <strong>Elasticsearch로 분리</strong>하고 MySQL binlog를 Debezium으로 읽어 색인에 반영</li>
+                  <li>Elasticsearch가 멈춘 사이 만든 게시글이 복구 뒤에도 검색되지 않음. 연결 실패도 잘못된 메시지처럼 세 번만 재시도하고 빼 두었기 때문. 연결 실패는 될 때까지 재시도</li>
+                </ul>
+                <h4>결과</h4>
+                <p>같은 데이터에 초당 25건을 3분 동안 보낸 결과입니다.</p>
+                <div class="table-scroll"><table class="cmp opt"><thead><tr><th>구현</th><th>성공률</th><th>1초 안 응답</th><th>조건이 매번 다른 검색 p95</th></tr></thead><tbody>
+                  <tr><td>offset + LIKE</td><td>0.3%</td><td>0.0%</td><td>58.7초</td></tr>
+                  <tr><td>커서 + LIKE</td><td>9.4%</td><td>0.2%</td><td>42.7초</td></tr>
+                  <tr><td>커서 + FULLTEXT</td><td>1.3%</td><td>0.0%</td><td>41.6초</td></tr>
+                  <tr><td>커서 + LIKE + Redis</td><td>11.4%</td><td>5.2%</td><td>43.4초</td></tr>
+                  <tr class="pick"><td>Elasticsearch + Redis (선택)</td><td>100%</td><td>99.96%</td><td>549ms</td></tr>
+                </tbody></table></div>
+                <ul class="res">
+                  <li>조건이 매번 다른 검색 p95 <strong>42.7초 → 549ms</strong> (커서 + LIKE 대비)</li>
+                  <li>모든 요청이 성공하고 99.96%가 1초 안에 응답</li>
+                  <li>장애 중에 만든 게시글 10건이 복구 후 <strong>29초 안에 모두</strong> 검색에 반영</li>
+                </ul>
+              </div>
+            </details>
+            <p class="group">결제</p>
+            <details id="s-presale" data-toc="이중 판매">
+              <summary><span class="s-title">결제 트랜잭션 안에서 게시글을 선점해 막은 이중 판매</span><span class="s-res"><b>새 중복 0건</b><small>결제 API p95 42ms</small></span></summary>
+              <div class="story">
+                <figure class="diagram"><img src="../images/diagrams/sp-presale.png" alt="결제 트랜잭션 안에서 선점 테이블에 INSERT해 늦은 결제는 PK 충돌로 409를 받는 흐름" loading="lazy"></figure>
+                <h4>찾은 문제</h4>
+                <ul>
+                  <li>결제 모듈이 게시글이 판매 중인지만 확인하고 상태는 바꾸지 않아 같은 게시글에 들어온 결제를 모두 받음</li>
+                  <li>부하 시험은 처리량만 보고 있었음. 결과 데이터가 게시글 하나에 결제 하나라는 규칙을 지키는지 직접 조회해 보니 <strong>한 게시글에 결제가 최대 41건</strong> 접수돼 있었음</li>
+                  <li>나중에 결제한 구매자의 돈도 플랫폼에 묶임</li>
+                </ul>
+                <h4>검토한 방법</h4>
+                <div class="table-scroll"><table class="cmp opt"><thead><tr><th>방법</th><th>막을 수 있는지</th><th>이유</th></tr></thead><tbody>
+                  <tr><td>게시글 행 잠금</td><td>쓸 수 없음</td><td>게시글 테이블은 게시글 모듈 영역이라 결제 모듈이 접근하지 않음</td></tr>
+                  <tr><td>선점 여부 조회 후 저장</td><td>막지 못함</td><td>동시에 들어온 두 결제가 둘 다 선점 없음을 보고 통과</td></tr>
+                  <tr class="pick"><td>선점 테이블 PK (선택)</td><td>막음</td><td>INSERT 한 번으로 DB가 확인과 기록을 함께 처리해 늦은 쪽이 바로 실패</td></tr>
+                </tbody></table></div>
+                <h4>해결 과정</h4>
+                <ul>
+                  <li>게시글 id를 PK로 둔 <strong>선점 테이블에 결제와 같은 트랜잭션에서 INSERT</strong>. 두 번째 결제는 PK 충돌로 바로 실패하고 409 응답</li>
+                  <li>JPA save()는 id가 있으면 기존 행을 덮어써 충돌이 나지 않아 INSERT 문을 직접 실행</li>
+                  <li>곧 붙일 자동 구매 확정이 선점 없이 접수된 결제까지 판매자에게 정산하는 것을 배포 전에 발견해 선점을 가진 결제만 구매 확정할 수 있게 제한</li>
+                  <li>이미 접수된 중복 결제는 구매자 돈이 걸려 있어 데이터를 지우지 않고 취소 절차로 구매자에게 환급</li>
+                </ul>
+                <h4>결과</h4>
+                <ul class="res">
+                  <li>같은 부하로 결제 401건을 다시 보내 <strong>새 중복 0건</strong>과 결제 API p95 42ms를 확인</li>
+                  <li>같은 상품 대금이 판매자에게 두 번 정산되지 않음</li>
+                </ul>
+              </div>
+            </details>
+            <details id="s-saga" data-toc="환불 보상">
+              <summary><span class="s-title">환불이 실패해도 판매자 돈이 사라지지 않게 한 보상 처리</span><span class="s-res"><b>판매자 잔액 복구</b><small>구매자 환급 실패 시</small></span></summary>
+              <div class="story">
+                <figure class="diagram"><img src="../images/diagrams/sp-saga.png" alt="구매자 환급이 거절되면 판매자 차감액을 다시 적립하는 보상 흐름" loading="lazy"></figure>
+                <h4>찾은 문제</h4>
+                <ul>
+                  <li>환불은 판매자 잔액에서 먼저 빼고 구매자에게 돌려주는 두 단계</li>
+                  <li>지갑 모듈이 모든 예외를 거절로 응답해 잠깐의 DB 장애도 되돌릴 수 없는 실패로 종결</li>
+                  <li>결제 모듈은 거절을 3번 다시 보냈고 구매자 환급이 거절되면 <strong>판매자에게서 뺀 돈을 되돌리지 않음</strong></li>
+                  <li>응답이 10분 없으면 바로 실패로 닫아 늦게 처리된 돈의 이동이 결제 상태에 반영되지 않음</li>
+                </ul>
+                <h4>해결 과정</h4>
+                <ul>
+                  <li>확정된 거절과 결과를 모르는 상태를 나눠 다르게 처리</li>
+                  <li>잔액 부족이나 지갑 없음처럼 다시 보내도 결과가 같은 경우만 거절로 응답. 거절은 재시도하지 않고 구매자 환급이 거절되면 <strong>판매자에게서 뺀 금액을 다시 넣는 보상</strong> 실행</li>
+                  <li>결과를 모르면 돈이 이미 움직였을 수 있어 실패로 단정하지 않음. DB 장애는 예외를 던져 Kafka가 같은 요청을 다시 전달</li>
+                  <li>응답이 10분 없으면 보관해 둔 같은 요청을 다시 보내고 원장의 중복 방지 제약으로 한 번만 반영. 다시 보내도 응답이 없을 때만 실패로 기록</li>
+                </ul>
+                <h4>결과</h4>
+                <ul class="res">
+                  <li>구매자 환급을 일부러 실패시킨 E2E 테스트에서 <strong>판매자 잔액이 원래대로 돌아오는 것</strong>을 확인</li>
+                  <li>수정 전 실패하던 판매자 잔액 부족 환불 재현 테스트가 수정 후 통과</li>
+                  <li>DB 장애에는 거절 대신 예외가 나가고 같은 요청을 다시 보내도 원장에는 한 번만 기록</li>
+                </ul>
+              </div>
+            </details>
+            <details id="s-recon" data-toc="원장 대사">
+              <summary><span class="s-title">합계 검사가 놓친 정산 누락을 찾은 결제별 원장 대사</span><span class="s-res"><b>정산 누락 1건 발견</b><small>합계 검사로는 정상</small></span></summary>
+              <div class="story">
+                <h4>찾은 문제</h4>
+                <ul>
+                  <li>처음 만든 정합성 검사는 지갑 잔액, 상태별 결제 건수, 전체 금액을 합계로만 비교</li>
+                  <li>한 결제에서 기록이 빠지고 다른 결제에서 하나 더 생기면 합계는 맞아 보이고 어느 결제가 틀렸는지도 알 수 없음</li>
+                </ul>
+                <h4>해결 과정</h4>
+                <ul>
+                  <li>돈이 움직일 때마다 남기는 <strong>원장을 기준으로 결제마다 비교</strong></li>
+                  <li>결제 상태마다 원장에 있어야 할 기록의 건수와 금액을 규칙으로 정의</li>
+                  <li>처리 중인 결제는 판단에서 빼고 불일치 건수는 모니터링 지표로 기록</li>
+                  <li>지갑 잔액과 원장 합계를 맞춰 보고 들어온 돈이 지갑과 플랫폼 보관금, 수수료를 더한 값과 같은지 보는 합계 검사는 돈이 생기거나 사라졌는지 확인하는 용도로 유지</li>
+                </ul>
+                <h4>결과</h4>
+                <ul class="res">
+                  <li>합계 검사에서는 정상으로 보이던 <strong>환불 정산이 빠진 결제 1건</strong>을 찾아 수정</li>
+                </ul>
+              </div>
+            </details>
+          </div>
+        </article>
+
+        <a class="next-proj" href="../#work"><small>마지막 프로젝트입니다</small><b>← 포트폴리오로 돌아가기</b></a>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="wrap footer-inner">
+      <p class="mono"><span class="prompt">$</span> echo "함께 이야기 나눠요"</p>
+      <div class="footer-links">
+        <a href="mailto:yhjyhj3855@gmail.com">Email</a>
+        <a href="https://github.com/UHeeJoon" target="_blank" rel="noopener">GitHub</a>
+        <a href="https://codding-til-theory.tistory.com" target="_blank" rel="noopener">Blog</a>
+      </div>
+      <p class="copy">© 2026 유희준</p>
+    </div>
+  </footer>
+
+  <script src="../assets/js/main.js?v=20261109w" defer></script>
+</body>
+</html>

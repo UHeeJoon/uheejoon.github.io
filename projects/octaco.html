@@ -1,0 +1,356 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>(주)옥타코 멀티테넌트 SSO 인증 서비스 | 유희준</title>
+  <meta name="description" content="장애가 나도 서비스와 데이터가 버티는 구조를 만드는 백엔드·DevOps 엔지니어 유희준의 포트폴리오">
+  <meta property="og:title" content="(주)옥타코 멀티테넌트 SSO 인증 서비스 | 유희준">
+  <meta property="og:description" content="추측하지 않고 측정하고 재현해서 문제를 확인합니다. 멀티테넌트 SSO, 선착순 사전예약, 에스크로 결제를 설계하고 운영했습니다.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://uheejoon.github.io/projects/octaco.html">
+  <link rel="icon" href="../images/favicon.ico">
+  <link rel="apple-touch-icon" href="../images/apple-touch-icon.png">
+  <link rel="preconnect" href="https://cdn.jsdelivr.net">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap">
+  <link rel="stylesheet" href="../assets/css/style.css?v=20261109w">
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem('theme');
+        if (t) document.documentElement.setAttribute('data-theme', t);
+      } catch (e) {}
+    })();
+  </script>
+</head>
+<body>
+  <a class="skip" href="#main">본문으로 건너뛰기</a>
+
+  <header class="nav nav-proj">
+    <div class="wrap nav-inner">
+      <a class="brand" href="../#top"><span class="prompt">~/</span>uheejoon</a>
+      <nav class="proj-nav" aria-label="프로젝트 이동">
+        <a class="pn-home" href="../#work">← 포트폴리오</a>
+        <span class="pn-sep" aria-hidden="true"></span>
+        <a href="octaco.html" aria-current="page">옥타코 SSO</a><a href="nova.html">사전예약 NOVA</a><a href="search-platform.html">Search Platform</a>
+      </nav>
+      <button class="theme-toggle" type="button" aria-label="밝은 테마와 어두운 테마 전환">
+        <svg class="i-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+        <svg class="i-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+      </button>
+    </div>
+    <span class="nav-progress" aria-hidden="true"></span>
+  </header>
+
+  <main id="main">
+    <section class="section project-page" id="work">
+      <div class="wrap">
+        <!-- OCTACO -->
+        <article class="case" id="case-octaco" data-toc="옥타코 SSO">
+          <div class="case-head ov">
+            <div>
+              <ul class="case-meta"><li>실무</li><li>2025.07 – 2025.12</li><li>신규 SSO 구축 TF 백엔드 3명</li></ul>
+              <h1 class="case-title">(주)옥타코 멀티테넌트 SSO 인증 서비스</h1>
+              <p class="case-desc">고객사 여러 곳이 함께 쓰는 SSO 인증 서비스입니다. 회사 계정 하나로 Notion과 Slack 같은 업무 앱에 모두 로그인합니다.</p>
+          <p class="ov-h">주요 성과</p>
+          <ul class="hl" aria-label="주요 결과">
+            <li><a href="#s-onboard"><span class="hl-label">고객사 추가 실패</span><span class="hl-big">자동 복구</span><span class="hl-from">이전 사람이 찾아 삭제</span></a></li>
+            <li><a href="#s-sflight"><span class="hl-label">캐시 만료 순간 DB 조회</span><span class="hl-big">서버당 1회</span><span class="hl-from">이전 요청 수만큼</span></a></li>
+            <li><a href="#s-fallback"><span class="hl-label">Redis 장애 중 세션 인증</span><span class="hl-big">DB로 자동 우회</span><span class="hl-from">이전 장애 주입 시 전체 인증 실패</span></a></li>
+            <li><a href="#s-gitops"><span class="hl-label">배포 롤백</span><span class="hl-big">Git Revert 한 번</span><span class="hl-from">이전 VM 수동 배포</span></a></li>
+          </ul>
+              <div class="role">
+                <p class="role-h">맡은 일</p>
+                <dl>
+                  <div><dt>설계</dt><dd><ul class="role-list"><li>서비스 구조</li><li>고객사 데이터 격리 방식</li><li>권한 관리 도메인과 접근 제어</li><li>의사결정 문서로 설계 근거 공유</li></ul></dd></div>
+                  <div><dt>개발</dt><dd><ul class="role-list"><li>고객사 판별 인증 서버</li><li>Redis 세션과 로그아웃 전파</li><li>고객사 온보딩 서비스</li><li>사용자 도메인</li><li>권한 검사 어노테이션 라이브러리</li><li>인증 정책 캐시</li><li>감사 로그와 접근 로그 비동기 저장</li></ul></dd></div>
+                  <div><dt>인프라</dt><dd><ul class="role-list"><li>EKS 전환</li><li>GitOps 배포 파이프라인</li><li>EKS 운영과 트러블슈팅</li><li>서비스별 IAM Role 분리</li></ul></dd></div>
+                  <div class="role-tech"><dt>기술</dt><dd><ul class="tags"><li>Java</li><li>Spring Boot</li><li>Spring Security</li><li>Hibernate Multi-Tenancy</li><li>PostgreSQL</li><li>Redis</li><li>SpiceDB</li><li>gRPC</li><li>Resilience4j</li><li>Flyway</li><li>AWS EKS</li><li>Helm</li><li>Argo CD</li><li>IRSA</li><li>Trivy</li></ul></dd></div>
+                </dl>
+                <p class="role-note">로그인 화면과 OIDC/SAML 처리는 팀원 담당</p>
+              </div>
+            </div>
+          </div>
+
+          <figure class="diagram arch">
+            <img src="../images/diagrams/sso-arch.png" alt="옥타코 SSO 아키텍처: Route 53과 ALB를 거쳐 EKS의 Resolve Server, 온보딩 서비스, 인증 서비스, SpiceDB로 요청이 들어가고 ElastiCache Redis와 RDS PostgreSQL을 쓰며 서비스마다 IAM Role을 둔다" loading="lazy">
+            <figcaption>옥타코 SSO의 AWS 아키텍처 (업무를 바탕으로 재구성). 점선 상자는 팀원 담당입니다.</figcaption>
+          </figure>
+
+          <p class="page-sub">항목을 펼치면 찾은 문제와 해결 과정과 결과를 차례로 볼 수 있습니다. 그림은 누르면 크게 보입니다.</p>
+          <div class="stories">
+            <p class="group">백엔드</p>
+            <details id="s-onboard" data-toc="고객사 온보딩">
+              <summary><span class="s-title">고객사별 Schema로 데이터를 격리하고 실패하면 자동으로 되돌리는 고객사 온보딩</span><span class="s-res"><b>실패해도 자동 복구</b><small>만든 리소스와 Schema 역순 삭제</small></span></summary>
+              <div class="story">
+                <figure class="diagram"><img src="../images/diagrams/oc-tenant.png" alt="요청마다 고객사 Schema로 연결하는 격리와 고객사 추가가 실패했을 때 되돌리는 순서" loading="lazy"></figure>
+                <h4>찾은 문제</h4>
+                <ul>
+                  <li>여러 고객사가 한 서비스를 함께 써도 고객사끼리 데이터가 섞이지 않아야 함</li>
+                  <li>고객사가 늘어도 DB 비용이 고객사 수만큼 늘지 않아야 함</li>
+                </ul>
+                <table class="cmp opt"><thead><tr><th>방식</th><th>장점</th><th>감수할 점</th></tr></thead><tbody>
+                  <tr><td>모든 테이블에 고객사 id 컬럼</td><td>DB 하나로 가장 저렴</td><td>쿼리에 고객사 조건이 하나라도 빠지면 다른 고객사 데이터 노출</td></tr>
+                  <tr><td>고객사별 DB</td><td>격리가 가장 확실</td><td>고객사 수만큼 DB 비용과 운영 부담 증가</td></tr>
+                  <tr class="pick"><td>고객사별 DB Schema (선택)</td><td>DB 하나 안에서 커넥션 단계에서 격리</td><td>고객사를 추가할 때마다 Schema 생성, 테이블 변경은 모든 Schema에 적용</td></tr>
+                </tbody></table>
+                <h4>해결 과정</h4>
+                <ul>
+                  <li class="sub-h">요청마다 고객사 격리</li>
+                  <li>Resolve Server가 서브도메인으로 고객사를 찾아 요청 스레드에 저장</li>
+                  <li>Resolve Server는 client_id와 redirect URI가 그 고객사에 등록된 값인지도 확인해 맞지 않으면 로그인 화면을 보여 주기 전에 차단</li>
+                  <li>Hibernate Multi-Tenancy가 커넥션을 열 때 이 값을 읽어 그 고객사 Schema에 연결</li>
+                  <li>스레드가 재사용돼도 앞 고객사 Schema로 연결되지 않게 요청이 끝나면 이전 고객사 값을 삭제</li>
+                  <li class="sub-h">고객사 추가와 실패 시 되돌리기</li>
+                  <li>온보딩 서비스가 Route 53 서브도메인, ACM 인증서, IAM, DB Schema를 순서대로 생성</li>
+                  <li>실패한 단계는 재시도하고 그래도 실패하면 <strong>보상 트랜잭션으로 끝난 단계를 역순 삭제</strong></li>
+                </ul>
+                <p class="memo">설계만 한 부분: 고객사마다 Namespace를 만들고 같은 서비스를 띄워 서브도메인별로 각 Namespace로 라우팅하는 구조로 부하와 메모리까지 격리하도록 설계. Kubernetes 단계는 설계까지 마치고 AWS 리소스 자동화를 먼저 구현</p>
+                <h4>결과</h4>
+                <ul class="res">
+                  <li>DB 커넥션 단계에서 Schema로 나뉘어 개발자가 <strong>쿼리에 고객사 조건을 빠뜨려도 데이터 노출로 이어지지 않음</strong></li>
+                  <li>고객사 추가가 중간에 실패해도 만든 리소스와 Schema가 자동으로 지워져 수작업 없이 추가 전 상태로 복구</li>
+                </ul>
+              </div>
+            </details>
+            <details id="s-authz" data-toc="접근 제어">
+              <summary><span class="s-title">SpiceDB 권한 서버와 공통 어노테이션으로 구축한 서비스 접근 제어</span><span class="s-res"><b>권한 검사 누락 차단</b><small>모든 서비스가 같은 기준으로 fail-closed</small></span></summary>
+              <div class="story">
+                <figure class="diagram"><img src="../images/diagrams/oc-authz.png" alt="서비스는 어노테이션으로 권한을 조회하고 SpiceDB가 허용 여부를 답하는 구조" loading="lazy"></figure>
+                <h4>찾은 문제</h4>
+                <ul>
+                  <li>같은 고객사 안에서도 사용자마다 리소스별로 허용되는 동작이 다름</li>
+                  <li>권한이 사용자, 그룹, 리소스의 관계를 거쳐 이어짐</li>
+                  <li>이 관계를 서비스마다 코드로 따라가 확인하면 기준이 서비스마다 달라지고 빠뜨리기 쉬움</li>
+                  <li>백엔드 3명이 SSO와 함께 권한 관리 시스템까지 직접 만들기에는 인력이 부족</li>
+                </ul>
+                <h4>해결 과정</h4>
+                <ul>
+                  <li>Google Zanzibar 기반 SpiceDB를 도입해 권한 판단을 한 곳으로 모음</li>
+                  <li>관계가 어떤 권한이 되는지 스키마로 정의 (예: 그룹 멤버는 그룹에 공유된 앱을 쓸 수 있음)</li>
+                  <li>권한 검사 때 사용자에서 리소스까지 관계로 이어지는지 판단 (예: 사용자 → 그룹 → 공유된 앱)</li>
+                  <li>사용자, 그룹, 고객사 정보가 바뀌면 SpiceDB에 관계로 반영</li>
+                  <li>메서드 위에 리소스와 동작을 적으면(예: 앱 삭제) 실행 전에 SpiceDB에 권한을 묻고 없으면 차단하는 <strong>공통 어노테이션 라이브러리</strong>를 만들어 여러 서비스가 사용</li>
+                  <li>조회 결과는 서버 메모리와 Redis 두 단계로 캐싱</li>
+                  <li>권한이 바뀐 리소스는 SpiceDB에 다시 조회</li>
+                  <li>SpiceDB 장애로 <strong>권한을 알 수 없는 요청은 통과시키지 않고 차단</strong></li>
+                </ul>
+                <h4>결과</h4>
+                <ul class="res">
+                  <li>권한 시스템을 직접 만들지 않고 규칙 변경도 스키마 수정으로 끝나 개발과 변경 부담 감소</li>
+                  <li>모든 서비스가 같은 어노테이션과 판단 기준을 써서 <strong>권한 검사 누락과 서비스별 차이가 없어짐</strong></li>
+                  <li>SpiceDB에 장애가 나도 권한을 알 수 없는 요청은 통과되지 않아 보안 유지</li>
+                </ul>
+              </div>
+            </details>
+            <details id="s-logout" data-toc="로그아웃 전파">
+              <summary><span class="s-title">세션만 지우면 연결된 앱까지 로그아웃되는 로그아웃 전파</span><span class="s-res"><b>로그아웃 누락 방지</b><small>세션 삭제 하나로 모든 앱에 전파</small></span></summary>
+              <div class="story">
+                <figure class="diagram"><img src="../images/diagrams/oc-logout.png" alt="로그아웃, 강제 종료, 계정 비활성화, 만료가 모두 ElastiCache Redis 세션 삭제로 끝나고, 삭제 이벤트를 받은 Resolve Server 중 Lua로 로그아웃 정보를 먼저 읽고 지운 서버만 앱마다 로그아웃을 보내는 흐름" loading="lazy"></figure>
+                <h4>찾은 문제</h4>
+                <ul>
+                  <li>세션은 로그아웃, 관리자 강제 종료, 계정 비활성화, 만료 네 경우로 끝남</li>
+                  <li>경우마다 앱 로그아웃 코드를 따로 넣으면 한 곳만 빠뜨려도 퇴사자가 업무 앱을 계속 쓸 수 있음</li>
+                </ul>
+                <h4>해결 과정</h4>
+                <ul>
+                  <li>네 경우 모두 <strong>세션 삭제로 끝내고</strong> Redis Keyspace Notification으로 삭제 이벤트를 받아 그 세션으로 접속한 앱마다 로그아웃 전송</li>
+                  <li>만료는 Redis가 세션을 지우는 방식이라 삭제 뒤에는 세션을 읽을 수 없음. 그래서 접속한 앱과 고객사, 사용자 정보를 세션 ID별 Redis 키에 따로 저장</li>
+                  <li>삭제 이벤트는 모든 서버에 전달돼 로그아웃이 중복으로 나갈 수 있어 <strong>Lua 스크립트로 로그아웃 정보 읽기와 삭제를 한 번에 실행</strong>하고 먼저 실행한 서버만 전송</li>
+                </ul>
+                <h4>결과</h4>
+                <ul class="res">
+                  <li>세션을 끝내는 기능이 늘어도 <strong>세션만 지우면 연결된 앱 로그아웃까지 이어짐</strong></li>
+                  <li>로그아웃 경로가 하나라 경우마다 앱 로그아웃 코드를 넣다가 빠뜨리는 일이 없음</li>
+                </ul>
+              </div>
+            </details>
+            <details id="s-sflight" data-toc="Single Flight">
+              <summary><span class="s-title">캐시 만료 순간 DB로 몰리는 요청을 하나로 묶은 Single Flight</span><span class="s-res"><b>DB 조회 서버당 1회</b><small>캐시 적중률 97% 이상</small></span></summary>
+              <div class="story">
+                <figure class="diagram"><img src="../images/diagrams/oc-cache.png" alt="Cache Miss가 난 동시 요청을 서버마다 한 번의 DB 조회로 묶는 Single Flight" loading="lazy"></figure>
+                <h4>찾은 문제</h4>
+                <ul>
+                  <li>인증 요청마다 사용자와 그룹별 세션 정책(세션 유지 시간과 동시 세션 수 등)을 DB에서 조회해 요청이 늘수록 부하 증가</li>
+                </ul>
+                <h4>1차 개선</h4>
+                <ul>
+                  <li>세션 정책을 Redis에 Cache-Aside로 캐시해 k6 부하 시험에서 <strong>적중률 97% 이상</strong>을 내고 인증 경로의 DB 조회를 대부분 제거</li>
+                </ul>
+                <h4>부하 시험 중 추가로 찾은 문제와 해결</h4>
+                <ul>
+                  <li>캐시가 만료되는 순간 들어온 요청이 모두 Cache Miss를 내고 DB로 몰리는 Cache Stampede 확인</li>
+                  <li>TTL에 무작위 Jitter를 더해 여러 세션 정책이 같은 시각에 만료되지 않게 분산</li>
+                  <li>같은 세션 정책의 동시 Miss는 Redis 분산 락 대신 <strong>Single Flight로 묶어 서버마다 첫 요청만 DB 조회</strong></li>
+                  <li>Redis 분산 락은 Miss마다 Redis 왕복이 늘고 Redis가 멈추면 인증까지 멈춰서 제외</li>
+                  <li>Single Flight는 서버 수만큼 DB 조회가 생기지만 정책 조회가 가볍고 서버 수도 적어 감당할 만하다고 판단</li>
+                </ul>
+                <h4>결과</h4>
+                <ul class="res">
+                  <li>k6 부하 시험에서 <strong>캐시 적중률 97% 이상</strong></li>
+                  <li>DB 조회가 <strong>요청 수만큼에서 서버당 1회로</strong> 줄어 캐시가 만료돼도 DB에 요청이 몰리지 않음</li>
+                </ul>
+                <p class="links">기술 블로그: <a href="https://codding-til-theory.tistory.com/entry/Redis-Cache-Stampede-%EC%BA%90%EC%8B%9C%EA%B0%80-%EB%A7%8C%EB%A3%8C%EB%90%98%EB%8A%94-%EC%88%9C%EA%B0%84-%EB%AA%A8%EB%93%A0-%EC%9A%94%EC%B2%AD%EC%9D%B4-DB%EB%A1%9C-%EB%AA%B0%EB%A6%B0%EB%8B%A4%EB%A9%B4" target="_blank" rel="noopener">Redis Cache Stampede 대응 ↗</a> · <a href="https://codding-til-theory.tistory.com/entry/Redis-Cache-Penetration-%EC%A1%B4%EC%9E%AC%ED%95%98%EC%A7%80-%EC%95%8A%EB%8A%94-%EB%8D%B0%EC%9D%B4%ED%84%B0%EC%97%90-%EB%8C%80%ED%95%9C-%EC%9A%94%EC%B2%AD%EC%9D%B4-%EC%BA%90%EC%8B%9C%EB%A5%BC-%EB%9A%AB%EA%B3%A0-DB%EB%A5%BC-%EB%95%8C%EB%A6%B0%EB%8B%A4%EB%A9%B4" target="_blank" rel="noopener">Redis Cache Penetration 대응 ↗</a></p>
+              </div>
+            </details>
+            <details id="s-fallback" data-toc="Redis DB Fallback">
+              <summary><span class="s-title">Redis 장애에도 세션 인증이 멈추지 않게 한 DB Fallback</span><span class="s-res"><b>Redis 장애에도 인증 유지</b><small>감지부터 복귀까지 자동</small></span></summary>
+              <div class="story">
+                <figure class="diagram"><img src="../images/diagrams/oc-redis.png" alt="장애 주입 시험과 Redis 장애 때 Circuit Breaker가 DB로 우회하는 흐름과 상태 전환" loading="lazy"></figure>
+                <h4>찾은 문제</h4>
+                <ul>
+                  <li>k6 부하 중 Chaos Monkey로 Redis timeout을 넣자 모든 고객사의 세션 인증 실패</li>
+                  <li>세션을 Redis에만 두어 Redis가 모든 고객사 인증이 함께 거치는 단일 장애 지점</li>
+                </ul>
+                <table class="cmp opt"><thead><tr><th>장애 유형</th><th>Redis 복제</th><th>Circuit Breaker + DB Fallback</th></tr></thead><tbody>
+                  <tr><td>Redis 노드 장애</td><td>복제본으로 넘어가 버팀</td><td>DB로 우회</td></tr>
+                  <tr><td>서버와 Redis 사이 지연</td><td>그대로 멈춤</td><td>느린 호출로 집계해 DB로 우회</td></tr>
+                  <tr><td>서버와 Redis 사이 연결 끊김</td><td>그대로 멈춤</td><td>실패한 호출로 집계해 DB로 우회</td></tr>
+                </tbody></table>
+                <h4>해결 과정</h4>
+                <ul>
+                  <li>네트워크 장애에도 대응하도록 장애 원인과 상관없이 호출 실패율로 판단하는 Circuit Breaker 선택</li>
+                  <li>Redis timeout은 500ms로 두고 최근 100건 중 300ms를 넘긴 느린 호출과 실패가 30% 이상이면 Redis 호출 차단</li>
+                  <li>차단되면 <strong>세션을 PostgreSQL에서 읽고 쓰도록 전환</strong>하고 사용자는 다시 로그인</li>
+                  <li>30초 뒤 Half-Open에서는 응답은 DB가 맡고 요청 10건만 Redis에도 보내 실패율이 30% 미만이면 복귀하고 그렇지 않으면 다시 차단</li>
+                  <li>차단 중 DB에만 만든 세션은 Redis로 옮기지 않고 복귀 후 다시 로그인하게 해 두 저장소의 세션이 섞이지 않게 설계</li>
+                  <li>k6 부하 중 장애를 넣고 빼기를 반복하며 상태 전환 기록으로 DB 우회와 Redis 복귀 확인</li>
+                </ul>
+                <h4>결과</h4>
+                <ul class="res">
+                  <li>Redis 장애 중에도 인증이 유지되고 사용자는 <strong>장애 시작과 복구 때 한 번씩만 재로그인</strong></li>
+                  <li>Redis 복구를 시험하는 동안에도 응답은 DB가 맡아 세션 인증이 끊기지 않음</li>
+                  <li>장애 감지부터 DB 우회와 Redis 복귀까지 <strong>사람 개입 없이 자동 처리</strong></li>
+                </ul>
+              </div>
+            </details>
+            <details id="s-search" data-toc="검색 지연">
+              <summary><span class="s-title">데이터가 쌓이기 전에 부하 시험으로 찾은 검색 지연</span><span class="s-res"><b><s>987ms</s> → <em>20ms</em></b><small>검색 쿼리 평균 실행 시간</small></span></summary>
+              <div class="story">
+                <h4>찾은 문제</h4>
+                <ul>
+                  <li>서비스 초기라 데이터가 적어 검색이 빨라 보였음. 맡은 기능은 아니었지만 데이터가 쌓였을 때를 보려고 데이터 50만 건으로 k6 부하를 주자 검색 API p99가 1초를 넘음</li>
+                  <li>분산 추적 도구가 없어 Actuator Timer로 메서드 시간을 재고 P6Spy로 쿼리 시간을 재서 DB 쿼리가 원인임을 확인</li>
+                  <li>실행 계획을 보니 <code>LIKE '%검색어%'</code>와 여러 컬럼 OR 조건 때문에 테이블 전체를 읽고 있었음</li>
+                </ul>
+                <h4>해결 과정</h4>
+                <ul>
+                  <li><strong>pg_trgm GIN 인덱스</strong>로 앞뒤에 %가 붙는 검색도 인덱스를 쓰게 함</li>
+                  <li>OR 조건은 <strong>컬럼별 쿼리를 UNION으로 합쳐</strong> 조건마다 자기 인덱스를 타게 함</li>
+                </ul>
+                <h4>결과</h4>
+                <table class="cmp"><thead><tr><th>항목</th><th>이전</th><th>이후</th></tr></thead><tbody>
+                  <tr><td>쿼리 평균 실행 시간</td><td>987ms</td><td>20ms</td></tr>
+                  <tr><td>검색 API p99</td><td>1초 이상</td><td>200ms 이내</td></tr>
+                  <tr><td>실행 계획</td><td>테이블 전체 읽기</td><td>인덱스 사용</td></tr>
+                </tbody></table>
+              </div>
+            </details>
+
+            <p class="group">인프라</p>
+            <details id="s-gitops" data-toc="GitOps">
+              <summary><span class="s-title">VM 수동 배포를 EKS로 옮겨 배포 이력과 롤백을 Git으로 관리하는 GitOps 파이프라인</span><span class="s-res"><b>롤백은 Git Revert 한 번</b><small>배포 이력을 Git으로 추적</small></span></summary>
+              <div class="story">
+                <figure class="diagram"><img src="../images/diagrams/oc-gitops.png" alt="push부터 GitHub Actions, ECR, Helm 배포 저장소, EKS 안 Argo CD 동기화와 Git Revert 롤백까지의 배포 흐름" loading="lazy"></figure>
+                <h4>찾은 문제</h4>
+                <ul>
+                  <li>개발자마다 자기 PC의 코드로 Shell 스크립트를 돌려 dev VM에 직접 배포해 배포되는 코드가 PC마다 달라짐</li>
+                  <li>여러 명이 배포하면 서로의 배포를 덮어써 서버에 올라간 버전을 알 수 없음</li>
+                </ul>
+                <h4>해결 과정</h4>
+                <ul>
+                  <li>main에 push하면 GitHub Actions가 이미지를 빌드하고 <strong>Trivy 취약점 검사에 실패하면 배포를 중단</strong>. 통과한 이미지는 Commit SHA 태그로 ECR에 저장</li>
+                  <li>앱과 분리한 Helm 배포 저장소에 공통 Template 하나를 두고 서비스별 차이는 values 파일에만 두어 배포 구성 표준화</li>
+                  <li>인증, 온보딩, 로그 Consumer를 서비스별 values로 나눠 독립적으로 배포</li>
+                  <li>CI가 <strong>values의 이미지 태그를 새 Commit SHA로 자동 커밋</strong>해 배포 이력을 Git 커밋으로 관리</li>
+                  <li>Argo CD가 5분 주기로 배포 저장소의 변경을 감지해 Auto Sync로 반영</li>
+                  <li>Self-Heal을 켜 두어 클러스터를 직접 고쳐도 Git 상태로 복구</li>
+                  <li>롤백은 배포 저장소 커밋의 Git Revert만으로 Argo CD가 이전 이미지 태그로 복구</li>
+                </ul>
+                <h4>결과</h4>
+                <ul class="res">
+                  <li>배포 경로가 하나로 모여 서로의 배포를 덮어쓰지 않음</li>
+                  <li>배포된 버전은 Git 이력과 이미지 태그로 바로 확인</li>
+                  <li><strong>롤백은 Git Revert 한 번이고</strong> 배포와 롤백 절차를 문서로 남겨 다른 개발자도 혼자 처리</li>
+                </ul>
+              </div>
+            </details>
+            <details id="s-irsa" data-toc="서비스별 권한 분리">
+              <summary><span class="s-title">서비스 하나가 탈취돼도 피해가 번지지 않게 한 서비스별 AWS 권한 분리</span><span class="s-res"><b>피해 범위를 서비스 하나로</b><small>다른 서비스 비밀 값은 AccessDenied</small></span></summary>
+              <div class="story">
+                <figure class="diagram"><img src="../images/diagrams/oc-irsa.png" alt="서비스마다 IAM Role을 받는 IRSA 흐름과 Pod 통신, 비밀 값, DB 접근 제한" loading="lazy"></figure>
+                <h4>찾은 문제</h4>
+                <ul>
+                  <li>EKS 전환 직후 모든 Pod가 Worker Node의 IAM Role을 공유해 한 서비스가 탈취되면 다른 서비스의 권한과 비밀 값까지 쓰일 수 있음</li>
+                  <li>Pod 사이 통신이 Kubernetes 기본값대로 모두 열려 있음</li>
+                  <li>RDS 접속 허용 규칙이 CIDR 기준이라 같은 대역의 어떤 리소스든 DB에 접근 가능</li>
+                </ul>
+                <h4>해결 과정</h4>
+                <ul>
+                  <li>IRSA로 서비스마다 <strong>실제 쓰는 AWS API만 허용한 Role</strong> 사용</li>
+                  <li>Worker Node Role에는 노드 운영 권한만 남기고 Pod의 IMDS 접근 차단</li>
+                  <li>VPC CNI NetworkPolicy로 <strong>Pod의 들어오고 나가는 통신을 Default Deny로 막고</strong> 필요한 경로만 허용</li>
+                  <li>Security Groups for Pods로 서비스마다 Security Group을 붙이고 RDS는 그 그룹만 접속 허용</li>
+                  <li>DB 접속 정보와 설정 값은 Secrets Manager와 Parameter Store에 두고 Secrets Store CSI Driver로 주입. 읽기 권한도 서비스별 Role로 제한</li>
+                </ul>
+                <h4>결과</h4>
+                <ul class="res">
+                  <li>한 서비스가 탈취돼도 다른 서비스의 AWS 권한과 비밀 값으로 피해가 번지지 않음</li>
+                  <li><strong>다른 서비스의 비밀 값 조회는 AccessDenied</strong>로 막히고 IMDS 호출과 허용하지 않은 Pod 요청도 차단되는 것을 직접 확인</li>
+                  <li>허용하지 않은 Pod의 요청은 다른 서비스와 DB에 닿지 않아 탈취된 Pod 하나로 피해 범위가 한정됨</li>
+                </ul>
+              </div>
+            </details>
+            <details id="s-probe" data-toc="Probe와 리소스 기준">
+              <summary><span class="s-title">기동이 느린 앱의 Pod 재시작 반복을 멈춘 Probe와 리소스 기준</span><span class="s-res"><b>Pod 재시작 반복 해소</b><small>준비된 Pod만 트래픽 수신</small></span></summary>
+              <div class="story">
+                <figure class="diagram"><img src="../images/diagrams/oc-probe.png" alt="Helm values의 Probe와 리소스 기준으로 기동이 끝난 Pod에만 트래픽을 보내는 흐름" loading="lazy"></figure>
+                <h4>찾은 문제</h4>
+                <ul>
+                  <li>대시보드에서 주말 동안 Pod가 수백 번 재시작한 것을 발견</li>
+                  <li>로그를 보니 1분가량 걸리는 기동 중에 liveness Probe가 검사해 정상 Pod를 종료하고 다시 띄우고 있었음</li>
+                  <li>기동 중 CPU 사용량을 보니 1 core로 낮게 잡은 limit에 막혀 기동이 더 느려지고 Probe 실패가 잦아지는 구조</li>
+                </ul>
+                <h4>해결 과정</h4>
+                <ul>
+                  <li>Spring Boot 기동 로그로 평상시와 가장 느린 경우의 기동 시간을 측정</li>
+                  <li>startupProbe의 failureThreshold × periodSeconds를 <strong>가장 느린 기동의 약 2배</strong>로 설정</li>
+                  <li>liveness는 startupProbe가 끝난 뒤 짧은 간격으로 검사해 실제로 멈춘 Pod만 빠르게 재시작</li>
+                  <li>Actuator health groups로 liveness와 readiness를 나누고 외부 의존성은 제외</li>
+                  <li>CPU limit을 1 core에서 2 core로 올려 <strong>기동 중 CPU throttling 해소</strong></li>
+                  <li>requests는 평상시 사용량대로 두어 노드 예약 자원은 늘리지 않고 메모리 limit은 JVM 힙보다 여유 있게 조정</li>
+                  <li>적용 뒤 RESTARTS와 대시보드로 재시작이 더 늘지 않는지 확인</li>
+                </ul>
+                <h4>결과</h4>
+                <ul class="res">
+                  <li><strong>수백 번 반복되던 재시작이 멈추고</strong> 기동에 1분가량 걸리는 앱도 준비가 끝난 뒤에만 트래픽 수신</li>
+                  <li>새 서비스도 같은 Probe와 리소스 기준으로 배포해 같은 문제가 다시 생기지 않음</li>
+                </ul>
+              </div>
+            </details>
+          </div>
+        </article>
+
+        <a class="next-proj" href="nova.html"><small>다음 프로젝트</small><b>사전예약 서비스 NOVA →</b></a>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="wrap footer-inner">
+      <p class="mono"><span class="prompt">$</span> echo "함께 이야기 나눠요"</p>
+      <div class="footer-links">
+        <a href="mailto:yhjyhj3855@gmail.com">Email</a>
+        <a href="https://github.com/UHeeJoon" target="_blank" rel="noopener">GitHub</a>
+        <a href="https://codding-til-theory.tistory.com" target="_blank" rel="noopener">Blog</a>
+      </div>
+      <p class="copy">© 2026 유희준</p>
+    </div>
+  </footer>
+
+  <script src="../assets/js/main.js?v=20261109w" defer></script>
+</body>
+</html>

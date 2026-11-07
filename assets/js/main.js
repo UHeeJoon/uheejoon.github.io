@@ -25,12 +25,13 @@
       box.appendChild(big);
       var close = function () {
         box.remove();
-        document.removeEventListener('keydown', onKey);
+        document.removeEventListener('keydown', onKey, true);
       };
-      var onKey = function (e) { if (e.key === 'Escape') close(); };
+      // 모달 안 그림은 Esc가 모달까지 닫지 않게 막고, 모달 위에 보이도록 모달 안에 붙인다
+      var onKey = function (e) { if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); close(); } };
       box.addEventListener('click', close);
-      document.addEventListener('keydown', onKey);
-      document.body.appendChild(box);
+      document.addEventListener('keydown', onKey, true);
+      (img.closest('dialog[open]') || document.body).appendChild(box);
     });
   });
 
@@ -254,8 +255,127 @@
     spy();
   })();
 
+  // 개인 프로젝트: 카드를 누르면 모달로 연다. #p-이름 주소로 바로 열 수도 있다
+  (function () {
+    var dialogs = document.querySelectorAll('dialog.pmodal');
+    if (!dialogs.length || typeof HTMLDialogElement === 'undefined') return;
+    var lastCard = null;
+    var open = function (d, push) {
+      if (d.open) return;
+      d.showModal(); root.classList.add('modal-open'); d.querySelector('.pmodal-body').scrollTop = 0;
+      if (push) history.replaceState(null, '', '#' + d.id);
+    };
+    var close = function (d) { if (d.open) d.close(); };
+    dialogs.forEach(function (d) {
+      d.querySelector('.pmodal-close').addEventListener('click', function () { close(d); });
+      d.addEventListener('click', function (e) { if (e.target === d) close(d); });
+      d.addEventListener('close', function () {
+        root.classList.remove('modal-open');
+        if (location.hash === '#' + d.id) history.replaceState(null, '', '#deep');
+        if (lastCard) lastCard.focus();
+      });
+    });
+    document.querySelectorAll('a.dcard[href^="#p-"]').forEach(function (a) {
+      a.addEventListener('click', function (e) {
+        var d = document.getElementById(a.getAttribute('href').slice(1));
+        if (!d) return;
+        e.preventDefault(); lastCard = a; open(d, true);
+      });
+    });
+    var fromHash = function () {
+      var d = /^#p-/.test(location.hash) && document.getElementById(location.hash.slice(1));
+      if (d && d.tagName === 'DIALOG') {
+        var deep = document.getElementById('deep');
+        if (deep) window.scrollTo({ top: deep.getBoundingClientRect().top + window.scrollY - 60, behavior: 'instant' });
+        lastCard = document.querySelector('a.dcard[href="' + location.hash + '"]');
+        open(d, false);
+      }
+    };
+    fromHash();
+    window.addEventListener('hashchange', fromHash);
+  })();
+
+  // 프로젝트 카드: 마우스로 끌어서 좌우로 넘기고, 화살표 버튼으로도 넘긴다
+  (function () {
+    var strip = document.querySelector('.pcards');
+    if (!strip) return;
+    // 카드는 링크라서 그대로 두면 브라우저가 링크 끌기(주소 끌어다 놓기)를 시작해 넘기기가 멈춘다
+    strip.querySelectorAll('a, img').forEach(function (el) { el.setAttribute('draggable', 'false'); });
+    strip.addEventListener('dragstart', function (e) { e.preventDefault(); });
+    // 띠는 화면 양 끝까지 늘리고, 첫 카드와 멈추는 자리는 본문 왼쪽 선에 맞춘다
+    var setGut = function () {
+      var wrap = strip.parentElement, l = wrap.getBoundingClientRect().left, r = document.documentElement.clientWidth - wrap.getBoundingClientRect().right;
+      strip.style.setProperty('--gl', l + 'px'); strip.style.setProperty('--gr', r + 'px');
+    };
+    setGut(); window.addEventListener('resize', setGut);
+    var down = false, moved = false, startX = 0, startLeft = 0;
+    strip.addEventListener('pointerdown', function (e) {
+      if (e.pointerType !== 'mouse' || e.button !== 0) return;
+      down = true; moved = false; startX = e.clientX; startLeft = strip.scrollLeft;
+      e.preventDefault(); // 글자 선택과 링크 끌기를 막는다
+    });
+    window.addEventListener('pointermove', function (e) {
+      if (!down) return;
+      var dx = e.clientX - startX;
+      if (!moved && Math.abs(dx) > 6) { moved = true; strip.classList.add('dragging'); }
+      if (moved) strip.scrollLeft = startLeft - dx;
+    });
+    var end = function () {
+      if (!down) return;
+      down = false;
+      if (moved) {
+        strip.classList.remove('dragging');
+        // 끌기를 놓은 자리에서 가장 가까운 카드로 맞춘다
+        var cards = strip.querySelectorAll('.pcard'), best = 0, bd = Infinity;
+        var pad = parseFloat(getComputedStyle(strip).paddingLeft) || 0;
+        var pos = function (c) { return c.offsetLeft - strip.offsetLeft - pad; };
+        cards.forEach(function (c, i) { var d = Math.abs(pos(c) - strip.scrollLeft); if (d < bd) { bd = d; best = i; } });
+        strip.scrollTo({ left: pos(cards[best]), behavior: 'smooth' });
+      }
+    };
+    window.addEventListener('pointerup', end);
+    window.addEventListener('pointercancel', end);
+    // 끌고 난 뒤의 클릭은 카드 이동으로 보지 않는다
+    strip.addEventListener('click', function (e) { if (moved) { e.preventDefault(); e.stopPropagation(); moved = false; } }, true);
+
+    var prev = document.querySelector('.pc-prev'), next = document.querySelector('.pc-next');
+    var step = function () { var c = strip.querySelector('.pcard'); return c ? c.getBoundingClientRect().width + 24 : 400; };
+    var sync = function () {
+      if (!prev) return;
+      prev.disabled = strip.scrollLeft < 4;
+      next.disabled = strip.scrollLeft + strip.clientWidth >= strip.scrollWidth - 4;
+    };
+    if (prev) {
+      prev.addEventListener('click', function () { strip.scrollBy({ left: -step(), behavior: 'smooth' }); });
+      next.addEventListener('click', function () { strip.scrollBy({ left: step(), behavior: 'smooth' }); });
+    }
+    strip.addEventListener('scroll', function () { requestAnimationFrame(sync); }, { passive: true });
+    strip.addEventListener('keydown', function (e) {
+      if (e.target !== strip) return;
+      if (e.key === 'ArrowRight') { e.preventDefault(); strip.scrollBy({ left: step(), behavior: 'smooth' }); }
+      if (e.key === 'ArrowLeft') { e.preventDefault(); strip.scrollBy({ left: -step(), behavior: 'smooth' }); }
+    });
+    window.addEventListener('resize', sync);
+    sync();
+  })();
+
+  // 프로젝트 상세: 상단 메뉴 아래 읽은 만큼 차는 진행 막대
+  (function () {
+    var bar = document.querySelector('.nav-proj .nav-progress');
+    if (!bar) return;
+    var tick = false;
+    var update = function () {
+      var max = document.documentElement.scrollHeight - window.innerHeight;
+      bar.style.transform = 'scaleX(' + (max > 0 ? Math.min(1, window.scrollY / max) : 0) + ')';
+      tick = false;
+    };
+    window.addEventListener('scroll', function () { if (!tick) { tick = true; requestAnimationFrame(update); } }, { passive: true });
+    window.addEventListener('resize', update);
+    update();
+  })();
+
   // 스크롤하면 섹션이 차례로 나타난다
-  var targets = document.querySelectorAll('.principles article, .case, .ai, .deep, .timeline > li, .certs li, .stack > div');
+  var targets = document.querySelectorAll('.principles article, .case, .ai, .dcard, .timeline > li, .certs li, .stack > div');
   if (!('IntersectionObserver' in window)) { root.classList.add('no-io'); return; }
   targets.forEach(function (el) { el.classList.add('reveal'); });
   var io = new IntersectionObserver(function (entries) {

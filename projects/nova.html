@@ -1,0 +1,533 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>사전예약 서비스 NOVA | 유희준</title>
+  <meta name="description" content="장애가 나도 서비스와 데이터가 버티는 구조를 만드는 백엔드·DevOps 엔지니어 유희준의 포트폴리오">
+  <meta property="og:title" content="사전예약 서비스 NOVA | 유희준">
+  <meta property="og:description" content="추측하지 않고 측정하고 재현해서 문제를 확인합니다. 멀티테넌트 SSO, 선착순 사전예약, 에스크로 결제를 설계하고 운영했습니다.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://uheejoon.github.io/projects/nova.html">
+  <link rel="icon" href="../images/favicon.ico">
+  <link rel="apple-touch-icon" href="../images/apple-touch-icon.png">
+  <link rel="preconnect" href="https://cdn.jsdelivr.net">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap">
+  <link rel="stylesheet" href="../assets/css/style.css?v=20261109w">
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem('theme');
+        if (t) document.documentElement.setAttribute('data-theme', t);
+      } catch (e) {}
+    })();
+  </script>
+</head>
+<body>
+  <a class="skip" href="#main">본문으로 건너뛰기</a>
+
+  <header class="nav nav-proj">
+    <div class="wrap nav-inner">
+      <a class="brand" href="../#top"><span class="prompt">~/</span>uheejoon</a>
+      <nav class="proj-nav" aria-label="프로젝트 이동">
+        <a class="pn-home" href="../#work">← 포트폴리오</a>
+        <span class="pn-sep" aria-hidden="true"></span>
+        <a href="octaco.html">옥타코 SSO</a><a href="nova.html" aria-current="page">사전예약 NOVA</a><a href="search-platform.html">Search Platform</a>
+      </nav>
+      <button class="theme-toggle" type="button" aria-label="밝은 테마와 어두운 테마 전환">
+        <svg class="i-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+        <svg class="i-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+      </button>
+    </div>
+    <span class="nav-progress" aria-hidden="true"></span>
+  </header>
+
+  <main id="main">
+    <section class="section project-page" id="work">
+      <div class="wrap">
+        <!-- NOVA -->
+        <article class="case" id="case-nova" data-toc="사전예약 NOVA">
+          <div class="case-head ov">
+            <div>
+              <ul class="case-meta"><li>팀 프로젝트</li><li>2026.09 – 2026.10</li><li>LG U+ 유레카 부트캠프 7인 팀 (백엔드 5명, 프론트엔드 2명)</li></ul>
+              <h1 class="case-title">사전예약 서비스 NOVA</h1>
+              <p class="case-desc">판매가 열리면 10초 안에 5,000명이 몰리는 사전예약 서비스입니다. 사용자는 대기열에서 차례를 기다렸다가 예약을 접수합니다. 접수한 예약은 외부 예약 시스템에도 등록해야 하는데 이 시스템은 요청이 몰리면 느려집니다. 서비스 10개는 ECS Fargate에서 돌고 외부 등록은 SQS를 거쳐 worker가 처리합니다.</p>
+          <p class="ov-h">주요 성과</p>
+          <ul class="hl" aria-label="주요 결과">
+            <li><a href="#s-lock"><span class="hl-label">선착순 접수 p50</span><span class="hl-big">48ms</span><span class="hl-from">이전 521ms</span></a></li>
+            <li><a href="#s-wr"><span class="hl-label">대기열 입장 p95</span><span class="hl-big">3초</span><span class="hl-from">이전 31초</span></a></li>
+            <li><a href="#s-loadtest"><span class="hl-label">판매 오픈 첫 1분 p95</span><span class="hl-big">30ms</span><span class="hl-from">첫 시험 4.67초</span></a></li>
+            <li><a href="#s-cost"><span class="hl-label">월 클라우드 비용</span><span class="hl-big">약 240달러</span><span class="hl-from">목표 구조 추정 약 890달러</span></a></li>
+          </ul>
+              <div class="role">
+                <p class="role-h">맡은 일</p>
+                <dl>
+                  <div><dt>인프라</dt><dd><ul class="role-list"><li>AWS 인프라 설계와 구축</li><li>Terraform 구조와 Atlantis 변경 절차</li><li>ECS 오토스케일링</li><li>부하 시험 환경</li><li>IAM과 비밀 값 관리</li><li>비용 관리</li><li>모니터링</li></ul></dd></div>
+                  <div><dt>백엔드</dt><dd><ul class="role-list"><li>사전예약 접수 서버</li><li>대기열</li><li>외부 예약 시스템 등록과 취소 worker</li></ul></dd></div>
+                  <div class="role-tech"><dt>기술</dt><dd><ul class="tags"><li>Spring Boot</li><li>MySQL</li><li>Valkey</li><li>Resilience4j</li><li>SQS</li><li>ECS Fargate</li><li>CloudFront</li><li>WAF</li><li>Terraform</li><li>Atlantis</li><li>SOPS</li><li>k6</li><li>OpenTelemetry</li><li>Grafana</li></ul></dd></div>
+                  <div class="role-repo"><dt>저장소</dt><dd><a href="https://github.com/Nova-Grandis/be" target="_blank" rel="noopener">nova-be ↗</a><a href="https://github.com/Nova-Grandis/nova-infra" target="_blank" rel="noopener">nova-infra ↗</a><a href="https://github.com/Nova-Grandis/atlantis-deploy" target="_blank" rel="noopener">atlantis-deploy ↗</a><a href="https://github.com/Nova-Grandis/nova-loadtest" target="_blank" rel="noopener">nova-loadtest ↗</a></dd></div>
+                </dl>
+              </div>
+            </div>
+          </div>
+
+            <figure class="diagram arch"><img src="../images/diagrams/nova-cloud.png" alt="NOVA의 AWS 클라우드 아키텍처: CloudFront와 WAF 뒤 두 가용 영역의 ALB와 ECS Fargate 서비스, ElastiCache Valkey와 RDS for MySQL, SQS, Secrets Manager, 관측 클러스터와 Atlantis" loading="lazy">
+              <figcaption>사전예약 서비스 NOVA의 AWS 목표 아키텍처</figcaption></figure>
+          <details class="flow-toggle">
+            <summary><span class="ft-t">판매가 열린 순간 예약 요청 하나가 지나가는 길</span><span class="ft-a">애니메이션으로 보기</span></summary>
+
+          <div class="flow" data-flow>
+            <div class="flow-head">
+              <p class="flow-title" id="flow-t">판매가 열린 순간 예약 요청 하나가 지나가는 길</p>
+              <button type="button" class="flow-play" aria-label="흐름 재생"><span class="i-play">▶</span><span class="i-pause">❚❚</span> <span class="flow-play-t">재생</span></button>
+            </div>
+            <div class="flow-scroll"><svg class="flow-svg" viewBox="0 0 1056 278" role="img" aria-labelledby="flow-t">
+<defs><marker id="fa" viewBox="0 0 10 10" refX="11" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 10 5 0 10z" class="fa"/></marker></defs>
+<g class="zone"><path d="M12 30H590"/><text x="12" y="20">사용자가 기다리는 구간</text></g>
+<g class="zone z2"><path d="M612 30H1040"/><text x="612" y="20">큐 뒤에서 처리하는 구간</text></g>
+<g class="divider"><path d="M601 36V268"/><text x="601" y="276" text-anchor="middle">사용자 응답은 여기까지</text></g>
+<path class="edge " data-e="user-edge" d="M140 87.0H160" marker-end="url(#fa)"/>
+<path class="edge " data-e="edge-wr" d="M290 87.0H310" marker-end="url(#fa)"/>
+<path class="edge " data-e="wr-po" d="M440 87.0H460" marker-end="url(#fa)"/>
+<path class="edge dash" data-e="po-sqs" d="M590 87.0H610" marker-end="url(#fa)"/>
+<path class="edge " data-e="sqs-wk" d="M740 87.0H760" marker-end="url(#fa)"/>
+<path class="edge " data-e="wk-ext" d="M890 87.0H910" marker-end="url(#fa)"/>
+<path class="edge " data-e="wr-valkey" d="M376.0 116V194" marker-end="url(#fa)"/>
+<path class="edge " data-e="po-db" d="M526.0 116V194" marker-end="url(#fa)"/>
+<path class="edge dash warn" data-e="sqs-dlq" d="M676.0 116V194" marker-end="url(#fa)"/>
+<path class="edge dash warn" data-e="dlq-slack" d="M740 225.0H760" marker-end="url(#fa)"/>
+<circle class="flow-dot" r="8" cx="76" cy="87"/>
+<g class="node ext" data-n="user"><rect x="12" y="58" width="128" height="58" rx="10"/><text x="76.0" y="83" class="nl">사용자</text><text x="76.0" y="102" class="ns">10초에 5,000명</text></g>
+<g class="node " data-n="edge"><rect x="162" y="58" width="128" height="58" rx="10"/><text x="226.0" y="83" class="nl">CloudFront + WAF</text><text x="226.0" y="102" class="ns">경로별 요청 한도</text></g>
+<g class="node " data-n="wr"><rect x="312" y="58" width="128" height="58" rx="10"/><text x="376.0" y="83" class="nl">waitingroom</text><text x="376.0" y="102" class="ns">대기열</text></g>
+<g class="node " data-n="po"><rect x="462" y="58" width="128" height="58" rx="10"/><text x="526.0" y="83" class="nl">preorder</text><text x="526.0" y="102" class="ns">접수 서버</text></g>
+<g class="node " data-n="sqs"><rect x="612" y="58" width="128" height="58" rx="10"/><text x="676.0" y="83" class="nl">SQS</text><text x="676.0" y="102" class="ns">등록, 취소 작업</text></g>
+<g class="node " data-n="wk"><rect x="762" y="58" width="128" height="58" rx="10"/><text x="826.0" y="83" class="nl">worker</text><text x="826.0" y="102" class="ns">외부 연동</text></g>
+<g class="node ext" data-n="ext"><rect x="912" y="58" width="128" height="58" rx="10"/><text x="976.0" y="83" class="nl">외부 예약 시스템</text><text x="976.0" y="102" class="ns">평균 500ms</text></g>
+<g class="node store" data-n="valkey"><rect x="312" y="196" width="128" height="58" rx="10"/><text x="376.0" y="221" class="nl">Valkey</text><text x="376.0" y="240" class="ns">순번</text></g>
+<g class="node store" data-n="db"><rect x="462" y="196" width="128" height="58" rx="10"/><text x="526.0" y="221" class="nl">MySQL</text><text x="526.0" y="240" class="ns">예약 + Outbox</text></g>
+<g class="node warn" data-n="dlq"><rect x="612" y="196" width="128" height="58" rx="10"/><text x="676.0" y="221" class="nl">DLQ</text><text x="676.0" y="240" class="ns">처리 못 한 작업</text></g>
+<g class="node warn" data-n="slack"><rect x="762" y="196" width="128" height="58" rx="10"/><text x="826.0" y="221" class="nl">Slack</text><text x="826.0" y="240" class="ns">알림</text></g>
+</svg></div>
+            <ol class="flow-steps">
+              <li><button type="button" data-i="0"><span class="mono">1</span>몰림</button></li>
+              <li><button type="button" data-i="1"><span class="mono">2</span>요청 제한</button></li>
+              <li><button type="button" data-i="2"><span class="mono">3</span>대기열</button></li>
+              <li><button type="button" data-i="3"><span class="mono">4</span>접수</button></li>
+              <li><button type="button" data-i="4"><span class="mono">5</span>발행</button></li>
+              <li><button type="button" data-i="5"><span class="mono">6</span>외부 연동</button></li>
+              <li><button type="button" data-i="6"><span class="mono">7</span>등록</button></li>
+              <li><button type="button" data-i="7"><span class="mono">8</span>실패 처리</button></li>
+            </ol>
+            <div class="flow-cap" aria-live="polite">
+            <p data-i="0"><b class="mono">1/8</b> 판매가 열리면 10초에 5,000명이 한꺼번에 몰립니다.</p>
+            <p data-i="1" hidden><b class="mono">2/8</b> CloudFront와 WAF가 경로별 요청 한도로 과한 요청을 먼저 걸러 냅니다.</p>
+            <p data-i="2" hidden><b class="mono">3/8</b> Valkey 순번으로 줄을 세우고 접수 서버가 감당할 만큼만 들여보냅니다. <a href="#s-wr">자세히 보기 →</a></p>
+            <p data-i="3" hidden><b class="mono">4/8</b> 예약과 Outbox를 <b>한 트랜잭션으로 저장</b>하고 사용자에게 바로 응답합니다. 사용자가 기다리는 구간은 여기서 끝납니다. <a href="#s-outbox">자세히 보기 →</a></p>
+            <p data-i="4" hidden><b class="mono">5/8</b> 커밋 뒤 등록 작업을 SQS에 발행합니다. 발행에 실패해도 Outbox 행이 남아 주기 작업이 다시 발행합니다. <a href="#s-outbox">자세히 보기 →</a></p>
+            <p data-i="5" hidden><b class="mono">6/8</b> worker가 외부 응답 속도에 맞춰 <b>동시 요청 수를 스스로 조절</b>합니다. 큐가 쌓이면 worker 대수가 늘어납니다. <a href="#s-limit">자세히 보기 →</a></p>
+            <p data-i="6" hidden><b class="mono">7/8</b> 예약 id를 멱등 키로 붙여 등록합니다. 결과를 모르면 <b>같은 키로 먼저 조회</b>해 없을 때만 다시 보냅니다. <a href="#s-judge">자세히 보기 →</a></p>
+            <p data-i="7" hidden><b class="mono">8/8</b> 다시 보내도 안 되는 작업은 DLQ로 옮기고 Slack으로 알립니다. 외부가 멈춰도 접수는 그대로 처리됩니다. <a href="#s-judge">자세히 보기 →</a></p>
+            </div>
+          </div>
+          </details>
+
+          <p class="page-sub">항목을 펼치면 찾은 문제와 해결 과정과 결과를 차례로 볼 수 있습니다. 그림은 누르면 크게 보입니다.</p>
+          <div class="stories">
+            <p class="group">백엔드</p>
+            <details id="s-outbox" data-toc="외부 등록 비동기화">
+              <summary><span class="s-title">예약과 보낼 메시지를 함께 저장해 유실 없이 처리한 외부 등록 비동기화</span><span class="s-res"><b>외부가 멈춰도 접수 유지</b><small>등록 유실과 중복 없음</small></span></summary>
+              <div class="story">
+                <figure class="diagram"><img src="../images/diagrams/nv-outbox.png" alt="예약과 Outbox를 한 트랜잭션에 저장하고 외부 등록은 큐 뒤에서 처리하는 순서" loading="lazy"></figure>
+                <h4>찾은 문제</h4>
+                <ul>
+                  <li>요청이 몰리면 외부 예약 시스템이 느려짐</li>
+                  <li>접수가 외부 등록을 기다리는 구조라 접수도 함께 지연</li>
+                  <li>예약 저장과 외부 등록 요청 중 한쪽만 성공하면 예약과 외부 등록이 서로 맞지 않게 됨</li>
+                </ul>
+                <table class="cmp opt"><thead><tr><th>검토한 안</th><th>장점</th><th>단점</th></tr></thead><tbody>
+                  <tr><td>외부 시스템 동기 호출</td><td>구현이 단순</td><td>외부가 느려지면 접수도 함께 느려짐</td></tr>
+                  <tr><td>DB 저장 뒤 SQS 직접 발행</td><td>구현이 단순</td><td>커밋과 발행 사이에 죽으면 메시지 유실</td></tr>
+                  <tr class="pick"><td>Outbox + SQS (선택)</td><td>발행하지 못한 행도 DB에 남아 재발행</td><td>중복 발행이 생길 수 있어 받는 쪽 멱등 처리 필요</td></tr>
+                </tbody></table>
+                <h4>해결 과정</h4>
+                <ul>
+                  <li>접수 서버는 예약만 저장한 뒤 바로 응답. 외부 등록과 취소는 SQS에 넣어 별도 worker 서버가 처리</li>
+                  <li><strong>예약과 Outbox 메시지를 한 트랜잭션으로 저장</strong>하고 커밋 직후 발행. 발행하지 못한 메시지는 Outbox relay가 다시 발행</li>
+                  <li>같은 메시지가 두 번 갈 수 있어 <strong>예약 id를 멱등 키로</strong> 써서 중복 등록 방지</li>
+                  <li>처리하지 못한 메시지는 DLQ로 옮기고 한 건이라도 쌓이면 Slack 알림</li>
+                </ul>
+                <h4>결과</h4>
+                <ul class="res">
+                  <li>외부가 느려지거나 멈춰도 접수는 그대로 처리되고 <strong>외부 등록만 늦어짐</strong></li>
+                  <li>발행하지 못한 메시지는 Outbox에서 다시 발행하고 예약 id로 중복을 막아 <strong>외부 등록이 빠지거나 두 번 반영되지 않음</strong></li>
+                </ul>
+              </div>
+            </details>
+            <details id="s-sema" data-toc="동시 접수 제한">
+              <summary><span class="s-title">세마포어로 선착순 접수의 DB 커넥션 점유를 막은 동시 접수 제한</span><span class="s-res"><b>조회 503 해소</b><small>커넥션 절반을 조회 몫으로 유지</small></span></summary>
+              <div class="story">
+                <figure class="diagram"><img src="../images/diagrams/nv-acceptpool.png" alt="한 상품은 커넥션 2개, 접수 전체는 5개까지만 쓰고 나머지 접수는 커넥션 없이 기다리는 구조" loading="lazy"></figure>
+                <h4>찾은 문제</h4>
+                <ul>
+                  <li>같은 상품의 접수는 선착순 순번 행 Lock에서 한 건씩 처리되는데 기다리는 동안에도 DB 커넥션을 쥔 채 대기</li>
+                  <li>대기열이 한 번에 100명 넘게 들여보내자 한 상품의 접수가 커넥션 10개를 모두 점유</li>
+                  <li>상관없는 조회 API는 커넥션을 2초 기다리다 503을 응답하고 Outbox relay 발행도 지연</li>
+                </ul>
+                <h4>해결 과정</h4>
+                <ul>
+                  <li>줄을 DB 커넥션 대신 서버 메모리에 세우도록 <strong>접수 트랜잭션 앞에 세마포어 배치</strong></li>
+                  <li>상품 하나당 동시에 2건(Lock을 쥔 1건과 다음 차례 1건)까지만 받고 접수 전체는 커넥션의 절반인 5건으로 제한</li>
+                  <li>한도에 막힌 접수는 커넥션 없이 기다리다 3초가 지나면 503과 1~3초 사이 무작위 Retry-After 응답</li>
+                  <li>같은 상품 12건을 동시에 접수하는 테스트로 2건만 트랜잭션에 들어가고 다른 상품 접수와 순번이 정상인지 확인</li>
+                </ul>
+                <h4>결과</h4>
+                <ul class="res">
+                  <li>접수가 몰려도 <strong>커넥션 절반이 조회 몫으로 남아</strong> 커넥션을 2초 기다리다 503으로 실패하던 조회가 정상 응답</li>
+                  <li>한도에 막힌 접수는 커넥션 없이 기다려 한 상품에 접수가 몰려도 다른 상품의 접수와 조회가 함께 멈추지 않음</li>
+                </ul>
+              </div>
+            </details>
+            <details id="s-lock" data-toc="Lock 시점 변경">
+              <summary><span class="s-title">Lock 시점을 커밋 직전으로 옮긴 선착순 접수 개선</span><span class="s-res"><b><s>p50 521ms</s> → <em>48ms</em></b><small>선착순 접수 응답 91% 단축</small></span></summary>
+              <div class="story">
+                <figure class="diagram"><img src="../images/diagrams/nv-acceptlock.png" alt="순번 행 Lock을 커밋 직전으로 옮겨 Lock을 쥔 SQL을 7개에서 3개로 줄인 변경" loading="lazy"></figure>
+                <h4>찾은 문제</h4>
+                <ul>
+                  <li>부하 시험에서 접수 서버를 늘려도 상품 하나의 접수는 초당 약 200건에서 정체</li>
+                  <li>느린 접수의 <strong>Tempo 트레이스에서 순번 행 SELECT FOR UPDATE 대기</strong>에 시간이 몰리고 DB CPU는 여유</li>
+                  <li>Lock을 트랜잭션 맨 앞에서 걸어 다음 접수가 SQL 7개가 끝날 때까지 대기</li>
+                </ul>
+                <h4>해결 과정</h4>
+                <ul>
+                  <li>순번만 비운 채 나머지 행을 먼저 저장하고 <strong>커밋 직전에만 Lock을 걸어</strong> Lock을 쥔 SQL을 7개에서 3개로 축소</li>
+                  <li>줄어든 대기만큼 상품 하나의 동시 접수 한도를 2건에서 4건으로 상향</li>
+                  <li>오픈 10초에 5,000명이 몰리는 상황을 k6로 변경 전 11회와 변경 후 4회 재현해 순번 중복과 빈 번호가 없는지 확인</li>
+                </ul>
+                <table class="cmp"><thead><tr><th>접수 응답</th><th>변경 전</th><th>변경 후 (4회 평균)</th></tr></thead><tbody>
+                  <tr><td>p50</td><td>521ms</td><td>48ms (91% 단축)</td></tr>
+                  <tr><td>p95</td><td>4.81초</td><td>1.72초 (64% 단축)</td></tr>
+                  <tr><td>0.5초 안에 끝난 비율</td><td>49.8%</td><td>92.8% (43%p 증가)</td></tr>
+                  <tr><td>서버 오류 (5xx)</td><td>0.82%</td><td>0.05% (94% 감소)</td></tr>
+                </tbody></table>
+              </div>
+            </details>
+            <details id="s-limit" data-toc="동시 요청 한도">
+              <summary><span class="s-title">외부가 느려지면 덜 보내도록 스스로 조절하는 동시 요청 한도</span><span class="s-res"><b>외부 지연에 자동 대응</b><small>사람이 한도 값을 고치지 않음</small></span></summary>
+              <div class="story">
+                <figure class="diagram"><img src="../images/diagrams/nv-worker.png" alt="외부 응답 상태에 따라 동시 요청 수를 바꾸는 worker" loading="lazy"></figure>
+                <h4>찾은 문제</h4>
+                <ul>
+                  <li>외부 예약 시스템은 평균 0.5초에 응답하고 약 5%가 실패함</li>
+                  <li>요청이 몰릴수록 외부 시스템의 부하가 커짐</li>
+                  <li>worker가 SQS에서 꺼내는 대로 보내면 외부가 더 느려짐</li>
+                  <li>저장됐는지 알 수 없는 시간 초과 요청이 쌓임</li>
+                  <li>외부가 빠를 때와 느릴 때 알맞은 동시 요청 수가 달라 고정값으로 정할 수 없음</li>
+                </ul>
+                <h4>해결 과정</h4>
+                <ul>
+                  <li>외부로 동시에 보내는 요청 수를 세마포어로 제한해 외부가 느려지면 보내는 양도 자연스럽게 감소</li>
+                  <li>동시 요청 수는 8에서 시작해 worker 하나당 2~16 범위에서 조절</li>
+                  <li>등록은 한 자리를 남겨 두어 등록이 몰려도 취소는 항상 전송</li>
+                  <li>SQS에서는 빈 자리만큼만 메시지를 가져옴</li>
+                  <li>보내지 못한 작업은 큐에 되돌려 잠시 뒤 재처리</li>
+                  <li>10초 Tumbling Window로 p95와 실패율을 모아 p95 1.5초 이상 또는 실패율 20% 이상이면 <strong>절반으로 감소</strong></li>
+                  <li>p95 1초 미만과 실패율 10% 미만을 지키면서 자리를 모두 쓰고 있을 때만 증가</li>
+                  <li><strong>TCP slow start처럼</strong> 값이 낮을 때는 두 배씩 늘리고 직전에 문제가 난 값의 절반부터는 1씩 증가</li>
+                </ul>
+                <h4>결과</h4>
+                <ul class="res">
+                  <li>외부가 느려지면 동시 요청 수가 스스로 줄어 느려진 외부에 요청이 더 몰리는 <strong>악순환이 끊김</strong></li>
+                  <li>worker가 10초마다 알맞은 동시 요청 수로 조정해 외부 상태가 바뀌어도 사람이 한도 값을 고칠 필요가 없음</li>
+                  <li>외부가 회복되면 한도가 빠르게 다시 늘어 밀린 작업이 오래 쌓이지 않음</li>
+                </ul>
+              </div>
+            </details>
+            <details id="s-judge" data-toc="원인별 재시도">
+              <summary><span class="s-title">외부 실패를 원인별로 나눈 재시도와 SQS polling 중단</span><span class="s-res"><b>중복 없는 재시도</b><small>등록만 멈추고 취소는 계속 처리</small></span></summary>
+              <div class="story">
+                <figure class="diagram"><img src="../images/diagrams/nv-judge.png" alt="외부 응답을 판정해 다시 보낼지와 무엇을 멈출지 정하는 worker 흐름" loading="lazy"></figure>
+                <h4>찾은 문제</h4>
+                <ul>
+                  <li>외부 실패는 원인마다 다시 보내도 되는지가 다름. 외부 거절은 다시 보내도 결과가 같고 우리 쪽 문제(400번대)는 고칠 때까지 결과가 같음. 외부 장애(연결 실패, 429, 503, connect timeout)는 잠시 뒤 성공할 수 있음</li>
+                  <li>3초 안에 응답이 없는 read timeout으로 등록 여부를 모르는 요청을 그대로 다시 보내면 같은 예약이 두 번 등록될 위험</li>
+                </ul>
+                <h4>해결 과정</h4>
+                <ul>
+                  <li>외부 거절은 바로 DLQ로 보냄. 우리 쪽 문제는 최대 30분 다시 시도한 뒤 DLQ로 보내고 Slack으로 알림</li>
+                  <li>결과를 모르는 등록은 <strong>같은 멱등 키로 먼저 조회해 없을 때만 다시 전송</strong></li>
+                  <li>HTTP 클라이언트의 자동 재시도는 끔</li>
+                  <li>외부 거절이나 우리 쪽 문제가 1분에 5번이면 <strong>그 작업 종류(등록이나 취소)만</strong> 1분 동안 polling 중단</li>
+                  <li>외부 장애가 최근 20건 중 절반 이상이면 Circuit Breaker를 열어 10초 동안 멈춤</li>
+                  <li>Half-Open 동안에는 SQS에서 3건만 꺼내 보내 보고 2건 이상 성공하면 재개하고 아니면 두 배 더 멈춤 (최대 2분)</li>
+                  <li>1.5초 넘게 걸린 성공은 실패로 세지 않고 동시 요청 수 조절에만 반영</li>
+                  <li>멈춘 동안은 SQS에서 메시지를 꺼내지 않음</li>
+                </ul>
+                <h4>결과</h4>
+                <ul class="res">
+                  <li>등록에서 문제가 이어져도 <strong>등록만 멈추고 취소는 계속 처리</strong></li>
+                  <li>등록을 멈춘 동안 메시지가 DLQ로 가지 않고 SQS에 남아 원인을 고치면 다시 넣는 작업 없이 바로 처리</li>
+                  <li>느림은 동시 요청 수 조절이 맡고 실패는 Circuit Breaker가 맡아 외부가 느려지기만 할 때는 처리가 멈추지 않음</li>
+                  <li>결과를 모르는 요청은 조회한 뒤에만 다시 보내 <strong>외부에 두 번 등록되지 않음</strong></li>
+                </ul>
+              </div>
+            </details>
+            <details id="s-wr" data-toc="대기열 조회 간격">
+              <summary><span class="s-title">대기열 입장 지연을 줄인 조회 간격 수정</span><span class="s-res"><b><s>31초</s> → <em>3초</em></b><small>대기열 입장 p95</small></span></summary>
+              <div class="story">
+                <figure class="diagram"><img src="../images/diagrams/nv-waiting.png" alt="상품별 입장 속도가 0이라 30초 간격을 안내하던 수정 전과, 전체 입장 속도와 상품별 상한 중 작은 값으로 계산하는 수정 후" loading="lazy"></figure>
+                <h4>찾은 문제</h4>
+                <ul>
+                  <li>대기열은 몰린 사용자를 줄 세우고 접수 서버가 감당할 만큼만 1초마다 들여보냄. 사용자는 서버가 알려 준 간격(차례가 가까우면 1초, 멀면 최대 30초)마다 차례를 확인</li>
+                  <li>10초 동안 5,000명이 들어오는 부하 시험에서 들여보내는 속도로 계산하면 10초 남짓이면 모두 입장해야 하는데 늦게 입장한 5%는 31초 넘게 걸림</li>
+                </ul>
+                <h4>원인</h4>
+                <ul>
+                  <li>몰리기 직전 한산할 때 계산해 둔 상품별 입장 속도가 0으로 남아 있었음</li>
+                  <li>대기 시간을 계산하지 못한 사용자는 가장 긴 30초 간격을 안내받아 차례가 지나고도 30초 뒤에야 확인</li>
+                </ul>
+                <h4>해결 과정</h4>
+                <ul>
+                  <li>입장 속도 값이 0이면 <strong>전체 입장 속도와 상품별 상한 중 작은 값으로</strong> 대기 시간을 계산</li>
+                  <li>같은 상품의 접수는 순번 행 Lock에 묶여 접수 서버를 늘려도 처리량이 그대로라 상품별 상한을 따로 둠</li>
+                </ul>
+                <h4>결과</h4>
+                <ul class="res">
+                  <li><strong>늦은 쪽 5%도 3초 안에 입장</strong></li>
+                  <li>반복한 시험 모두에서 순번이 뒤로 밀린 사람이 없음</li>
+                </ul>
+              </div>
+            </details>
+
+            <p class="group">인프라</p>
+            <details id="s-tf" data-toc="Terraform 구조">
+              <summary><span class="s-title">service.yml 하나로 서비스 배포 인프라가 준비되는 Terraform 폴더 구조</span><span class="s-res"><b>PR 하나로 배포 준비</b><small>Terraform 코드 수정 없이</small></span></summary>
+              <div class="story">
+                <figure class="diagram"><img src="../images/diagrams/nv-tf.png" alt="서비스 폴더의 service.yml을 자원별 스택이 읽어 AWS 자원을 만드는 구조" loading="lazy"></figure>
+                <h4>설계 목표</h4>
+                <ul>
+                  <li>새 서비스를 배포할 때 <strong>Terraform 코드 수정 없이 서비스 폴더 추가만으로</strong> 인프라 준비</li>
+                  <li>모든 스택이 함께 쓰는 provider와 공통 값은 원본 한 곳 수정으로 전체 반영</li>
+                  <li>서비스마다 실제로 쓰는 권한과 네트워크만 허용</li>
+                </ul>
+                <h4>구조</h4>
+                <ul>
+                  <li>폴더를 서비스 선언, 공통 값, 자원별 스택으로 분리</li>
+                  <li>서비스마다 인프라는 service.yml, 앱은 application.yml, 비밀 값은 secrets.sops.yml로 application/ 아래에 선언</li>
+                  <li>스택마다 backend와 state를 따로 두어 한 스택의 변경이 다른 스택에 영향을 주지 않고 역할이 분명하게 나뉨</li>
+                  <li>provider와 공통 값은 원본 하나를 링크로 공유하고 모든 자원에 제품, 환경, 관리 주체 태그를 자동 부여</li>
+                  <li>각 스택이 application/*/service.yml을 자동으로 찾아 <strong>폴더만 추가하면 ECR, IAM, 보안 그룹, ECS가 함께 생성</strong>. URL 경로와 태스크 수는 ALB와 ECS 설정이 되고 호출 대상과 DB, 캐시는 보안 그룹 규칙이 되며 큐는 IAM 권한이 됨</li>
+                  <li>비밀 값은 apply 중에만 풀어 Secrets Manager에 넣고 state에는 남기지 않음</li>
+                  <li>오타 난 필드나 없는 서비스를 호출 대상으로 적은 선언은 서비스 이름과 원인을 보여 주고 plan에서 멈춤</li>
+                </ul>
+                <h4>결과</h4>
+                <ul class="res">
+                  <li>새 서비스 배포와 설정 변경이 인프라 담당을 거치지 않고 Terraform 코드 수정 없이 <strong>서비스 폴더 PR 하나로 끝남</strong></li>
+                  <li>공통 값과 provider를 바꿀 때 스택마다 고치다 하나를 빠뜨리는 일이 없음</li>
+                  <li>권한과 보안 그룹은 service.yml에 선언한 의존성만큼만 열리고 비밀 값은 Git과 state에 평문으로 남지 않음</li>
+                </ul>
+              </div>
+            </details>
+            <details id="s-atlantis" data-toc="Atlantis">
+              <summary><span class="s-title">PR을 거친 변경만 AWS에 적용되는 Atlantis 인프라 변경 절차</span><span class="s-res"><b>main과 실제 AWS 일치</b><small>PR을 거친 변경만 적용</small></span></summary>
+              <div class="story">
+                <figure class="diagram"><img src="../images/diagrams/nv-atlantis.png" alt="PR 하나로 plan, apply, 자동 병합이 이어지는 경로와 팀원의 읽기 전용 경로" loading="lazy"></figure>
+                <h4>설계 배경</h4>
+                <ul>
+                  <li>7명이 콘솔과 로컬에서 각자 바꾸면 코드에 남지 않아 누가 바꿨는지 모르고 잊힌 자원이 비용으로 남음</li>
+                  <li>같은 스택을 두 사람이 동시에 apply하면 state가 꼬임</li>
+                  <li>순서가 있는 스택은 거꾸로 적용하면 실패</li>
+                </ul>
+                <h4>운영 방식</h4>
+                <ul>
+                  <li>PR 댓글로 plan과 apply를 실행하고 스택 잠금까지 기본 제공하는 Atlantis 선택</li>
+                  <li>팀원은 콘솔과 로컬 모두 <strong>읽기 전용 역할로 plan까지만 허용</strong>하고 비밀 값 스택의 복호화 권한은 제외</li>
+                  <li>PR을 올리기 전 로컬 AWS 에뮬레이터 Floci에 스택을 apply해 적용 오류를 먼저 확인</li>
+                  <li>VPC, 보안 그룹, DB, ECS 순으로 <strong>0~7단계</strong>를 atlantis.yaml에 적어 앞 단계가 실패하면 뒤 단계 중단</li>
+                  <li>apply가 모든 스택에서 성공해야 PR이 자동 병합되어 main 브랜치가 실제 AWS와 같은 상태로 유지</li>
+                </ul>
+                <h4>결과</h4>
+                <ul class="res">
+                  <li>모든 인프라 변경이 PR을 거쳐 적용되어 누가 언제 무엇을 바꿨는지 PR 이력으로 바로 추적</li>
+                  <li>콘솔에서 만든 채 잊힌 자원이 생기지 않고 <strong>main 브랜치와 실제 AWS가 일치</strong></li>
+                  <li>같은 스택을 두 사람이 동시에 바꾸지 못하고 순서가 있는 스택은 정해진 순서대로만 적용</li>
+                </ul>
+              </div>
+            </details>
+            <details id="s-ecs" data-toc="ECS 확장">
+              <summary><span class="s-title">판매 오픈의 급증 트래픽과 큐 적체를 따라 늘어나는 ECS Fargate 확장 구조</span><span class="s-res"><b>급증 전에 미리 증설</b><small>망가진 이미지는 자동 복귀</small></span></summary>
+              <div class="story">
+                <figure class="diagram"><img src="../images/diagrams/nv-ecs.png" alt="HTTP 서비스는 CPU와 오픈 전 미리 늘리기로, worker는 SQS 적체로 늘어나는 ECS 구성" loading="lazy"></figure>
+                <h4>설계 배경</h4>
+                <ul>
+                  <li>판매가 열리는 순간 대기열과 접수, 상품 조회에 트래픽이 몰리는데 CPU 기준 확장은 부하가 오른 뒤에야 반응</li>
+                  <li>외부 등록을 맡는 worker는 큐에 일이 밀려도 CPU가 낮아 CPU 기준으로는 늘어나지 않음</li>
+                  <li>새 버전이 망가져도 배포가 그대로 진행되면 판매 중에 사용자 요청이 실패</li>
+                </ul>
+                <h4>구조</h4>
+                <ul>
+                  <li>HTTP 서비스는 CPU 기준 확장에 여러 대를 한 번에 늘리는 Step Scaling 정책을 더하고 축소는 5분 간격</li>
+                  <li>worker는 큐 3개에 쌓인 메시지 합을 실행 태스크 수로 나눈 값을 지표로 써서 <strong>태스크당 50건 기준</strong>으로 조정</li>
+                  <li>사전예약 앱이 회차 일정을 보고 <strong>오픈 15분 전부터</strong> 예상 방문자 수만큼 대기열과 접수 서버의 최소 대수 상향</li>
+                  <li>상품 조회는 1대로는 몰리는 트래픽에 CPU가 포화돼 최소 2대로 늘리고 4대 상한에도 바로 닿아 최대 8대로 상향</li>
+                  <li>ALB 뒤 서비스는 ECS Blue/Green으로 배포하고 5분 동안 이전 버전을 남겨 바로 복귀</li>
+                  <li>모든 서비스에 <strong>deployment circuit breaker를 켜</strong> 새 태스크가 계속 실패하면 이전 버전으로 자동 롤백</li>
+                </ul>
+                <h4>결과</h4>
+                <ul class="res">
+                  <li>판매 오픈 첫 급증 트래픽은 증설을 기다리지 않고 미리 늘려 둔 서버로 처리</li>
+                  <li>큐가 처리량보다 많이 쌓이면 worker가 늘어나 외부 등록이 밀리지 않음</li>
+                  <li>배포 중에도 사용자는 한 버전의 응답만 받고 망가진 이미지는 사람 개입 없이 이전 버전으로 복귀</li>
+                </ul>
+              </div>
+            </details>
+            <details id="s-loadtest" data-toc="부하 시험 클러스터">
+              <summary><span class="s-title">판매 오픈 순간의 급증 트래픽을 운영과 같은 경로로 재현하는 부하 시험 클러스터</span><span class="s-res"><b><s>4.67초</s> → <em>30ms</em></b><small>판매 오픈 첫 1분 p95</small></span></summary>
+              <div class="story">
+                <figure class="diagram"><img src="../images/diagrams/nv-loadtest.png" alt="GitHub Actions 승인으로 평소 0대인 시험 클러스터에 k6를 띄워 운영과 같은 경로로 부하를 보내고 지표로 판정하는 구성" loading="lazy"></figure>
+                <h4>설계 배경</h4>
+                <ul>
+                  <li>로컬 시험으로는 CloudFront, WAF, ALB와 자동 확장이 급증 트래픽을 어떻게 처리하는지 확인할 수 없음</li>
+                  <li>시험 트래픽이 운영 지표에 섞이거나 부하 발생기가 먼저 막히면 서비스 한계를 잴 수 없음</li>
+                </ul>
+                <h4>구조</h4>
+                <ul>
+                  <li>시험 리소스는 전용 ECS 클러스터에 모으고 평소에는 0대로 두어 시험할 때만 비용 발생</li>
+                  <li>GitHub Actions 승인으로만 실행하고 실행 권한은 시험 클러스터로 한정</li>
+                  <li>오픈 10초 동안 5,000명이 들어오는 상황을 대기열부터 결제 시도까지 재현</li>
+                  <li><strong>k6 9대</strong>를 같은 시각에 시작하고 서버가 느려져도 보내는 양을 줄이지 않아 요청이 실제처럼 쌓이게 함</li>
+                  <li>시험 요청도 CloudFront, WAF, ALB를 그대로 지나고 k6는 NAT와 Spot 없이 띄워 대역폭 한계나 회수에 막히지 않게 함</li>
+                  <li>WAF는 무작위로 만든 시험 헤더 값이 맞는 요청만 요청 수 제한에서 빼고 시험 지표는 운영 SLO 계산에서 제외</li>
+                  <li>p95 0.5초와 5xx 0.1%를 기준으로 판정하고 계획한 부하를 못 보낸 시험은 판정 불가로 분리</li>
+                </ul>
+                <h4>시험으로 찾아 바꾼 설정</h4>
+                <ul>
+                  <li>CPU 기준 확장은 새 태스크가 붙기까지 6~10분이 걸려 1분 지표 1~2번으로 바로 늘리는 <strong>Step Scaling을 추가</strong></li>
+                  <li>헬스체크 간격을 15초에서 5초로 줄여 새 태스크가 요청을 받기까지 약 30초에서 약 10초로 단축</li>
+                  <li>대기열 태스크 한 대의 한계인 분당 약 6,000건을 재고 그 70%인 약 4,200건부터 증설하도록 설정</li>
+                </ul>
+                <h4>결과</h4>
+                <ul class="res">
+                  <li>첫 시험은 첫 1분 p95 4.67초로 불합격. 상품 조회 사양과 대기열 사전 증설을 고친 뒤 합격</li>
+                  <li>합격한 시험의 첫 1분은 초당 약 2,090건을 <strong>p95 30ms와 5xx 0%</strong>로 처리</li>
+                </ul>
+              </div>
+            </details>
+            <details id="s-iam" data-toc="IAM과 Secrets">
+              <summary><span class="s-title">서비스마다 필요한 리소스와 비밀 값만 받는 IAM과 Secrets Manager 구조</span><span class="s-res"><b>고정 키 없이 운영</b><small>비밀 값 평문 저장 없음</small></span></summary>
+              <div class="story">
+                <figure class="diagram"><img src="../images/diagrams/nv-iam.png" alt="사람, CI, 서비스가 받는 역할과 sops, KMS, Secrets Manager를 거쳐 기동할 때 주입되는 비밀 값" loading="lazy"></figure>
+                <h4>설계 배경</h4>
+                <ul>
+                  <li>7명이 AWS 계정 하나를 함께 써 누구든 쓰기 권한이 있으면 실수 하나가 계정 전체에 영향</li>
+                  <li>서비스가 같은 권한을 나눠 쓰면 하나가 뚫렸을 때 다른 서비스의 큐와 데이터까지 접근 가능</li>
+                  <li>DB 비밀번호나 JWT 키 같은 비밀 값이 Git과 이미지, 태스크 정의에 평문으로 남으면 유출 경로가 늘어남</li>
+                </ul>
+                <h4>구조</h4>
+                <ul>
+                  <li>사람은 평소 읽기 전용 역할만 맡아 콘솔과 로컬 모두 조회와 plan까지만 허용</li>
+                  <li>Atlantis 역할도 IAM은 nova-로 시작하는 프로젝트 자원만 다루고 <strong>자기 권한은 스스로 넓히지 못하게</strong> 막음</li>
+                  <li>서비스마다 task 역할을 따로 두고 service.yml에 적은 큐와 업로드 버킷만 허용</li>
+                  <li>GitHub Actions는 OIDC로 main 브랜치에서만 배포 역할을 받고 태스크 정의는 Terraform만 바꾸게 함</li>
+                  <li>외부에서 받은 비밀 값만 KMS 키로 sops 암호화해 Git에 두고 복호화 역할은 Atlantis와 관리자로 한정</li>
+                  <li>JWT 키, 여러 서비스가 함께 쓰는 비밀, 관리자 비밀번호는 apply 때 무작위로 만들어 Secrets Manager에 저장</li>
+                  <li>태스크 정의에는 값 대신 비밀 값의 위치만 적고 ECS가 태스크를 띄울 때 실행 역할로 읽어 환경변수로 주입</li>
+                  <li>실행 역할은 앱과 서비스 DB 계정 비밀만 읽고 DB 관리자, Grafana, Slack 같은 운영 비밀은 차단</li>
+                </ul>
+                <h4>결과</h4>
+                <ul class="res">
+                  <li>서비스 하나가 뚫려도 피해가 그 서비스가 선언한 큐, 버킷, 비밀 값 안으로 한정</li>
+                  <li>CI와 서비스는 실행할 때마다 <strong>임시 자격 증명을 받아 고정 키 없이 운영</strong></li>
+                  <li>앱 비밀 값이 Git, state, 태스크 정의, 이미지 <strong>어디에도 평문으로 남지 않아</strong> 유출 경로 축소</li>
+                </ul>
+              </div>
+            </details>
+            <details id="s-cost" data-toc="비용 최적화">
+              <summary><span class="s-title">목표 구조는 코드에 남기고 운영 비용만 73% 줄인 클라우드 비용 최적화</span><span class="s-res"><b>월 비용 73% 절감</b><small>약 890 → 240달러</small></span></summary>
+              <div class="story">
+                <h4>찾은 문제</h4>
+                <ul>
+                  <li>6주 예산이 40만 원인데 Multi-AZ DB와 NAT Gateway, VPC 엔드포인트를 갖춘 목표 구조는 월 약 890달러라 예산을 넘음</li>
+                  <li>Cost Explorer로 비용을 나눠 보니 서비스를 모두 띄운 뒤 Container Insights 지표 요금이 Fargate 다음으로 큰 비중</li>
+                  <li>그렇다고 설계를 낮추면 트래픽이 늘거나 예산이 생겼을 때 다시 만들어야 함</li>
+                </ul>
+                <h4>해결 과정</h4>
+                <ul>
+                  <li>처음 2주는 설계와 기획에 쓰고 인프라는 실제로 필요해진 뒤에 띄움</li>
+                  <li>NAT 방식이나 Multi-AZ, 엔드포인트 같은 선택을 변수로 빼고 <strong>기본값만 싼 쪽으로</strong> 두어 목표 구조 코드는 그대로 유지</li>
+                  <li>Container Insights는 끄기 전에 그 지표를 쓰던 경보와 worker 확장 기준부터 무료 지표로 이전</li>
+                  <li>Container Insights 대신 서비스별 태스크 0개 경보와 ECS 이벤트 경보(배포 실패와 비정상 종료)로 장애 알림</li>
+                  <li>NAT 인스턴스 교체 중 그 AZ의 외부 통신이 끊기는 점처럼 항목마다 감수할 점과 되돌리는 방법을 문서에 명시</li>
+                </ul>
+                <table class="cmp opt"><thead><tr><th>항목</th><th>목표 구조</th><th>지금 운영</th><th>월 절감 (서울 리전 정가 기준 추정)</th></tr></thead><tbody>
+                  <tr><td>Fargate 용량</td><td>서비스마다 온디맨드 1개</td><td>전부 Spot (외부 시스템 목업만 온디맨드)</td><td>약 160달러</td></tr>
+                  <tr><td>VPC 엔드포인트</td><td>ECR, Logs, Secrets Manager, SSM</td><td>끔 (NAT 경유)</td><td>약 130달러</td></tr>
+                  <tr><td>DB</td><td>RDS Multi-AZ</td><td>RDS 단일 AZ</td><td>약 120달러</td></tr>
+                  <tr><td>Container Insights</td><td>켬</td><td>끔 (무료 지표와 이벤트 경보)</td><td>약 75달러</td></tr>
+                  <tr><td>NAT</td><td>NAT Gateway</td><td>NAT 인스턴스 (t4g.micro)</td><td>약 70달러</td></tr>
+                </tbody></table>
+                <h4>결과</h4>
+                <ul class="res">
+                  <li>한 달 약 890달러로 추정된 목표 구조를 <strong>실제 청구액 약 240달러로 73% 줄여</strong> 예산 안에서 운영</li>
+                  <li>줄인 항목은 대부분 변수 하나로 목표 구조로 되돌릴 수 있어 트래픽이 늘면 바로 복구</li>
+                </ul>
+              </div>
+            </details>
+            <details id="s-obs" data-toc="모니터링">
+              <summary><span class="s-title">경보에서 원인까지 따라가 확장과 응답 지연을 개선한 모니터링</span><span class="s-res"><b>증설 3분 지연 발견</b><small>증상 기준 경보로 원인 추적</small></span></summary>
+              <div class="story">
+                <figure class="diagram"><img src="../images/diagrams/nv-obs.png" alt="앱, 브라우저, 엣지 로그가 수집 게이트웨이를 거쳐 각 저장소에 모이고 Grafana 경보가 Slack으로 가는 구성" loading="lazy"></figure>
+                <h4>구축 이유</h4>
+                <ul>
+                  <li>503이 나도 CloudWatch와 로그 검색을 오가며 어느 서비스가 왜 실패했는지 직접 찾아야 함</li>
+                  <li>한 요청이 여러 서비스를 거치는데 서비스별 로그만으로는 요청의 흐름을 이어 볼 수 없음</li>
+                </ul>
+                <h4>구축 방식</h4>
+                <ul>
+                  <li>OpenTelemetry Java 에이전트로 앱 코드 수정 없이 수집. 지표는 Mimir, 로그는 Loki, 트레이스는 Tempo, 프로파일은 Pyroscope에 저장</li>
+                  <li>트레이스는 오류와 느린 요청만 모두 남기고 나머지는 일부만 저장. 대신 <strong>지표는 모든 요청으로 계산</strong></li>
+                  <li>수집 게이트웨이를 관측 서버와 분리해 관측 서버를 재배포하는 동안 들어온 데이터도 잃지 않게 함</li>
+                  <li>판매 오픈 상황판 하나로 사용자 오류부터 그 서비스의 CPU 포화, Redis timeout, 증설 지연 같은 원인까지 추적</li>
+                  <li>경보는 서비스별 5xx와 SLO 예산 소진처럼 사용자가 겪는 증상을 기준으로만 발송</li>
+                </ul>
+                <h4>모니터링으로 개선한 것</h4>
+                <ul>
+                  <li>서비스별 CPU 사용량을 같은 시각으로 비교해 포화된 서비스를 찾고 태스크 사양과 최소 대수 상향</li>
+                  <li>CloudWatch 1분 표준 지표가 <strong>약 3분 늦게</strong> 들어와 급증이 지나간 뒤에야 증설이 붙는 것을 찾아 오픈 전 사전 증설</li>
+                  <li>새 태스크가 CPU 부족으로 기동을 반복하다 deployment circuit breaker로 롤백되던 것을 찾아 CPU 할당 조정</li>
+                  <li>트레이스로 순번 행 Lock 대기를 찾아 Lock 시점을 커밋 직전으로 옮겨 <strong>응답 p50 521ms에서 48ms로 단축</strong></li>
+                </ul>
+                <h4>결과</h4>
+                <ul class="res">
+                  <li>503이 나도 CloudWatch와 로그를 오가지 않고 <strong>Grafana 한 화면에서 실패한 서비스와 원인까지 확인</strong></li>
+                  <li>여러 서비스를 거친 요청을 트레이스 하나로 이어 보고 느려진 구간을 바로 찾음</li>
+                  <li>태스크 사양, 최소 대수, 증설 시점, DB 잠금 위치를 추측이 아닌 지표와 트레이스 근거로 조정</li>
+                </ul>
+              </div>
+            </details>
+          </div>
+        </article>
+
+        <a class="next-proj" href="search-platform.html"><small>다음 프로젝트</small><b>Search Platform, 게시글 검색과 에스크로 결제 →</b></a>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="wrap footer-inner">
+      <p class="mono"><span class="prompt">$</span> echo "함께 이야기 나눠요"</p>
+      <div class="footer-links">
+        <a href="mailto:yhjyhj3855@gmail.com">Email</a>
+        <a href="https://github.com/UHeeJoon" target="_blank" rel="noopener">GitHub</a>
+        <a href="https://codding-til-theory.tistory.com" target="_blank" rel="noopener">Blog</a>
+      </div>
+      <p class="copy">© 2026 유희준</p>
+    </div>
+  </footer>
+
+  <script src="../assets/js/main.js?v=20261109w" defer></script>
+</body>
+</html>
