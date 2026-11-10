@@ -16,7 +16,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap">
-  <link rel="stylesheet" href="../assets/css/style.css?v=20261110c">
+  <link rel="stylesheet" href="../assets/css/style.css?v=20261110e">
   <script>
     (function () {
       try {
@@ -57,16 +57,17 @@
               <p class="case-desc">중고거래 게시글 검색과 에스크로 결제를 다루는 서비스입니다. 에스크로 결제는 구매자가 낸 돈을 플랫폼이 맡아 두었다가 거래가 끝나면 판매자에게 넘깁니다. 검색은 구현을 단계마다 바꿔 가며 같은 부하로 한계를 잰 뒤 Elasticsearch로 옮겼습니다. 결제, 지갑, 충전 모듈은 Kafka 메시지로만 주고받아 한 트랜잭션으로 묶을 수 없어서 단계마다 실패하면 돈이 어디에 남는지부터 따졌습니다.</p>
           <p class="ov-h">주요 성과</p>
           <ul class="hl" aria-label="주요 결과">
-            <li><a href="#s-es"><span class="hl-label">조건이 매번 다른 검색 p95</span><span class="hl-big">549ms</span><span class="hl-from">이전 42.7초 (커서 + LIKE)</span></a></li>
-            <li><a href="#s-presale"><span class="hl-label">같은 게시글 동시 결제</span><span class="hl-big">새 중복 0건</span><span class="hl-from">이전 한 게시글에 최대 41건</span></a></li>
-            <li><a href="#s-saga"><span class="hl-label">구매자 환급 실패 시</span><span class="hl-big">판매자 잔액 복구</span><span class="hl-from">이전 뺀 돈이 어디에도 남지 않음</span></a></li>
-            <li><a href="#s-recon"><span class="hl-label">결제별 원장 대사</span><span class="hl-big">정산 누락 1건 발견</span><span class="hl-from">합계 검사로는 정상</span></a></li>
+            <li><a href="#s-es"><span class="hl-label">조건이 매번 다른 검색 p95</span><span class="hl-big">549ms</span><span class="hl-from">기존 LIKE 검색 42.7초</span></a></li>
+            <li><a href="#s-quality"><span class="hl-label">"갤럭시탭" 무관한 결과</span><span class="hl-big">0%</span><span class="hl-from">기존 80%</span></a></li>
+            <li><a href="#s-presale"><span class="hl-label">같은 게시글 동시 결제</span><span class="hl-big">중복 결제 0건</span><span class="hl-from">기존 한 게시글에 최대 41건</span></a></li>
+            <li><a href="#s-saga"><span class="hl-label">구매자 환급 실패 시</span><span class="hl-big">판매자 잔액 복구</span><span class="hl-from">기존 판매자 돈이 사라짐</span></a></li>
+            <!-- 지금은 숨김: <li><a href="#s-recon"><span class="hl-label">결제별 원장 대사</span><span class="hl-big">정산 누락 1건 발견</span><span class="hl-from">합계 검사로는 정상</span></a></li> -->
           </ul>
               <div class="role">
                 <p class="role-h">맡은 일</p>
                 <dl>
-                  <div><dt>검색</dt><dd><ul class="role-list"><li>구현 단계별 같은 부하 측정</li><li>Elasticsearch 전환</li><li>Debezium CDC 색인 동기화</li></ul></dd></div>
-                  <div><dt>결제</dt><dd><ul class="role-list"><li>선점 테이블로 이중 판매 차단</li><li>환불 Saga 보상 처리</li><li>원장 기준 결제별 대사</li></ul></dd></div>
+                  <div><dt>검색</dt><dd><ul class="role-list"><li>구현 단계별 같은 부하 측정</li><li>Elasticsearch 전환</li><li>nori 사용자 사전으로 검색 정확도 개선</li><li>Debezium CDC 색인 동기화</li></ul></dd></div>
+                  <div><dt>결제</dt><dd><ul class="role-list"><li>선점 테이블로 이중 판매 차단</li><li>환불 Saga 보상 처리</li><!-- <li>원장 기준 결제별 대사</li> --></ul></dd></div>
                   <div class="role-tech"><dt>기술</dt><dd><ul class="tags"><li>Java</li><li>Spring Boot</li><li>MySQL</li><li>Elasticsearch</li><li>Kafka</li><li>Debezium</li><li>Redis</li><li>Transactional Outbox</li><li>Saga</li><li>k6</li></ul></dd></div>
                   <div class="role-repo"><dt>저장소</dt><dd><a href="https://github.com/UHeeJoon/search-platform" target="_blank" rel="noopener">search-platform ↗</a></dd></div>
                 </dl>
@@ -83,36 +84,57 @@
           <div class="stories">
             <p class="group">검색</p>
             <details id="s-es" data-toc="Elasticsearch 전환">
-              <summary><span class="s-title">구현마다 같은 부하로 한계를 잰 Elasticsearch 전환</span><span class="s-res"><b><s>42.7초</s> → <em>549ms</em></b><small>조건이 매번 다른 검색 p95</small></span></summary>
+              <summary><span class="s-title">단계별 부하 테스트로 DB 검색 병목을 검증하고 Elasticsearch로 전환</span><span class="s-res"><b><s>42.7초</s> → <em>549ms</em></b><small>조건이 매번 다른 검색 p95</small></span></summary>
               <div class="story">
-                <figure class="diagram"><img src="../images/diagrams/sp-search.png" alt="쓰기는 MySQL에서 Debezium과 Kafka를 거쳐 Elasticsearch에 반영되고 읽기는 Redis와 Elasticsearch를 거치는 구조" loading="lazy"></figure>
+                <figure class="diagram"><img src="../images/diagrams/sp-search.png" alt="검색 요청은 Redis를 먼저 보고 Cache Miss일 때 기존에는 MySQL LIKE 검색으로 p95 43.4초, 전환 뒤에는 Elasticsearch 검색으로 p95 549ms이며 Elasticsearch 색인은 MySQL binlog로 반영하는 구조" loading="lazy"></figure>
                 <h4>찾은 문제</h4>
                 <ul>
-                  <li>게시글 500만 건에서 제목과 본문 검색, 카테고리와 지역 필터, 등록일 정렬을 하는 API. 요청의 30%는 같은 조건이 반복되고 70%는 조건이 매번 다름</li>
-                  <li>처음엔 가상 사용자 50명이 응답을 받아야 다음 요청을 보내게 했음. 그러면 느린 구현일수록 요청이 덜 나가서 커서 + LIKE도 오류율 2.5%로 정상처럼 보임</li>
-                  <li>그래서 측정 방식부터 바꿔 <strong>응답과 상관없이 초당 25건을 3분 동안</strong> 일정하게 보내고 구현만 바꿔 가며 측정</li>
+                  <li>게시글 약 500만 건을 대상으로 OFFSET 페이징과 LIKE 검색을 수행해 검색 API p95가 40초 이상 발생</li>
+                  <li>첫 페이지 조회에도 전체 건수를 계산하고 검색 조건에 따라 대량의 게시글을 탐색, 정렬해야 해 검색 비용 증가</li>
                 </ul>
                 <h4>해결 과정</h4>
                 <ul>
-                  <li>offset 페이징은 첫 페이지에도 전체 건수를 세느라 거의 처리하지 못해 id 커서로 변경</li>
-                  <li>LIKE는 인덱스를 쓰지 못해 제목에 FULLTEXT 인덱스를 붙였지만 흔한 검색어는 일치하는 문서를 모두 모은 뒤 필터를 걸어 오히려 느려짐</li>
-                  <li>Redis 캐시는 반복 검색만 빨라지고 조건이 매번 다른 70%는 그대로</li>
-                  <li>검색을 <strong>Elasticsearch로 분리</strong>하고 MySQL binlog를 Debezium으로 읽어 색인에 반영</li>
-                  <li>Elasticsearch가 멈춘 사이 만든 게시글이 복구 뒤에도 검색되지 않음. 연결 실패도 잘못된 메시지처럼 세 번만 재시도하고 빼 두었기 때문. 연결 실패는 될 때까지 재시도</li>
+                  <li><strong>Cursor 페이징 적용</strong>. OFFSET과 전체 COUNT를 제거하고 마지막으로 조회한 게시글 ID를 기준으로 PK 인덱스 범위 조회. LIKE 검색은 인덱스를 활용하지 못해 검색어에 따라 여전히 전체 데이터 탐색 발생</li>
+                  <li><strong>제목에 MySQL FULLTEXT 인덱스 적용</strong>. 흔한 검색어는 매칭되는 문서가 수십만 건에 달해 후속 필터링과 정렬 비용이 여전히 발생</li>
+                  <li><strong>Redis 캐시 적용</strong>. 반복 검색의 p95를 31초에서 4.2초로 개선. 검색 조건이 매번 달라지는 경우 캐시를 활용하지 못해 DB 병목 지속</li>
+                  <li><strong>Elasticsearch로 검색 분리</strong>. 검색 처리를 Elasticsearch로 이전하고 Redis는 반복 검색 캐시로 유지. 검색어와 지역, 카테고리 조건을 하나의 쿼리에서 처리해 DB에서 대량 조회 후 필터링하던 구조 개선</li>
                 </ul>
                 <h4>결과</h4>
-                <p>같은 데이터에 초당 25건을 3분 동안 보낸 결과입니다.</p>
+                <p>동일한 데이터 약 500만 건에 초당 25건의 요청을 3분간 전송해 비교했습니다.</p>
                 <div class="table-scroll"><table class="cmp opt"><thead><tr><th>구현</th><th>성공률</th><th>1초 안 응답</th><th>조건이 매번 다른 검색 p95</th></tr></thead><tbody>
-                  <tr><td>offset + LIKE</td><td>0.3%</td><td>0.0%</td><td>58.7초</td></tr>
-                  <tr><td>커서 + LIKE</td><td>9.4%</td><td>0.2%</td><td>42.7초</td></tr>
-                  <tr><td>커서 + FULLTEXT</td><td>1.3%</td><td>0.0%</td><td>41.6초</td></tr>
-                  <tr><td>커서 + LIKE + Redis</td><td>11.4%</td><td>5.2%</td><td>43.4초</td></tr>
+                  <tr><td>OFFSET + LIKE</td><td>0.3%</td><td>0.0%</td><td>58.7초</td></tr>
+                  <tr><td>Cursor + LIKE</td><td>9.4%</td><td>0.2%</td><td>42.7초</td></tr>
+                  <tr><td>Cursor + FULLTEXT</td><td>1.3%</td><td>0.0%</td><td>41.6초</td></tr>
+                  <tr><td>Cursor + LIKE + Redis</td><td>11.4%</td><td>5.2%</td><td>43.4초</td></tr>
                   <tr class="pick"><td>Elasticsearch + Redis (선택)</td><td>100%</td><td>99.96%</td><td>549ms</td></tr>
                 </tbody></table></div>
                 <ul class="res">
-                  <li>조건이 매번 다른 검색 p95 <strong>42.7초 → 549ms</strong> (커서 + LIKE 대비)</li>
-                  <li>모든 요청이 성공하고 99.96%가 1초 안에 응답</li>
-                  <li>장애 중에 만든 게시글 10건이 복구 후 <strong>29초 안에 모두</strong> 검색에 반영</li>
+                  <li>Cursor + LIKE 대비 조건이 매번 다른 검색 p95 <strong>42.7초 → 549ms</strong></li>
+                  <li>요청 처리량 초당 2.3건 → 25건으로 모든 요청을 처리하고 99.96%가 1초 이내 응답</li>
+                </ul>
+              </div>
+            </details>
+            <details id="s-quality" data-toc="검색 정확도">
+              <summary><span class="s-title">검색어 부분 일치로 발생한 무관한 검색 결과 개선</span><span class="s-res"><b><s>80%</s> → <em>0%</em></b><small>"갤럭시탭" 결과 중 다른 상품</small></span></summary>
+              <div class="story">
+                <figure class="diagram"><img src="../images/diagrams/sp-quality.png" alt="게시글 491만 건에 갤럭시탭을 기존 75% 일치 조건으로 검색하면 갤럭시 S24, 갤럭시 버즈가 섞여 나오고 1차 AND 검색을 우선하면 갤럭시 탭만 나오는 실제 결과" loading="lazy"><figcaption>게시글 491만 건에 "갤럭시탭"을 기존 조건과 개선 조건으로 검색한 실제 결과 중 일부</figcaption></figure>
+                <h4>찾은 문제</h4>
+                <ul>
+                  <li>minimum_should_match 75%로 Nori가 나눈 검색어 단어 중 일부만 일치해도 결과에 포함</li>
+                  <li>"갤럭시탭"은 "갤럭시"만 일치해도 검색되어 <strong>갤럭시 버즈, 갤럭시 S24 등 무관한 상품이 대량 노출</strong></li>
+                  <li>결과를 최신순으로 정렬해 관련성이 낮은 상품도 상위에 그대로 노출</li>
+                  <li>Nori 사전에 없는 상품명은 의도와 다르게 분리되어 같은 상품끼리도 단어가 일치하지 않음</li>
+                </ul>
+                <h4>해결 과정</h4>
+                <ul>
+                  <li><strong>검색 우선순위 분리</strong>. 모든 검색어 단어가 일치하는 AND 검색을 우선 수행하고 결과가 없을 때만 기존 75% 일치 및 오타 허용 검색 수행</li>
+                  <li>AND 검색 결과가 존재하면 해당 결과만 제공해 무관한 상품이 검색 결과에 추가되는 문제 방지</li>
+                  <li><strong>한국어 분석 사전 보완</strong>. Nori 사용자 사전에 상품명을 등록해 "드라이기"와 같은 상품명이 의도하지 않게 분리되지 않도록 개선</li>
+                </ul>
+                <h4>결과</h4>
+                <ul class="res">
+                  <li>"갤럭시탭" 검색 상위 500건 기준 무관한 상품 비율 <strong>80% → 0%</strong></li>
+                  <li>정확한 상품 검색뿐 아니라 "자전가"와 같은 오타 검색도 지원</li>
                 </ul>
               </div>
             </details>
@@ -173,6 +195,7 @@
                 </ul>
               </div>
             </details>
+            <!-- 지금은 숨김 (원장 대사)
             <details id="s-recon" data-toc="원장 대사">
               <summary><span class="s-title">합계 검사가 놓친 정산 누락을 찾은 결제별 원장 대사</span><span class="s-res"><b>정산 누락 1건 발견</b><small>합계 검사로는 정상</small></span></summary>
               <div class="story">
@@ -194,6 +217,7 @@
                 </ul>
               </div>
             </details>
+            -->
           </div>
         </article>
 

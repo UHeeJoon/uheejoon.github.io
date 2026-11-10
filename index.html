@@ -27,7 +27,7 @@
   </script>
   <script>
     (function () {
-      var m = {"s-logout":"projects/octaco.html","s-search":"projects/octaco.html","s-sflight":"projects/octaco.html","case-octaco":"projects/octaco.html","s-onboard":"projects/octaco.html","s-probe":"projects/octaco.html","s-gitops":"projects/octaco.html","s-authz":"projects/octaco.html","s-fallback":"projects/octaco.html","s-irsa":"projects/octaco.html","flow-t":"projects/nova.html","s-sema":"projects/nova.html","s-judge":"projects/nova.html","s-wr":"projects/nova.html","s-tf":"projects/nova.html","s-atlantis":"projects/nova.html","s-ecs":"projects/nova.html","s-obs":"projects/nova.html","s-lock":"projects/nova.html","s-iam":"projects/nova.html","fa":"projects/nova.html","s-loadtest":"projects/nova.html","s-cost":"projects/nova.html","s-limit":"projects/nova.html","case-nova":"projects/nova.html","s-outbox":"projects/nova.html","case-sp":"projects/search-platform.html","s-es":"projects/search-platform.html","s-presale":"projects/search-platform.html","s-saga":"projects/search-platform.html","s-recon":"projects/search-platform.html"};
+      var m = {"s-logout":"projects/octaco.html","s-search":"projects/octaco.html","s-sflight":"projects/octaco.html","case-octaco":"projects/octaco.html","s-onboard":"projects/octaco.html","s-probe":"projects/octaco.html","s-gitops":"projects/octaco.html","s-authz":"projects/octaco.html","s-fallback":"projects/octaco.html","s-irsa":"projects/octaco.html","flow-t":"projects/nova.html","s-sema":"projects/nova.html","s-judge":"projects/nova.html","s-wr":"projects/nova.html","s-tf":"projects/nova.html","s-atlantis":"projects/nova.html","s-ecs":"projects/nova.html","s-obs":"projects/nova.html","s-lock":"projects/nova.html","s-iam":"projects/nova.html","fa":"projects/nova.html","s-loadtest":"projects/nova.html","s-cost":"projects/nova.html","s-limit":"projects/nova.html","case-nova":"projects/nova.html","s-outbox":"projects/nova.html","case-sp":"projects/search-platform.html","s-es":"projects/search-platform.html","s-quality":"projects/search-platform.html","s-presale":"projects/search-platform.html","s-saga":"projects/search-platform.html","s-recon":"projects/search-platform.html"};
       var go = function () {
         var h = location.hash.slice(1);
         if (m[h]) location.replace(m[h] + (/^case-/.test(h) ? '' : '#' + h));
@@ -311,9 +311,9 @@
               <img src="images/diagrams/card-sp.png" alt="Search Platform 구조 요약 그림" loading="lazy" width="1100">
               <div class="pcard-hover">
                 <p class="pcard-hk">맡은 일</p>
-                <ul class="pcard-role" aria-label="담당"><li>검색 성능 측정</li><li>Elasticsearch 전환</li><li>이중 판매 차단</li><li>환불 보상과 원장 대사</li></ul>
+                <ul class="pcard-role" aria-label="담당"><li>검색 성능 측정</li><li>Elasticsearch 전환</li><li>검색 정확도 개선</li><li>이중 판매 차단</li><li>환불 보상</li><!-- 원래: 환불 보상과 원장 대사 --></ul>
                 <p class="pcard-hk">주요 성과</p>
-                <ul class="pcard-res" aria-label="주요 결과"><li><b>549ms</b><span>조건이 매번 다른 검색 p95</span><small>이전 42.7초</small></li><li><b>새 중복 0건</b><span>같은 게시글 동시 결제</span><small>이전 최대 41건</small></li><li><b>누락 1건 발견</b><span>결제별 원장 대사</span><small>합계 검사로는 정상</small></li></ul>
+                <ul class="pcard-res" aria-label="주요 결과"><li><b>549ms</b><span>조건이 매번 다른 검색 p95</span><small>이전 42.7초</small></li><li><b>새 중복 0건</b><span>같은 게시글 동시 결제</span><small>이전 최대 41건</small></li><!-- 지금은 숨김: <li><b>누락 1건 발견</b><span>결제별 원장 대사</span><small>합계 검사로는 정상</small></li> --></ul>
               </div>
             </div>
             <div class="pcard-body">
