@@ -54,7 +54,7 @@
             <div>
               <ul class="case-meta"><li>팀 프로젝트</li><li>2026.09 – 2026.10</li><li>LG U+ 유레카 부트캠프 7인 팀 (백엔드 5명, 프론트엔드 2명)</li></ul>
               <h1 class="case-title">사전예약 서비스 NOVA</h1>
-              <p class="case-desc">판매가 열리면 10초 안에 5,000명이 몰리는 사전예약 서비스입니다. 사용자는 대기열에서 차례를 기다렸다가 예약을 접수합니다. 접수한 예약은 외부 예약 시스템에도 등록해야 하는데 이 시스템은 요청이 몰리면 느려집니다. 서비스 10개는 ECS Fargate에서 돌고 외부 등록은 SQS를 거쳐 worker가 처리합니다.</p>
+              <p class="case-desc">판매가 열리면 10초 안에 5,000명이 몰리는 사전예약 서비스입니다. 사용자는 대기열에서 차례를 기다려 예약을 접수하고, 요청이 몰리면 느려지는 외부 예약 시스템 등록은 SQS를 거쳐 worker가 따로 처리합니다.</p>
           <p class="ov-h">주요 성과</p>
           <ul class="hl" aria-label="주요 결과">
             <li><a href="#s-lock"><span class="hl-label">선착순 접수 p50</span><span class="hl-big">48ms</span><span class="hl-from">이전 521ms</span></a></li>
@@ -155,8 +155,9 @@
                 </tbody></table>
                 <h4>해결 과정</h4>
                 <ul>
-                  <li>접수 서버는 예약만 저장한 뒤 바로 응답. 외부 등록과 취소는 SQS에 넣어 별도 worker 서버가 처리</li>
-                  <li><strong>예약과 Outbox 메시지를 한 트랜잭션으로 저장</strong>하고 커밋 직후 발행. 발행하지 못한 메시지는 Outbox Relay가 다시 발행</li>
+                  <li>접수 서버는 예약만 저장하고 바로 응답하며 외부 등록과 취소는 SQS에 넣어 별도 worker 서버가 처리</li>
+                  <li><strong>예약과 Outbox 메시지를 한 트랜잭션으로 저장</strong>하고 커밋 직후 발행</li>
+                  <li>발행하지 못한 메시지는 Outbox Relay가 다시 발행</li>
                   <li>같은 메시지가 두 번 갈 수 있어 <strong>예약 id를 멱등 키로</strong> 써서 중복 등록 방지</li>
                   <li>처리하지 못한 메시지는 DLQ로 옮기고 한 건이라도 쌓이면 Slack 알림</li>
                 </ul>
@@ -262,7 +263,7 @@
                 </tbody></table>
                 <h4>해결 과정</h4>
                 <ul>
-                  <li>외부 거절은 바로 DLQ로 보냄. 우리 쪽 문제는 최대 30분 다시 시도한 뒤 DLQ로 보내고 Slack으로 알림</li>
+                  <li>외부 거절은 바로 DLQ로 보내고 우리 쪽 문제는 최대 30분 다시 시도한 뒤 DLQ로 보내 Slack으로 알림</li>
                   <li>결과를 모르는 등록은 <strong>같은 멱등 키로 먼저 조회해 없을 때만 다시 전송</strong></li>
                   <li>HTTP 클라이언트의 자동 재시도는 끔</li>
                   <li>외부 거절이나 우리 쪽 문제가 1분에 5번이면 <strong>그 작업 종류(등록이나 취소)만</strong> 1분 동안 Polling 중단</li>
@@ -286,7 +287,7 @@
                 <figure class="diagram"><img src="../images/diagrams/nv-waiting.png" alt="상품별 입장 속도가 0이라 30초 간격을 안내하던 수정 전과, 전체 입장 속도와 상품별 상한 중 작은 값으로 계산하는 수정 후" loading="lazy"></figure>
                 <h4>찾은 문제</h4>
                 <ul>
-                  <li>대기열은 몰린 사용자를 줄 세우고 접수 서버가 감당할 만큼만 1초마다 들여보냄. 사용자는 서버가 알려 준 간격(차례가 가까우면 1초, 멀면 최대 30초)마다 차례를 확인</li>
+                  <li>대기열은 몰린 사용자를 줄 세워 접수 서버가 감당할 만큼만 1초마다 들여보내고 사용자는 서버가 알려 준 간격(차례가 가까우면 1초, 멀면 최대 30초)마다 차례를 확인</li>
                   <li>10초 동안 5,000명이 들어오는 부하 시험에서 들여보내는 속도로 계산하면 10초 남짓이면 모두 입장해야 하는데 늦게 입장한 5%는 31초 넘게 걸림</li>
                 </ul>
                 <h4>원인</h4>
@@ -324,7 +325,8 @@
                   <li>서비스마다 인프라는 service.yml, 앱은 application.yml, 비밀 값은 secrets.sops.yml로 application/ 아래에 선언</li>
                   <li>스택마다 backend와 state를 따로 두어 한 스택의 변경이 다른 스택에 영향을 주지 않고 역할이 분명하게 나뉨</li>
                   <li>provider와 공통 값은 원본 하나를 링크로 공유하고 모든 자원에 제품, 환경, 관리 주체 태그를 자동 부여</li>
-                  <li>각 스택이 application/*/service.yml을 자동으로 찾아 <strong>폴더만 추가하면 ECR, IAM, 보안 그룹, ECS가 함께 생성</strong>. URL 경로와 태스크 수는 ALB와 ECS 설정이 되고 호출 대상과 DB, 캐시는 보안 그룹 규칙이 되며 큐는 IAM 권한이 됨</li>
+                  <li>각 스택이 application/*/service.yml을 자동으로 찾아 <strong>새 서비스의 service.yml만 추가하면 ECR, IAM, 보안 그룹, ECS가 함께 생성</strong></li>
+                  <li>service.yml의 URL 경로와 태스크 수는 ALB와 ECS 설정으로, 호출 대상과 DB, 캐시는 보안 그룹 규칙으로, 큐는 IAM 권한으로 변환</li>
                   <li>비밀 값은 apply 중에만 풀어 Secrets Manager에 넣고 state에는 남기지 않음</li>
                   <li>오타 난 필드나 없는 서비스를 호출 대상으로 적은 선언은 서비스 이름과 원인을 보여 주고 plan에서 멈춤</li>
                 </ul>
@@ -416,7 +418,7 @@
                 </ul>
                 <h4>결과</h4>
                 <ul class="res">
-                  <li>첫 시험은 첫 1분 p95 4.67초로 불합격. 상품 조회 사양과 대기열 사전 증설을 고친 뒤 합격</li>
+                  <li>첫 시험은 첫 1분 p95 4.67초로 불합격했고 상품 조회 사양과 대기열 사전 증설을 고친 뒤 합격</li>
                   <li>합격한 시험의 첫 1분은 초당 약 2,090건을 <strong>p95 30ms와 5xx 0%</strong>로 처리</li>
                 </ul>
               </div>
@@ -492,8 +494,8 @@
                 </ul>
                 <h4>구축 방식</h4>
                 <ul>
-                  <li>OpenTelemetry Java 에이전트로 앱 코드 수정 없이 수집. 지표는 Mimir, 로그는 Loki, 트레이스는 Tempo, 프로파일은 Pyroscope에 저장</li>
-                  <li>트레이스는 오류와 느린 요청만 모두 남기고 나머지는 일부만 저장. 대신 <strong>지표는 모든 요청으로 계산</strong></li>
+                  <li>OpenTelemetry Java 에이전트로 앱 코드 수정 없이 수집해 지표는 Mimir, 로그는 Loki, 트레이스는 Tempo, 프로파일은 Pyroscope에 저장</li>
+                  <li>트레이스는 오류와 느린 요청만 모두 남기고 나머지는 일부만 저장하는 대신 <strong>지표는 모든 요청으로 계산</strong></li>
                   <li>수집 게이트웨이를 관측 서버와 분리해 관측 서버를 재배포하는 동안 들어온 데이터도 잃지 않게 함</li>
                   <li>판매 오픈 상황판 하나로 사용자 오류부터 그 서비스의 CPU 포화, Redis timeout, 증설 지연 같은 원인까지 추적</li>
                   <li>경보는 서비스별 5xx와 SLO 예산 소진처럼 사용자가 겪는 증상을 기준으로만 발송</li>
