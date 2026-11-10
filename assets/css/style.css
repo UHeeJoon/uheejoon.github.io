@@ -828,7 +828,7 @@ h1 em, .pr h3 em { color: var(--brand); }
 .cv-link a { color: var(--accent); text-decoration: none; }
 .cv-link a:hover { text-decoration: underline; }
 /* 다시 두 단: 묶음 이름은 위, 불릿은 한 줄 */
-.cv-main .job-body { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 32px; }
+.cv-main .job-body { grid-template-columns: minmax(0, max-content) minmax(0, 1fr); gap: 32px; }
 .cv-main .job-col { display: block; }
 .cv-main .job-k { margin: 0 0 8px; }
 @media (max-width: 760px) { .cv-main .job-body { grid-template-columns: 1fr; gap: 18px; } }
