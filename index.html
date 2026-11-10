@@ -16,7 +16,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap">
-  <link rel="stylesheet" href="assets/css/style.css?v=20261110c">
+  <link rel="stylesheet" href="assets/css/style.css?v=20261110e">
   <script>
     (function () {
       try {
@@ -381,13 +381,13 @@
         <div class="dcards">
           <a class="dcard" href="#p-svalinn" aria-haspopup="dialog">
             <div class="dcard-top"><p class="dcard-area">인증 보안</p><span class="dcard-open">펼쳐 보기</span></div>
-            <h3>권한 상승과 계정 탈취 경로를 직접 재현하고 막은 SSO 서버</h3>
+            <h3>고객사 앱을 OIDC와 SAML로 연결하고 권한 탈취 경로를 재현해 막은 SSO 서버</h3>
             <p class="dcard-src">Svalinn · 멀티테넌트 SSO와 권한 관리 서버 · 2026.07 – 08 · 1인</p>
-            <p class="dcard-desc">옥타코에서 설계를 맡았던 SSO를 혼자 다시 만들며 관리자 권한이 새거나 남의 계정에 들어가는 경로를 직접 재현하고 막았습니다.</p>
+            <p class="dcard-desc">고객사가 등록한 업무 앱에 한 번 로그인으로 들어가고 고객사 사내 로그인에 로그인을 맡길 수도 있는 SSO 서버입니다. 관리자 권한 상승과 계정 탈취 시나리오를 재현해 막았습니다.</p>
             <ul class="dstats">
-              <li><span class="hl-label">토큰 발급 처리량</span><span class="hl-big">초당 563건</span><span class="hl-from">이전 초당 78건, p95 1,049ms → 143ms</span></li>
-              <li><span class="hl-label">관리자 요청 검사</span><span class="hl-big">4단계</span><span class="hl-from">URL · 메서드 · 재인증 · DB RLS</span></li>
-              <li><span class="hl-label">외부 로그인 연동</span><span class="hl-big">fail-closed</span><span class="hl-from">역할을 확인하지 못하면 로그인 거절</span></li>
+              <li><span class="hl-label">고객사 앱 연동</span><span class="hl-big">OIDC · SAML</span><span class="hl-from">앱 등록부터 로그인과 로그아웃 전파까지</span></li>
+              <li><span class="hl-label">고객사 사내 로그인</span><span class="hl-big">로그인 위임</span><span class="hl-from">Okta나 Entra ID 로그인을 받아 계정에 연결</span></li>
+              <li><span class="hl-label">권한 탈취 시나리오</span><span class="hl-big">재현 후 차단</span><span class="hl-from">관리자 권한 상승과 위조 로그인 등</span></li>
             </ul>
             <ul class="pcard-tags"><li>Java 21</li><li>Spring Boot 4</li><li>Spring Authorization Server</li><li>OpenSAML 5</li><li>PostgreSQL RLS</li><li>Testcontainers</li></ul>
           </a>
@@ -533,57 +533,67 @@
       <div class="pmodal-body">
           <article class="pm">
             <header class="pm-head">
-              <div class="pm-top"><p class="pm-area">인증 보안</p><a class="deep-repo" href="https://github.com/world-to-code/single-sign-on" target="_blank" rel="noopener">저장소 보기</a></div>
-              <h2 class="pm-title" id="p-svalinn-t">권한 상승과 계정 탈취 경로를 직접 재현하고 막은 SSO 서버</h2>
+              <div class="pm-top"><p class="pm-area">인증 보안</p><span class="pm-links"><a class="deep-repo" href="https://youtu.be/rsbc9wtljvY" target="_blank" rel="noopener">시연 영상 보기</a><a class="deep-repo" href="https://github.com/world-to-code/single-sign-on" target="_blank" rel="noopener">저장소 보기</a></span></div>
+              <h2 class="pm-title" id="p-svalinn-t">고객사 앱을 OIDC와 SAML로 연결하고 권한 탈취 경로를 재현해 막은 SSO 서버</h2>
               <p class="pm-meta">Svalinn · 멀티테넌트 SSO와 권한 관리 서버 · 2026.07 – 08 · 1인</p>
-              <p class="pm-desc">여러 고객사가 함께 쓰는 SSO 인증과 권한 관리 서버입니다. 옥타코에서 설계를 맡았던 SSO를 혼자 처음부터 다시 만들며 하위 관리자가 맡은 권한을 넘어서거나 외부 로그인으로 남의 계정에 들어가는 경로를 찾아 막았습니다. 설계, 결함 기준, 검증 방법은 직접 정했고 Claude Code가 짠 코드는 실제 DB와 위조 응답으로 테스트해 확인했습니다.</p>
+              <p class="pm-desc">여러 고객사가 함께 쓰는 SSO 서버입니다. 고객사 관리자가 업무 앱을 OIDC나 SAML 2.0으로 등록하면 직원은 Svalinn에 한 번 로그인해 그 앱들을 씁니다. 고객사가 Okta나 Entra ID 같은 사내 로그인을 이미 쓰고 있으면 로그인은 그쪽에 맡기고 결과만 받아 계정에 연결합니다. 옥타코에서 설계를 맡았던 SSO를 혼자 다시 만들었습니다. 설계와 검증 기준은 제가 정하고 구현은 Claude Code로 했습니다.</p>
             </header>
-            <figure class="diagram pm-fig"><img src="images/diagrams/sv-arch.png" alt="Svalinn 전체 구조: nginx 뒤의 모듈러 모놀리스(권한, 로그인과 MFA, 인증 프로토콜, 고객사 격리, 세션과 로그아웃), PostgreSQL과 Redis, 고객사 사내 로그인과 인사 시스템 연동" loading="lazy"><figcaption>전체 구조. 기능별 모듈로 나눈 Spring Boot 앱 하나가 사내 로그인 시스템과 인사 시스템, 연동 서비스를 잇습니다.</figcaption></figure>
+            <figure class="diagram pm-fig"><img src="images/diagrams/sv-arch.png" alt="Svalinn 전체 구조: nginx 뒤의 모듈러 모놀리스가 고객사 SaaS 앱에는 OIDC와 SAML로 로그인을 제공하고 고객사 사내 로그인(Entra ID, Okta, Google)에는 로그인을 위임하며 인사 시스템과는 SCIM으로 계정을 맞춘다" loading="lazy"><figcaption>전체 구조. 고객사 앱에는 OIDC와 SAML로 로그인을 제공하고 고객사 사내 로그인에는 로그인을 위임합니다. 인사 시스템과는 SCIM으로 계정을 맞춥니다.</figcaption></figure>
             <section class="pm-sec">
               <h3 class="pm-h">어디까지 만들었나</h3>
               <dl class="pm-scope">
-              <div><dt>권한</dt><dd><span>세부 권한과 역할</span><span>역할 상속과 그룹</span><span>하위 관리자 위임</span><span>민감 작업 재인증</span><span>MFA</span></dd></div>
-              <div><dt>로그인 연동</dt><dd><span>OIDC</span><span>SAML</span><span>SCIM 인사 시스템 연동</span></dd></div>
-              <div><dt>운영</dt><dd><span>로그아웃 전파 재시도</span><span>인증서 자동 발급</span><span>PostgreSQL RLS 고객사 격리</span></dd></div>
-              <div><dt>검증</dt><dd><span>Testcontainers 통합 테스트</span><span>위조 SAML 응답 시험</span><span>k6 부하 시험</span><span>관리자 API 검사 누락 CI</span></dd></div>
-              <div><dt>기술</dt><dd><span>Java 21</span><span>Spring Boot 4</span><span>Spring Authorization Server</span><span>OpenSAML 5</span><span>PostgreSQL 17</span><span>Redis 7</span><span>React 18</span></dd></div>
+              <div><dt>앱 연동</dt><dd><span>OIDC Provider</span><span>SAML 2.0 IdP</span><span>고객사별 앱 등록</span><span>OIDC 백채널 로그아웃과 SAML SLO</span></dd></div>
+              <div><dt>로그인 위임</dt><dd><span>고객사 OIDC·SAML 로그인 연결</span><span>첫 로그인 시 계정 생성</span><span>SCIM 2.0 인사 연동</span></dd></div>
+              <div><dt>권한</dt><dd><span>역할과 세부 권한</span><span>거부 규칙</span><span>하위 관리자 위임</span><span>민감 작업 재인증</span><span>MFA와 패스키</span></dd></div>
+              <div><dt>격리와 운영</dt><dd><span>PostgreSQL RLS 고객사 격리</span><span>로그아웃 전파 재시도</span><span>고객사별 인증서 자동 발급</span></dd></div>
+              <div><dt>검증</dt><dd><span>Testcontainers 통합 테스트</span><span>위조 SAML 응답 시험</span><span>관리자 API 검사 누락 CI</span><span>k6 부하 시험</span></dd></div>
+              <div><dt>기술</dt><dd><span>Java 21</span><span>Spring Boot 4</span><span>Spring Authorization Server</span><span>Spring Modulith</span><span>OpenSAML 5</span><span>PostgreSQL 17</span><span>Redis 7</span><span>React 18</span></dd></div>
               </dl>
-            <p class="pm-note"><b>아직 못 한 것</b>다른 고객사 데이터를 읽지 못하는 것은 모두 확인했지만 쓰기를 막는 것은 아직 일부만 확인했습니다. client secret을 저장할 때 쓰는 서버 키를 바꾸면 지금은 연동된 서비스를 모두 다시 등록해야 합니다. 서비스를 멈추지 않고 키를 바꾸는 기능이 아직 없습니다. 토큰 발급은 이제 DB 연결이 모자라 느려지는데 이 부분도 아직 손대지 않았습니다.</p>
+            <p class="pm-note"><b>아직 못 한 것</b>다른 고객사 데이터 쓰기를 막는 것은 21개 영역 중 18개까지만 확인했습니다. refresh token으로 토큰을 갱신할 때 계정 상태를 다시 확인하지 않아 퇴사 처리 중 발급 기록 삭제가 실패하면 갱신이 계속됩니다. client secret 해시에 쓰는 서버 키를 서비스 중단 없이 바꾸는 기능도 아직 없습니다.</p>
             </section>
             <section class="pm-sec">
               <h3 class="pm-h">풀어 본 문제</h3>
             <article class="pm-case">
-              <h4><span class="pm-no">01</span>하위 관리자가 자기보다 높은 권한을 얻는 경로</h4>
-              <figure class="diagram pm-fig pm-fig-side"><img src="images/diagrams/sv-perm.png" alt="직원 소속이 바뀌는 6개 경로가 모두 같은 정책 판단(해제 권한 검사)을 거친 뒤에만 적용되는 흐름" loading="lazy"><figcaption>소속을 바꾸는 6개 경로가 모두 같은 권한 검사를 거쳐야 적용됩니다.</figcaption></figure>
+              <h4><span class="pm-no">01</span>사내 로그인 위임을 악용한 고객사 관리자 계정 탈취 차단</h4>
+              <figure class="diagram pm-fig pm-fig-side"><img src="images/diagrams/sv-fed.png" alt="고객사 사내 로그인으로 위임한 결과를 검증한 뒤 저장해 둔 연결, 외부 ID, 검증된 이메일 순서로 계정을 찾고 연동 기록이 없는 관리자 계정은 자동으로 연동하지 않는 흐름. 퇴사는 SCIM으로 받아 바로 차단한다" loading="lazy"><figcaption>사내 로그인에 위임한 결과를 검증하고 계정을 찾는 순서. 연동 기록이 없는 관리자 계정은 자동으로 연동하지 않습니다.</figcaption></figure>
               <div class="pm-flow">
-                <div><p class="pm-k">문제</p><p>최고 관리자와 같은 이름의 역할을 만들어 자기에게 붙이거나 높은 역할이 걸린 그룹에 CSV 일괄 생성으로 계정을 넣으면 권한이 커질 수 있었습니다.</p></div>
-                <div><p class="pm-k">한 일</p><p>역할 이름이 아니라 실제로 부여된 세부 권한으로 판단하고 자기가 가진 권한 안의 역할만 줄 수 있게 했습니다. 관리자 요청은 URL, 메서드, 재인증, DB RLS에서 네 번 검사합니다.</p></div>
-                <div class="pm-res"><p class="pm-k">결과</p><p class="pm-big">모두 거절</p><p>권한이 생기는 경로마다 시도 테스트를 만들었고 검사를 일부러 빼면 테스트가 실패하는 것까지 확인했습니다.</p></div>
+                <div><p class="pm-k">문제</p><p>고객사는 OIDC나 SAML 기반 사내 로그인 시스템을 등록해 사용자 인증을 위임할 수 있었습니다. 보안 테스트 중 사내 로그인 등록 권한을 가진 하위 관리자가 가짜 로그인 시스템을 등록하고 고객사 최고 관리자와 동일한 이메일을 인증 결과에 포함해 보내면 기존 관리자 계정에 자동 연동되어 로그인할 수 있는 취약점을 발견했습니다.</p></div>
+                <div><p class="pm-k">한 일</p><p>기존에는 사내 로그인으로 처음 접속한 사용자의 이메일이나 인사 시스템 ID가 기존 계정과 일치하면 자동으로 연동했습니다. 이를 개선해 최초 연동 대상이 관리자 계정이라면 자동 연동을 거부하도록 변경했습니다. 일반 사용자로 연동한 뒤 관리자로 승격된 계정은 기존 연동을 유지하고 연동 기록이 없는 관리자는 Svalinn 자체 로그인을 사용하도록 정책을 분리했습니다.</p><p>또한 연동 관계를 로그인 시스템의 발급자(Issuer)와 사용자 식별자(Subject) 조합으로 관리해 동일한 이메일을 사용하는 다른 로그인 시스템이 기존 연동을 가장할 수 없도록 했습니다. 발급자나 서명 인증서 변경으로 기존 연동을 무효화하는 경우에는 해당 연동으로 발급된 세션도 함께 종료하도록 처리했습니다.</p></div>
+                <div class="pm-res"><p class="pm-k">결과</p><p class="pm-big">관리자 계정 탈취 차단</p><p>가짜 로그인 시스템이나 인사 시스템 ID를 이용한 관리자 계정 자동 연동이 거부되는 것을 테스트로 확인했습니다. 추가로 SAML 응답 재전송, 서명된 응답의 사용자 정보 변조, 요청하지 않은 응답 전송 등 주요 공격 시나리오를 검증해 모두 차단되는 것을 확인했습니다.</p></div>
               </div>
-              <div class="pm-lesson"><p class="pm-k">배운 점</p><ul><li><b>테스트가 결함을 잡는지도 확인해야 합니다</b><p>검사를 빼도 통과하는 테스트는 아무것도 지켜 주지 못합니다. 그래서 관리자 API에 검사가 하나라도 빠지면 CI가 실패하는 테스트를 따로 두었습니다.</p></li></ul></div>
             </article>
             <article class="pm-case">
-              <h4><span class="pm-no">02</span>가짜 사내 로그인으로 최고 관리자 계정에 들어가는 경로</h4>
-              <figure class="diagram pm-fig pm-fig-side"><img src="images/diagrams/sv-fed.png" alt="외부 로그인 결과를 검증한 뒤 연결 기록, 외부 ID, 이메일 순서로 계정을 찾고 관리자 계정이면 처음 연결을 거부하는 흐름" loading="lazy"><figcaption>외부 로그인 뒤 계정을 찾는 순서. 관리자 계정이면 처음 연결을 거부합니다.</figcaption></figure>
+              <h4><span class="pm-no">02</span>일반 로그인만으로 통과되던 민감 작업 재인증</h4>
+              <figure class="pm-dump">
+                <pre><code><span class="c"># 고치기 전: 로그인 때도 갱신되는 인증 시각 하나만 확인</span>
+long sinceAuth = now - session.get(<mark>AUTH_TIME</mark>);
+if (sinceAuth &lt;= window) return true;
+
+<span class="c"># 고친 뒤: 재인증 API만 남기는 시각과 인증 수단을 함께 확인</span>
+long sinceStepUp = now - session.get(<mark>STEPUP_TIME</mark>);
+boolean strongEnough = policy.stepUpFactors().contains(session.get(<mark>STEPUP_FACTOR</mark>));
+if (strongEnough &amp;&amp; sinceStepUp &lt;= window) return true;
+return challenge(policy.stepUpFactors());</code></pre>
+                <figcaption>민감 작업을 검사하는 코드에서 발췌해 줄였습니다. 기록이 없으면 통과하지 않습니다.</figcaption>
+              </figure>
               <div class="pm-flow">
-                <div><p class="pm-k">문제</p><p>하위 관리자가 가짜 로그인 시스템을 등록해 최고 관리자 이메일을 보내면 그 계정으로 로그인됐습니다. 탈취 시나리오를 직접 만들어 시험하다 찾았습니다.</p></div>
-                <div><p class="pm-k">한 일</p><p>외부 로그인은 관리자 계정에 처음 연결할 수 없게 하고 역할을 확인하지 못하면 로그인을 거절하게 했습니다. 로그인 시스템의 발급자나 서명 인증서가 바뀌면 기존 연결도 지웁니다.</p></div>
-                <div class="pm-res"><p class="pm-k">결과</p><p class="pm-big">위조 로그인 모두 거부</p><p>같은 응답 다시 보내기, 서명 뒤 사용자 바꾸기, 요청하지 않은 응답 보내기를 실행 중인 서버에 시험했고 모두 로그인되지 않았습니다.</p></div>
+                <div><p class="pm-k">문제</p><p>역할 변경이나 서명 키 교체처럼 계정과 보안에 영향을 주는 관리자 작업은 OTP나 패스키 등 정책에서 정한 수단으로 재인증해야 실행되도록 설계했습니다. 하지만 기존에는 마지막 인증 시각만 확인했고 이 값은 일반 로그인에도 갱신되고 있었습니다. 그 결과 비밀번호로 로그인한 직후에는 별도의 재인증 없이 민감 작업을 실행할 수 있었고 더 강한 인증 수단을 요구하는 정책도 우회할 수 있었습니다.</p></div>
+                <div><p class="pm-k">한 일</p><p>일반 로그인과 민감 작업을 위한 재인증 기록을 분리했습니다. 재인증 API를 통해 인증을 완료한 경우에만 별도의 인증 시각과 사용한 인증 수단을 기록하고 일반 로그인으로는 해당 기록을 갱신할 수 없도록 변경했습니다. 민감 작업을 실행할 때는 재인증 기록이 정책에서 정한 유효 시간 내에 있는지, 사용한 인증 수단이 허용된 수단인지 모두 확인하도록 했으며 기록이 없거나 조건을 충족하지 못하면 실행을 거부하도록 했습니다.</p><p>추가로 재인증을 시작한 뒤 완료하지 않고 중단한 경우 진행 중이던 재인증 요구가 세션에 남아 이후 정상적인 재인증까지 차단하는 문제도 발견했습니다. 재인증 요구에 유효 시간을 적용해 중단된 인증 절차가 이후 요청에 영향을 주지 않도록 개선했습니다.</p></div>
+                <div class="pm-res"><p class="pm-k">결과</p><p class="pm-big">정책 수단으로만 통과</p><p>일반 로그인만 수행한 세션, 정책보다 약한 수단으로 재인증한 세션, 재인증 기록이 없는 세션은 민감 작업이 거부되고 정책에서 허용한 수단으로 재인증을 완료한 세션만 통과하는 것을 테스트로 확인했습니다.</p></div>
               </div>
-              <div class="pm-lesson"><p class="pm-k">배운 점</p><ul><li><b>확인할 수 없으면 거절하는 것이 기본입니다</b><p>외부 시스템이 보낸 값으로 계정을 찾고 권한을 주는 구조라 확인하지 못한 경우를 허용하면 그대로 탈취 경로가 됐습니다.</p></li></ul></div>
             </article>
             <article class="pm-case">
-              <h4><span class="pm-no">03</span>테스트는 통과했는데 고객사 데이터가 섞일 수 있던 문제</h4>
-              <figure class="diagram pm-fig pm-fig-side"><img src="images/diagrams/sv-rls.png" alt="요청 Host로 고객사를 정하고 커넥션마다 org_id를 설정해 PostgreSQL RLS로 격리하는 구조. superuser면 기동을 거부하는 IsolationGuard 포함" loading="lazy"><figcaption>요청마다 고객사를 커넥션에 설정합니다. 노란 칸이 결함을 고치며 추가한 부분입니다.</figcaption></figure>
+              <h4><span class="pm-no">03</span>테스트는 통과했지만 RLS가 비활성화되어 있던 고객사 격리</h4>
+              <figure class="diagram pm-fig pm-fig-side"><img src="images/diagrams/sv-rls.png" alt="요청 Host로 고객사를 정하고 커넥션을 빌릴 때마다 고객사 값을 설정해 PostgreSQL RLS로 격리하는 구조. superuser면 기동을 거부하는 검사와 트랜잭션 중 고객사가 바뀌면 커넥션을 다시 설정하는 부분을 추가했다" loading="lazy"><figcaption>요청 주소로 고객사를 정하고 커넥션을 빌릴 때마다 RLS용 고객사 값을 설정합니다. 노란 칸이 결함을 고치며 추가한 부분입니다.</figcaption></figure>
               <div class="pm-flow">
-                <div><p class="pm-k">문제</p><p>mock 단위 테스트는 모두 통과했지만 앱이 superuser로 DB에 붙어 RLS가 꺼진 채 돌고 있었습니다. RLS가 역할 조회를 가려 관리자 검사를 그냥 통과하는 곳도 있었습니다.</p></div>
-                <div><p class="pm-k">한 일</p><p>운영과 같은 DB 계정으로 Testcontainers 통합 테스트를 돌려 찾았습니다. 마이그레이션 계정과 앱 계정을 나누고 superuser로는 서버가 뜨지 않게 했습니다.</p></div>
-                <div class="pm-res"><p class="pm-k">결과</p><p class="pm-big">고객사 간 조회 차단</p><p>고친 뒤 고객사 데이터 전체에서 다른 고객사 데이터를 읽지 못하는 것을 확인했습니다. 쓰기를 막는 것도 대부분 확인했습니다.</p></div>
+                <div><p class="pm-k">문제</p><p>고객사 간 데이터 접근을 막기 위해 애플리케이션의 고객사 조건과 PostgreSQL RLS(Row Level Security)를 함께 적용했습니다. 하지만 실제로는 애플리케이션이 DB Superuser 계정으로 접속하고 있어 RLS가 적용되지 않고 있었습니다. 테스트도 동일한 권한의 계정으로 실행해 이 문제를 발견하지 못했습니다.</p><p>이후 운영과 동일한 일반 DB 계정으로 검증하는 과정에서 또 다른 문제가 드러났습니다. 하나의 트랜잭션 안에서 고객사 컨텍스트가 변경되면 이미 확보한 커넥션에는 이전 고객사 정보가 남아 있어 변경된 고객사 기준으로 조회되지 않았습니다.</p></div>
+                <div><p class="pm-k">한 일</p><p>먼저 DB 마이그레이션 계정과 애플리케이션 계정을 분리하고 애플리케이션 계정에 RLS를 우회할 수 있는 권한이 있거나 Superuser인 경우 서버가 기동되지 않도록 검사했습니다. 이를 통해 RLS가 비활성화된 상태로 서비스가 실행되는 것을 방지했습니다.</p><p>또한 커넥션을 빌릴 때마다 고객사 컨텍스트를 설정하고 트랜잭션 도중 고객사가 변경되는 경우에도 현재 사용 중인 커넥션에 변경된 고객사 정보를 다시 설정하도록 수정했습니다.</p></div>
+                <div class="pm-res"><p class="pm-k">결과</p><p class="pm-big">고객사 간 조회 차단</p><p>일반 DB 계정으로 서명 키와 사내 로그인 연동 등 21개 영역에서 다른 고객사의 데이터 조회가 차단되는 것을 확인했으며 18개 영역에서는 타 고객사 데이터에 대한 쓰기 차단까지 검증했습니다.</p></div>
               </div>
-              <div class="pm-lesson"><p class="pm-k">배운 점</p><ul><li><b>mock 테스트를 통과했다고 안전한 것은 아니었습니다</b><p>RLS가 꺼진 것과 관리자 검사를 그냥 통과하던 곳은 둘 다 실제 DB를 띄운 테스트에서만 드러났습니다. 권한과 격리처럼 DB가 판단에 끼는 코드는 운영과 같은 계정으로 시험해야 합니다.</p></li></ul></div>
+              <div class="pm-lesson"><p class="pm-k">배운 점</p><ul><li><b>DB 권한과 보안 정책은 테스트 환경에서도 운영과 동일한 조건으로 검증해야 합니다</b><p>DB를 모킹한 테스트나 Superuser 계정으로 실행한 테스트는 RLS가 실제로 적용되는지 검증할 수 없었습니다. 이후 통합 테스트도 운영과 동일한 일반 DB 계정으로 실행하도록 변경했습니다.</p></li></ul></div>
             </article>
             <article class="pm-case">
-              <h4><span class="pm-no">04</span>토큰 발급이 초당 78건에서 막히던 문제</h4>
+              <h4><span class="pm-no">04</span>토큰 발급 처리량을 제한하던 Client Secret 해시 개선</h4>
               <figure class="pm-dump">
                 <pre><code><span class="c"># 부하를 건 채 2초 간격으로 6번 덤프</span>
 $ for i in 1 2 3 4 5 6; do jstack $PID &gt; js-$i.txt; sleep 2; done
@@ -597,15 +607,33 @@ $ for i in 1 2 3 4 5 6; do jstack $PID &gt; js-$i.txt; sleep 2; done
 <span class="c"># 요청 스레드를 스택별로 분류</span>
 개선 전  request_threads=312  {'<mark>BCrypt': 269</mark>, 'JDBC': 22, 'RSA sign': 2, 'io': 2}
 개선 후  request_threads=306  {'JDBC': 53, 'io': 15, 'RSA sign': 7}  waiting_for_db_connection=220</code></pre>
-                <figcaption>실제 덤프와 분류 결과에서 발췌. 개선 전에는 요청 스레드 312개 중 269개(86%)가 BCrypt 계산 중이었습니다.</figcaption>
+                <figcaption>실제 덤프와 분류 결과에서 발췌. 개선 전에는 요청 스레드 312개 중 269개가 BCrypt 계산 중이었습니다.</figcaption>
               </figure>
               <div class="pm-flow">
-                <div><p class="pm-k">문제</p><p>k6로 서버 간 토큰 발급(client credentials)을 동시 사용자 50명으로 측정하니 초당 78건에 p95 1,049ms였습니다. 사용자를 늘려도 처리량은 그대로고 지연만 커졌습니다.</p></div>
-                <div><p class="pm-k">한 일</p><p>추측하지 않고 부하를 건 채 스레드 덤프를 6번 떠 요청 스레드를 스택별로 셌습니다. 사용자 비밀번호용 느린 해시인 BCrypt를 서버가 만든 난수 secret에도 쓰고 있었고 DB 저장과 토큰 서명은 병목이 아니었습니다. client secret은 서버만 아는 키로 HMAC-SHA256 해시해 저장하고 사용자 비밀번호는 BCrypt를 그대로 둡니다.</p></div>
-                <div class="pm-res"><p class="pm-k">결과</p><p class="pm-big">초당 563건</p><p>같은 조건에서 처리량은 초당 78건에서 563건으로 늘고 p95는 1,049ms에서 143ms로 줄었습니다. 다시 덤프해 보니 다음 병목은 DB 커넥션 풀이었습니다. 요청 스레드 306개 중 220개가 커넥션을 기다렸습니다.</p></div>
+                <div><p class="pm-k">문제</p><p>Client Credentials 방식의 서버 간 토큰 발급 API를 k6로 동시 사용자 50명 조건에서 측정한 결과 초당 78건의 처리량과 1,049ms의 p95 응답 시간을 기록했습니다. 동시 사용자를 늘려도 처리량은 증가하지 않고 응답 시간만 길어져 병목 원인을 분석했습니다.</p></div>
+                <div><p class="pm-k">한 일</p><p>부하가 발생하는 동안 2초 간격으로 6번의 스레드 덤프를 수집하고 요청 스레드의 스택을 분류했습니다. 전체 요청 스레드 312개 중 269개가 BCrypt 해시 계산에 머물러 있는 것을 확인했습니다.</p><p>원인은 서버가 생성하고 보관하는 Client Secret에도 사용자 비밀번호와 동일한 BCrypt를 사용하고 있었기 때문입니다. 사용자 비밀번호는 유출 시 대입 공격에 대비해 느린 해시가 필요하지만 서버가 생성하고 검증하는 Client Secret은 별도의 키를 사용하는 HMAC-SHA256으로 해시해 저장하도록 변경했습니다. 사용자 비밀번호의 BCrypt 검증은 그대로 유지했습니다.</p></div>
+                <div class="pm-res"><p class="pm-k">결과</p><p class="pm-big">초당 78건 → 563건</p><p>동일한 부하 조건에서 토큰 발급 처리량이 초당 78건에서 563건으로 약 7.2배 증가했고 p95 응답 시간은 1,049ms에서 143ms로 약 86% 감소했습니다.</p><p>개선 후 다시 수집한 스레드 덤프에서는 BCrypt 병목이 사라지고 DB 커넥션 대기가 주요 병목으로 나타났습니다. 노트북 한 대에서 측정한 결과이므로 절대 성능보다는 동일 환경에서의 개선 전후 비율에 의미를 두었습니다.</p></div>
               </div>
-              <div class="pm-lesson"><p class="pm-k">배운 점</p><ul><li><b>병목은 추측하지 않고 세어 봐야 합니다</b><p>부하를 건 채 덤프를 여러 번 떠 스택별로 세니 요청 스레드 대부분이 한 곳에 몰려 있었습니다. 고친 뒤 같은 방법으로 다시 세어 다음 병목도 바로 찾았습니다.</p></li></ul></div>
             </article>
+            </section>
+            <section class="pm-sec">
+              <h3 class="pm-h">보안 점검: 재현해 본 탈취 시나리오</h3>
+              <p class="pm-sub">관리자 위임과 사내 로그인 연동에서 관리자가 맡은 권한을 넘어서거나 남의 계정에 들어갈 수 있는 경로를 시나리오로 정해 막았습니다. 강조한 줄은 만든 뒤에 실제로 찾아 고친 결함이고 나머지는 설계 때 위협으로 정해 미리 막은 것입니다.</p>
+              <div class="table-scroll"><table class="cmp opt pm-threat"><thead><tr><th>시나리오</th><th>막은 방법</th></tr></thead><tbody>
+                <tr><td>최고 관리자와 같은 이름의 역할을 만들어 자기에게 부여</td><td>역할 이름이 아니라 실제로 부여된 세부 권한으로 판단</td></tr>
+                <tr><td>하위 관리자가 자기보다 높은 역할을 자기나 다른 사람에게 부여</td><td>줄 역할의 세부 권한이 모두 자기 권한 안에 있을 때만 허용</td></tr>
+                <tr><td>CSV 일괄 생성으로 높은 역할이 걸린 그룹에 계정 생성</td><td>그룹 지정에도 역할을 직접 줄 때와 같은 기준 적용</td></tr>
+                <tr class="pick"><td>사용자를 그룹에서 빼서 거부 규칙 해제</td><td>사용자를 그룹이나 역할에서 빼는 모든 API에서 거부 규칙 해제 권한 검사</td></tr>
+                <tr class="pick"><td>한 고객사 관리자가 모든 고객사의 공통 역할 수정</td><td>수정과 삭제 전에 소속 고객사 확인</td></tr>
+                <tr><td>관리자 API 하나에 권한 검사 누락</td><td>검사가 빠진 관리자 API가 생기면 CI 실패</td></tr>
+                <tr class="pick"><td>가짜 사내 로그인으로 최고 관리자 계정에 로그인</td><td>사내 로그인 계정을 관리자 계정에 자동 연동하지 않고 역할을 모르면 거절 (01)</td></tr>
+                <tr class="pick"><td>비밀번호로 막 로그인한 관리자가 재인증 없이 민감한 설정 변경</td><td>재인증 API에서 정책 수단으로 인증한 기록만 인정하고 기록이 없으면 거절 (02)</td></tr>
+                <tr><td>서명 인증서만 바꿔 등록해 기존 연결로 남의 계정에 로그인</td><td>발급자, 클라이언트 ID, 서명 인증서가 바뀌면 연결 삭제</td></tr>
+                <tr><td>퇴사자 메일을 이어받은 입사자가 퇴사자 계정으로 로그인</td><td>이메일 대신 사내 로그인의 사용자 ID로 찾고 이메일로 찾기는 기본으로 끔</td></tr>
+                <tr><td>SAML 응답을 재사용하거나 다른 브라우저에 넣어 로그인</td><td>한 번 쓴 응답, 요청하지 않은 응답, 로그인을 시작하지 않은 브라우저의 응답 거절</td></tr>
+                <tr class="pick"><td>퇴사 후에도 연동 앱이 refresh token으로 토큰을 계속 재발급</td><td>계정을 막을 때 세션과 함께 토큰 발급 기록 삭제</td></tr>
+                <tr><td>퇴사자가 이미 로그인한 앱을 계속 사용</td><td>퇴사 정보를 받으면 계정을 막고 연동 앱에 로그아웃 전송</td></tr>
+              </tbody></table></div>
             </section>
           </article>
       </div>
@@ -618,7 +646,7 @@ $ for i in 1 2 3 4 5 6; do jstack $PID &gt; js-$i.txt; sleep 2; done
               <div class="pm-top"><p class="pm-area">홈랩 Kubernetes</p><a class="deep-repo" href="https://github.com/sago-panda/sapari-helm-manifest" target="_blank" rel="noopener">저장소 보기</a></div>
               <h2 class="pm-title" id="p-homelab-t">서버 두 대에 Kubernetes를 직접 설치해 운영하는 홈랩</h2>
               <p class="pm-meta">홈랩 Kubernetes 플랫폼 · kubeadm 2노드 베어메탈 · 2026.05 – 06 · 1인</p>
-              <p class="pm-desc">집에 있는 베어메탈 서버 두 대에 kubeadm으로 Kubernetes를 직접 설치하고 개인 프로젝트를 올려 운영합니다. 공인 IP 없이 외부에 서비스하며 처음 설치하는 Cilium과 Argo CD 말고는 모든 컴포넌트를 Git 저장소 하나에서 Argo CD App of Apps로 동기화합니다. 서버를 껐다 켜도 Vault unseal만 직접 하면 나머지는 알아서 다시 올라옵니다.</p>
+              <p class="pm-desc">집에 있는 베어메탈 서버 두 대에 kubeadm으로 Kubernetes를 직접 설치하고 개인 프로젝트를 올려 운영합니다. 공인 IP 없이 외부에 서비스하며 처음 설치하는 Cilium과 Argo CD 말고는 모든 컴포넌트를 Git 저장소 하나에서 Argo CD App of Apps로 동기화합니다.</p>
             </header>
             <figure class="diagram pm-fig"><img src="images/diagrams/hl-arch.png" alt="홈랩 클러스터 구조: Cloudflare Tunnel로 들어와 Cilium Gateway를 거쳐 네임스페이스별 앱, Argo CD, Vault, 데이터, 모니터링으로 이어지는 2노드 클러스터" loading="lazy"><figcaption>전체 구조. 외부 요청은 Cloudflare Tunnel로만 들어오고 클러스터 안 컴포넌트는 Argo CD가 Git에서 가져와 배포합니다.</figcaption></figure>
             <section class="pm-sec">

@@ -1468,6 +1468,7 @@ html.modal-open { overflow: hidden; }
 .pm { display: flex; flex-direction: column; gap: 44px; }
 .pm-head { padding-bottom: 32px; border-bottom: 1px solid var(--line); }
 .pm-top { display: flex; justify-content: space-between; align-items: baseline; gap: 16px; }
+.pm-links { display: flex; flex-wrap: wrap; gap: 6px 16px; justify-content: flex-end; min-width: 0; }
 .pm-area { margin: 0; font-size: 13px; font-weight: 700; color: var(--taupe); }
 .pm-title { margin: 10px 0 8px; font-size: clamp(22px, 2.4vw, 30px); line-height: 1.35; letter-spacing: -0.02em; text-wrap: balance; }
 .pm-meta { margin: 0 0 18px; font-size: 14px; color: var(--ink-3); }
@@ -1481,6 +1482,9 @@ html.modal-open { overflow: hidden; }
 .pm-scope dd span { padding: 4px 11px; border-radius: 999px; background: var(--bg-sunk); font-size: 13.5px; color: var(--ink-2); }
 .pm-note { margin: 16px 0 0; padding: 14px 18px; border-left: 3px solid var(--taupe); background: var(--bg-sunk); border-radius: 0 10px 10px 0; font-size: 14.5px; line-height: 1.7; color: var(--ink-2); }
 .pm-note b { display: block; margin-bottom: 2px; color: var(--ink); font-size: 13px; }
+.pm-sub { margin: 0 0 14px; font-size: 14.5px; line-height: 1.7; color: var(--ink-2); text-wrap: pretty; }
+.pm-threat { margin: 0; }
+.pm-threat td:first-child { width: 48%; }
 .pm-case { padding: 26px 0; border-top: 1px solid var(--line); }
 .pm-case:first-of-type { border-top: 0; padding-top: 4px; }
 .pm-case h4 { display: flex; align-items: baseline; gap: 12px; margin: 0 0 16px; font-size: 18px; line-height: 1.45; }
@@ -1973,3 +1977,13 @@ html.modal-open { overflow: hidden; }
 /* 잠시 숨긴 항목: display를 정한 규칙보다 우선 */
 [hidden] { display: none !important; }
 @media (min-width: 961px) { .project-page .ov .hl:has(> li[hidden]) { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+
+/* 사례 본문이 여러 문단일 때와 문제, 한 일, 결과 사이에 숨 쉴 여백 */
+.pm-flow p:not(.pm-k):not(.pm-big) + p { margin-top: 1.7em; }
+.pm-flow .pm-k { margin-bottom: 6px; }
+.pm-case:has(> .pm-fig-side:only-of-type) > .pm-flow > div { padding-bottom: 20px; }
+.pm-case:has(> .pm-fig-side:only-of-type) > .pm-flow > div + div { padding-top: 18px; }
+@media (max-width: 900px) {
+  .pm-flow > div, .pm-res { padding-bottom: 16px !important; }
+  .pm-flow > div + div { padding-top: 14px !important; }
+}
