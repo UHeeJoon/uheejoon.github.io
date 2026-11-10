@@ -274,7 +274,8 @@
                 </ul>
                 <h4>해결 과정</h4>
                 <ul>
-                  <li>main에 push하면 GitHub Actions가 이미지를 빌드하고 <strong>Trivy 취약점 검사에 실패하면 배포를 중단</strong>. 통과한 이미지는 Commit SHA 태그로 ECR에 저장</li>
+                  <li>main에 push하면 GitHub Actions가 이미지를 빌드하고 <strong>Trivy 취약점 검사에 실패하면 배포를 중단</strong></li>
+                  <li>검사를 통과한 이미지는 Commit SHA 태그로 ECR에 저장</li>
                   <li>앱과 분리한 Helm 배포 저장소에 공통 Template 하나를 두고 서비스별 차이는 values 파일에만 두어 배포 구성 표준화</li>
                   <li>인증, 온보딩, 로그 Consumer를 서비스별 values로 나눠 독립적으로 배포</li>
                   <li>CI가 <strong>values의 이미지 태그를 새 Commit SHA로 자동 커밋</strong>해 배포 이력을 Git 커밋으로 관리</li>
