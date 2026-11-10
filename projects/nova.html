@@ -169,7 +169,7 @@
               </div>
             </details>
             <details id="s-sema" data-toc="동시 접수 제한">
-              <summary><span class="s-title">세마포어로 선착순 접수의 DB 커넥션 점유를 막은 동시 접수 제한</span><span class="s-res"><b>조회 503 해소</b><small>커넥션 절반을 조회 몫으로 유지</small></span></summary>
+              <summary><span class="s-title">세마포어로 선착순 접수의 DB 커넥션 점유를 막은 동시 접수 제한</span><span class="s-res"><b>접수 커넥션 10개 → 최대 5개</b><small>나머지 절반은 조회 몫으로 보장</small></span></summary>
               <div class="story">
                 <figure class="diagram"><img src="../images/diagrams/nv-acceptpool.png" alt="한 상품은 커넥션 2개, 접수 전체는 5개까지만 쓰고 나머지 접수는 커넥션 없이 기다리는 구조" loading="lazy"></figure>
                 <h4>찾은 문제</h4>
@@ -217,7 +217,7 @@
               </div>
             </details>
             <details id="s-limit" data-toc="동시 요청 한도">
-              <summary><span class="s-title">외부가 느려지면 덜 보내도록 스스로 조절하는 동시 요청 한도</span><span class="s-res"><b>외부 지연에 자동 대응</b><small>사람이 한도 값을 고치지 않음</small></span></summary>
+              <summary><span class="s-title">외부가 느려지면 덜 보내도록 스스로 조절하는 동시 요청 한도</span><span class="s-res"><b>고정 한도 → 2~16 자동 조절</b><small>10초마다 외부 p95와 실패율로 판단</small></span></summary>
               <div class="story">
                 <figure class="diagram"><img src="../images/diagrams/nv-worker.png" alt="외부 응답 상태에 따라 동시 요청 수를 바꾸는 worker" loading="lazy"></figure>
                 <h4>찾은 문제</h4>
@@ -248,7 +248,7 @@
               </div>
             </details>
             <details id="s-judge" data-toc="원인별 재시도">
-              <summary><span class="s-title">외부 실패를 원인별로 나눈 재시도와 SQS Polling 중단</span><span class="s-res"><b>중복 없는 재시도</b><small>등록만 멈추고 취소는 계속 처리</small></span></summary>
+              <summary><span class="s-title">외부 실패를 원인별로 나눈 재시도와 SQS Polling 중단</span><span class="s-res"><b>등록이 멈춰도 취소는 처리</b><small>결과를 모르는 요청은 조회 후 재전송</small></span></summary>
               <div class="story">
                 <figure class="diagram"><img src="../images/diagrams/nv-judge.png" alt="외부 응답을 판정해 다시 보낼지와 무엇을 멈출지 정하는 worker 흐름" loading="lazy"></figure>
                 <h4>찾은 문제</h4>
@@ -310,7 +310,7 @@
 
             <p class="group">인프라</p>
             <details id="s-tf" data-toc="Terraform 구조">
-              <summary><span class="s-title">service.yml 하나로 서비스 배포 인프라가 준비되는 Terraform 폴더 구조</span><span class="s-res"><b>PR 하나로 배포 준비</b><small>Terraform 코드 수정 없이</small></span></summary>
+              <summary><span class="s-title">service.yml 하나로 서비스 배포 인프라가 준비되는 Terraform 폴더 구조</span><span class="s-res"><b>인프라 담당 없이 서비스 추가</b><small>Terraform 코드 수정 없이 service.yml PR 하나</small></span></summary>
               <div class="story">
                 <figure class="diagram"><img src="../images/diagrams/nv-tf.png" alt="서비스 폴더의 service.yml을 자원별 스택이 읽어 AWS 자원을 만드는 구조" loading="lazy"></figure>
                 <h4>설계 목표</h4>
@@ -339,7 +339,7 @@
               </div>
             </details>
             <details id="s-atlantis" data-toc="Atlantis">
-              <summary><span class="s-title">PR을 거친 변경만 AWS에 적용되는 Atlantis 인프라 변경 절차</span><span class="s-res"><b>main과 실제 AWS 일치</b><small>PR을 거친 변경만 적용</small></span></summary>
+              <summary><span class="s-title">PR을 거친 변경만 AWS에 적용되는 Atlantis 인프라 변경 절차</span><span class="s-res"><b>모든 인프라 변경 PR로 추적</b><small>plan과 apply가 PR 기록에 남음</small></span></summary>
               <div class="story">
                 <figure class="diagram"><img src="../images/diagrams/nv-atlantis.png" alt="PR 하나로 plan, apply, 자동 병합이 이어지는 경로와 팀원의 읽기 전용 경로" loading="lazy"></figure>
                 <h4>설계 배경</h4>
@@ -365,7 +365,7 @@
               </div>
             </details>
             <details id="s-ecs" data-toc="ECS 확장">
-              <summary><span class="s-title">판매 오픈의 급증 트래픽과 큐 적체를 따라 늘어나는 ECS Fargate 확장 구조</span><span class="s-res"><b>급증 전에 미리 증설</b><small>망가진 이미지는 자동 복귀</small></span></summary>
+              <summary><span class="s-title">판매 오픈의 급증 트래픽과 큐 적체를 따라 늘어나는 ECS Fargate 확장 구조</span><span class="s-res"><b>오픈 15분 전 사전 증설</b><small>실패한 배포는 이전 버전으로 바로 복귀</small></span></summary>
               <div class="story">
                 <figure class="diagram"><img src="../images/diagrams/nv-ecs.png" alt="HTTP 서비스는 CPU와 오픈 전 미리 늘리기로, worker는 SQS 적체로 늘어나는 ECS 구성" loading="lazy"></figure>
                 <h4>설계 배경</h4>
@@ -392,7 +392,7 @@
               </div>
             </details>
             <details id="s-loadtest" data-toc="부하 시험 클러스터">
-              <summary><span class="s-title">판매 오픈 순간의 급증 트래픽을 운영과 같은 경로로 재현하는 부하 시험 클러스터</span><span class="s-res"><b><s>4.67초</s> → <em>30ms</em></b><small>판매 오픈 첫 1분 p95</small></span></summary>
+              <summary><span class="s-title">판매 오픈 순간의 급증 트래픽을 운영과 같은 경로로 재현하는 부하 시험 클러스터</span><span class="s-res"><b>출시 전 병목 2건 발견</b><small>고친 뒤 첫 1분 p95 30ms, 5xx 0%</small></span></summary>
               <div class="story">
                 <figure class="diagram"><img src="../images/diagrams/nv-loadtest.png" alt="GitHub Actions 승인으로 평소 0대인 시험 클러스터에 k6를 띄워 운영과 같은 경로로 부하를 보내고 지표로 판정하는 구성" loading="lazy"></figure>
                 <h4>설계 배경</h4>
@@ -484,7 +484,7 @@
               </div>
             </details>
             <details id="s-obs" data-toc="모니터링">
-              <summary><span class="s-title">경보에서 원인까지 따라가 확장과 응답 지연을 개선한 모니터링</span><span class="s-res"><b>증설 3분 지연 발견</b><small>증상 기준 경보로 원인 추적</small></span></summary>
+              <summary><span class="s-title">경보에서 원인까지 따라가 확장과 응답 지연을 개선한 모니터링</span><span class="s-res"><b>증설 3분 지연 발견</b><small>CloudWatch 지표 지연을 찾아 사전 증설로 대응</small></span></summary>
               <div class="story">
                 <figure class="diagram"><img src="../images/diagrams/nv-obs.png" alt="앱, 브라우저, 엣지 로그가 수집 게이트웨이를 거쳐 각 저장소에 모이고 Grafana 경보가 Slack으로 가는 구성" loading="lazy"></figure>
                 <h4>구축 이유</h4>
