@@ -54,7 +54,7 @@
             <div>
               <ul class="case-meta"><li>팀 프로젝트</li><li>2026.09 – 2026.10</li><li>LG U+ 유레카 부트캠프 7인 팀 (백엔드 5명, 프론트엔드 2명)</li></ul>
               <h1 class="case-title">사전예약 서비스 NOVA</h1>
-              <p class="case-desc">판매가 열리면 10초 안에 5,000명이 몰리는 사전예약 서비스입니다. 사용자는 대기열에서 차례를 기다려 예약을 접수하고, 요청이 몰리면 느려지는 외부 예약 시스템 등록은 SQS를 거쳐 worker가 따로 처리합니다.</p>
+              <p class="case-desc">판매가 열리면 10초 안에 5,000명이 몰리는 사전예약 서비스입니다. 사용자는 대기열에서 차례를 기다려 예약을 접수하고 요청이 몰리면 느려지는 외부 예약 시스템 등록은 SQS를 거쳐 worker가 따로 처리합니다.</p>
           <p class="ov-h">주요 성과</p>
           <ul class="hl" aria-label="주요 결과">
             <li><a href="#s-lock"><span class="hl-label">선착순 접수 p50</span><span class="hl-big">48ms</span><span class="hl-from">이전 521ms</span></a></li>
@@ -206,9 +206,9 @@
                 <ul>
                   <li>순번만 비운 채 나머지 행을 먼저 저장하고 <strong>커밋 직전에만 Lock을 걸어</strong> Lock을 쥔 SQL을 7개에서 3개로 축소</li>
                   <li>줄어든 대기만큼 상품 하나의 동시 접수 한도를 2건에서 4건으로 상향</li>
-                  <li>오픈 10초에 5,000명이 몰리는 상황을 k6로 변경 전 11회와 변경 후 4회 재현해 순번 중복과 빈 번호가 없는지 확인</li>
+                  <li>오픈 10초에 5,000명이 몰리는 상황을 k6로 반복 재현해 순번 중복과 빈 번호가 없는지 확인</li>
                 </ul>
-                <table class="cmp"><thead><tr><th>접수 응답</th><th>변경 전</th><th>변경 후 (4회 평균)</th></tr></thead><tbody>
+                <table class="cmp"><thead><tr><th>접수 응답</th><th>변경 전</th><th>변경 후</th></tr></thead><tbody>
                   <tr><td>p50</td><td>521ms</td><td>48ms (91% 단축)</td></tr>
                   <tr><td>p95</td><td>4.81초</td><td>1.72초 (64% 단축)</td></tr>
                   <tr><td>0.5초 안에 끝난 비율</td><td>49.8%</td><td>92.8% (43%p 증가)</td></tr>
@@ -276,7 +276,7 @@
                 <ul class="res">
                   <li>등록에서 문제가 이어져도 <strong>등록만 멈추고 취소는 계속 처리</strong></li>
                   <li>등록을 멈춘 동안 메시지가 DLQ로 가지 않고 SQS에 남아 원인을 고치면 다시 넣는 작업 없이 바로 처리</li>
-                  <li>느림은 동시 요청 수 조절이 맡고 실패는 Circuit Breaker가 맡아 외부가 느려지기만 할 때는 처리가 멈추지 않음</li>
+                  <li>느려지면 동시 요청 수만 줄이고 실패할 때만 Circuit Breaker로 멈춰 외부가 느려지기만 할 때는 처리가 멈추지 않음</li>
                   <li>결과를 모르는 요청은 조회한 뒤에만 다시 보내 <strong>외부에 두 번 등록되지 않음</strong></li>
                 </ul>
               </div>
