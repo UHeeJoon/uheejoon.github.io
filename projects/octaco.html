@@ -112,7 +112,7 @@
               </div>
             </details>
             <details id="s-authz" data-toc="접근 제어">
-              <summary><span class="s-title">SpiceDB 권한 서버와 공통 어노테이션으로 구축한 서비스 접근 제어</span><span class="s-res"><b>권한 검사 누락 차단</b><small>모든 서비스가 같은 기준으로 fail-closed</small></span></summary>
+              <summary><span class="s-title">SpiceDB 권한 서버와 공통 어노테이션으로 구축한 서비스 접근 제어</span><span class="s-res"><b>권한 검사 공통화</b><small>서비스 추가 시 별도 구현 없이 적용</small></span></summary>
               <div class="story">
                 <figure class="diagram"><img src="../images/diagrams/oc-authz.png" alt="서비스는 어노테이션으로 권한을 조회하고 SpiceDB가 허용 여부를 답하는 구조" loading="lazy"></figure>
                 <h4>찾은 문제</h4>
@@ -136,7 +136,7 @@
                 <h4>결과</h4>
                 <ul class="res">
                   <li>권한 시스템을 직접 만들지 않고 규칙 변경도 스키마 수정으로 끝나 개발과 변경 부담 감소</li>
-                  <li>모든 서비스가 같은 어노테이션과 판단 기준을 써서 <strong>권한 검사 누락과 서비스별 차이가 없어짐</strong></li>
+                  <li>권한 정책과 검사 로직을 중앙에서 관리해 <strong>서비스 추가 시에도 별도의 권한 검사 구현 없이</strong> 일관된 접근 제어 적용</li>
                   <li>SpiceDB에 장애가 나도 권한을 알 수 없는 요청은 통과되지 않아 보안 유지</li>
                 </ul>
               </div>
@@ -201,7 +201,7 @@
               </div>
             </details>
             <details id="s-search" data-toc="검색 인덱스 개선">
-              <summary><span class="s-title">50만 건 부하 시험에서 찾은 검색 쿼리를 987ms에서 20ms로 줄인 인덱스 개선</span><span class="s-res"><b><s>987ms</s> → <em>20ms</em></b><small>검색 쿼리 평균 실행 시간</small></span></summary>
+              <summary><span class="s-title">50만 건 부하 시험에서 찾은 느린 검색 쿼리를 987ms에서 20ms로 줄인 인덱스 개선</span><span class="s-res"><b><s>987ms</s> → <em>20ms</em></b><small>검색 쿼리 평균 실행 시간</small></span></summary>
               <div class="story">
                 <h4>찾은 문제</h4>
                 <ul>
