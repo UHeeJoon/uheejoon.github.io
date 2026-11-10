@@ -66,7 +66,7 @@
                 <p class="role-h">맡은 일</p>
                 <dl>
                   <div><dt>설계</dt><dd><ul class="role-list"><li>서비스 구조</li><li>고객사 데이터 격리 방식</li><li>권한 관리 도메인과 접근 제어</li><li>의사결정 문서로 설계 근거 공유</li></ul></dd></div>
-                  <div><dt>개발</dt><dd><ul class="role-list"><li>고객사 판별 인증 서버</li><li>Redis 세션과 로그아웃 전파</li><li>고객사 온보딩 서비스</li><li>사용자 도메인</li><li>권한 검사 어노테이션 라이브러리</li><li>인증 정책 캐시</li><li>감사 로그와 접근 로그 비동기 저장</li></ul></dd></div>
+                  <div><dt>개발</dt><dd><ul class="role-list"><li>고객사 판별과 세션 관리 서버</li><li>업무 앱 로그아웃 전파</li><li>고객사 온보딩 서비스</li><li>사용자 도메인</li><li>권한 검사 어노테이션 라이브러리</li><li>인증 정책 캐시</li><li>감사 로그와 접근 로그 비동기 저장</li></ul></dd></div>
                   <div><dt>인프라</dt><dd><ul class="role-list"><li>EKS 전환</li><li>GitOps 배포 파이프라인</li><li>EKS 운영과 트러블슈팅</li><li>서비스별 IAM Role 분리</li></ul></dd></div>
                   <div class="role-tech"><dt>기술</dt><dd><ul class="tags"><li>Java</li><li>Spring Boot</li><li>Spring Security</li><li>Hibernate Multi-Tenancy</li><li>PostgreSQL</li><li>Redis</li><li>SpiceDB</li><li>Resilience4j</li><li>Flyway</li><li>AWS EKS</li><li>Helm</li><li>Argo CD</li><li>IRSA</li><li>Trivy</li></ul></dd></div>
                 </dl>
@@ -83,36 +83,31 @@
           <p class="page-sub">항목을 펼치면 찾은 문제와 해결 과정과 결과를 차례로 볼 수 있습니다. 그림은 누르면 크게 보입니다.</p>
           <div class="stories">
             <p class="group">백엔드</p>
-            <details id="s-onboard" data-toc="고객사 온보딩">
-              <summary><span class="s-title">고객사별 Schema로 데이터를 격리하고 실패하면 자동으로 되돌리는 고객사 온보딩</span><span class="s-res"><b>실패해도 자동 복구</b><small>만든 리소스와 Schema 역순 삭제</small></span></summary>
+            <details id="s-logout" data-toc="세션 관리 서버">
+              <summary><span class="s-title">고객사 판별과 업무 앱 로그아웃까지 맡는 세션 관리 서버</span><span class="s-res"><b>로그아웃 누락 방지</b><small>세션 삭제 하나로 모든 업무 앱에 전파</small></span></summary>
               <div class="story">
-                <figure class="diagram"><img src="../images/diagrams/oc-tenant.png" alt="요청마다 고객사 Schema로 연결하는 격리와 고객사 추가가 실패했을 때 되돌리는 순서" loading="lazy"></figure>
-                <h4>찾은 문제</h4>
+                <figure class="diagram"><img src="../images/diagrams/oc-session.jpg" alt="Resolve Server가 서브도메인으로 고객사를 찾고 등록된 앱과 주소인지 확인해 통과한 요청만 로그인 화면으로 넘기는 흐름과, 세션이 끝나는 네 경우가 모두 ElastiCache Redis 세션 삭제로 모이고 키 삭제 이벤트를 받은 서버 중 한 대만 업무 앱마다 로그아웃 요청을 보내는 흐름" loading="lazy"><figcaption>고객사를 판별하고 세션이 끝나면 연결된 업무 앱까지 로그아웃시키는 흐름. 점선 상자는 팀원 담당입니다.</figcaption></figure>
+                <h4>해결할 문제</h4>
                 <ul>
-                  <li>여러 고객사가 한 서비스를 함께 써도 고객사끼리 데이터가 섞이지 않아야 함</li>
-                  <li>고객사가 늘어도 DB 비용이 고객사 수만큼 늘지 않아야 함</li>
+                  <li>고객사마다 로그인 방식과 인증 정책이 달라 요청마다 어느 고객사 요청인지 가려내야 함</li>
+                  <li>세션은 로그아웃, 관리자 강제 종료, 계정 비활성화, 만료 네 경우로 끝남</li>
+                  <li>경우마다 업무 앱 로그아웃 코드를 따로 넣으면 한 곳만 빠뜨려도 퇴사자가 업무 앱을 계속 쓸 수 있음</li>
                 </ul>
-                <table class="cmp opt"><thead><tr><th>방식</th><th>장점</th><th>감수할 점</th></tr></thead><tbody>
-                  <tr><td>모든 테이블에 고객사 id 컬럼</td><td>DB 하나로 가장 저렴</td><td>쿼리에 고객사 조건이 하나라도 빠지면 다른 고객사 데이터 노출</td></tr>
-                  <tr><td>고객사별 DB</td><td>격리가 가장 확실</td><td>고객사 수만큼 DB 비용과 운영 부담 증가</td></tr>
-                  <tr class="pick"><td>고객사별 DB Schema (선택)</td><td>DB 하나 안에서 커넥션 단계에서 격리</td><td>고객사를 추가할 때마다 Schema 생성, 테이블 변경은 모든 Schema에 적용</td></tr>
-                </tbody></table>
                 <h4>해결 과정</h4>
                 <ul>
-                  <li class="sub-h">요청마다 고객사 격리</li>
-                  <li>Resolve Server가 서브도메인으로 고객사를 찾아 요청 스레드에 저장</li>
-                  <li>Resolve Server는 client_id와 redirect URI가 그 고객사에 등록된 값인지도 확인해 맞지 않으면 로그인 화면을 보여 주기 전에 차단</li>
-                  <li>Hibernate Multi-Tenancy가 커넥션을 열 때 이 값을 읽어 그 고객사 Schema에 연결</li>
-                  <li>스레드가 재사용돼도 앞 고객사 Schema로 연결되지 않게 요청이 끝나면 이전 고객사 값을 삭제</li>
-                  <li class="sub-h">고객사 추가와 실패 시 되돌리기</li>
-                  <li>온보딩 서비스가 Route 53 서브도메인, ACM 인증서, IAM, DB Schema를 순서대로 생성</li>
-                  <li>실패한 단계는 재시도하고 그래도 실패하면 <strong>보상 트랜잭션으로 끝난 단계를 역순 삭제</strong></li>
+                  <li class="sub-h">요청마다 고객사 판별</li>
+                  <li>접속 주소의 서브도메인으로 고객사를 찾고 client_id와 redirect URI가 <strong>그 고객사에 등록된 앱과 주소인지 확인</strong></li>
+                  <li>맞지 않으면 로그인 화면을 보여 주기 전에 차단하고 통과한 요청만 고객사가 정한 로그인 방식으로 전달</li>
+                  <li class="sub-h">세션 종료와 업무 앱 로그아웃</li>
+                  <li>네 경우 모두 <strong>세션 삭제 한 곳으로 모아</strong> 처리하고 Redis Keyspace Notification으로 키 삭제 이벤트를 받아 그 세션으로 접속한 업무 앱마다 로그아웃 요청 전송</li>
+                  <li>만료는 Redis가 세션을 지우는 방식이라 삭제 뒤에는 세션을 읽을 수 없어 접속한 앱과 고객사, 사용자 정보를 세션 ID별 Redis 키에 따로 저장</li>
+                  <li>삭제 이벤트는 모든 서버에 전달돼 로그아웃이 중복으로 나갈 수 있어 <strong>Lua 스크립트로 로그아웃 정보 읽기와 삭제를 한 번에 실행</strong>하고 먼저 실행한 서버만 전송</li>
                 </ul>
-                <p class="memo">설계만 한 부분: 고객사마다 Namespace를 만들고 같은 서비스를 띄워 서브도메인별로 각 Namespace로 라우팅하는 구조로 부하와 메모리까지 격리하도록 설계. Kubernetes 단계는 설계까지 마치고 AWS 리소스 자동화를 먼저 구현</p>
                 <h4>결과</h4>
                 <ul class="res">
-                  <li>DB 커넥션 단계에서 Schema로 나뉘어 개발자가 <strong>쿼리에 고객사 조건을 빠뜨려도 데이터 노출로 이어지지 않음</strong></li>
-                  <li>고객사 추가가 중간에 실패해도 만든 리소스와 Schema가 자동으로 지워져 수작업 없이 추가 전 상태로 복구</li>
+                  <li>등록되지 않은 앱이나 주소로 온 요청은 <strong>로그인 화면에 닿기 전에 차단</strong></li>
+                  <li>어느 경우로 세션이 끝나도 연결된 업무 앱까지 로그아웃돼 <strong>계정을 비활성화한 퇴사자는 업무 앱을 계속 쓸 수 없음</strong></li>
+                  <li>세션을 끝내는 기능이 새로 생겨도 세션만 지우면 연결된 업무 앱까지 로그아웃</li>
                 </ul>
               </div>
             </details>
@@ -143,28 +138,6 @@
                   <li>권한 시스템을 직접 만들지 않고 규칙 변경도 스키마 수정으로 끝나 개발과 변경 부담 감소</li>
                   <li>모든 서비스가 같은 어노테이션과 판단 기준을 써서 <strong>권한 검사 누락과 서비스별 차이가 없어짐</strong></li>
                   <li>SpiceDB에 장애가 나도 권한을 알 수 없는 요청은 통과되지 않아 보안 유지</li>
-                </ul>
-              </div>
-            </details>
-            <details id="s-logout" data-toc="로그아웃 전파">
-              <summary><span class="s-title">세션만 지우면 연결된 앱까지 로그아웃되는 로그아웃 전파</span><span class="s-res"><b>로그아웃 누락 방지</b><small>세션 삭제 하나로 모든 앱에 전파</small></span></summary>
-              <div class="story">
-                <figure class="diagram"><img src="../images/diagrams/oc-logout.png" alt="로그아웃, 강제 종료, 계정 비활성화, 만료가 모두 ElastiCache Redis 세션 삭제로 끝나고, 삭제 이벤트를 받은 Resolve Server 중 Lua로 로그아웃 정보를 먼저 읽고 지운 서버만 앱마다 로그아웃을 보내는 흐름" loading="lazy"></figure>
-                <h4>찾은 문제</h4>
-                <ul>
-                  <li>세션은 로그아웃, 관리자 강제 종료, 계정 비활성화, 만료 네 경우로 끝남</li>
-                  <li>경우마다 앱 로그아웃 코드를 따로 넣으면 한 곳만 빠뜨려도 퇴사자가 업무 앱을 계속 쓸 수 있음</li>
-                </ul>
-                <h4>해결 과정</h4>
-                <ul>
-                  <li>네 경우 모두 <strong>세션 삭제로 끝내고</strong> Redis Keyspace Notification으로 삭제 이벤트를 받아 그 세션으로 접속한 앱마다 로그아웃 전송</li>
-                  <li>만료는 Redis가 세션을 지우는 방식이라 삭제 뒤에는 세션을 읽을 수 없음. 그래서 접속한 앱과 고객사, 사용자 정보를 세션 ID별 Redis 키에 따로 저장</li>
-                  <li>삭제 이벤트는 모든 서버에 전달돼 로그아웃이 중복으로 나갈 수 있어 <strong>Lua 스크립트로 로그아웃 정보 읽기와 삭제를 한 번에 실행</strong>하고 먼저 실행한 서버만 전송</li>
-                </ul>
-                <h4>결과</h4>
-                <ul class="res">
-                  <li>세션을 끝내는 기능이 늘어도 <strong>세션만 지우면 연결된 앱 로그아웃까지 이어짐</strong></li>
-                  <li>로그아웃 경로가 하나라 경우마다 앱 로그아웃 코드를 넣다가 빠뜨리는 일이 없음</li>
                 </ul>
               </div>
             </details>
@@ -205,7 +178,7 @@
                   <li>k6 부하 중 Chaos Monkey로 Redis timeout을 넣자 모든 고객사의 세션 인증 실패</li>
                   <li>세션을 Redis에만 두어 Redis가 모든 고객사 인증이 함께 거치는 단일 장애 지점</li>
                 </ul>
-                <table class="cmp opt"><thead><tr><th>장애 유형</th><th>Redis 복제</th><th>Circuit Breaker + DB Fallback</th></tr></thead><tbody>
+                <table class="cmp opt pick-col3"><thead><tr><th>장애 유형</th><th>Redis 복제</th><th>Circuit Breaker + DB Fallback (선택)</th></tr></thead><tbody>
                   <tr><td>Redis 노드 장애</td><td>복제본으로 넘어가 버팀</td><td>DB로 우회</td></tr>
                   <tr><td>서버와 Redis 사이 지연</td><td>그대로 멈춤</td><td>느린 호출로 집계해 DB로 우회</td></tr>
                   <tr><td>서버와 Redis 사이 연결 끊김</td><td>그대로 멈춤</td><td>실패한 호출로 집계해 DB로 우회</td></tr>
@@ -227,26 +200,65 @@
                 </ul>
               </div>
             </details>
-            <details id="s-search" data-toc="검색 지연">
-              <summary><span class="s-title">데이터가 쌓이기 전에 부하 시험으로 찾은 검색 지연</span><span class="s-res"><b><s>987ms</s> → <em>20ms</em></b><small>검색 쿼리 평균 실행 시간</small></span></summary>
+            <details id="s-search" data-toc="검색 인덱스 개선">
+              <summary><span class="s-title">50만 건 부하 시험에서 찾은 검색 쿼리를 987ms에서 20ms로 줄인 인덱스 개선</span><span class="s-res"><b><s>987ms</s> → <em>20ms</em></b><small>검색 쿼리 평균 실행 시간</small></span></summary>
               <div class="story">
                 <h4>찾은 문제</h4>
                 <ul>
-                  <li>서비스 초기라 데이터가 적어 검색이 빨라 보였음. 맡은 기능은 아니었지만 데이터가 쌓였을 때를 보려고 데이터 50만 건으로 k6 부하를 주자 검색 API p99가 1초를 넘음</li>
-                  <li>분산 추적 도구가 없어 Actuator Timer로 메서드 시간을 재고 P6Spy로 쿼리 시간을 재서 DB 쿼리가 원인임을 확인</li>
-                  <li>실행 계획을 보니 <code>LIKE '%검색어%'</code>와 여러 컬럼 OR 조건 때문에 테이블 전체를 읽고 있었음</li>
+                  <li>맡은 기능은 아니었지만 데이터가 적은 서비스 초기라 빨라 보이던 검색을 확인하려고 <strong>50만 건을 넣고 k6로 부하 시험</strong></li>
+                  <li>검색 API p99가 기준인 200ms를 넘어 <strong>1초 이상</strong></li>
                 </ul>
+                <h4>원인 분석</h4>
+                <ul>
+                  <li>분산 추적 도구가 없어 Actuator Timer로 메서드별 시간을, P6Spy로 쿼리별 시간을 재서 DB 쿼리를 원인으로 확인</li>
+                  <li>실행 계획을 보니 <code>LIKE '%검색어%'</code>와 여러 컬럼의 OR 조건 때문에 인덱스를 쓰지 못하고 <strong>50만 건 전체를 읽음</strong></li>
+                </ul>
+                <figure class="diagram"><img src="../images/diagrams/oc-search-before.jpg" alt="개선 전 실행 계획: users 테이블을 Seq Scan으로 전부 읽고 497,689건을 필터로 걸러 낸 뒤 created_at으로 정렬" loading="lazy"><figcaption>50만 건으로 재현한 개선 전 실행 계획: 전체를 읽은 뒤 걸러 내고 정렬</figcaption></figure>
                 <h4>해결 과정</h4>
                 <ul>
                   <li><strong>pg_trgm GIN 인덱스</strong>로 앞뒤에 %가 붙는 검색도 인덱스를 쓰게 함</li>
-                  <li>OR 조건은 <strong>컬럼별 쿼리를 UNION으로 합쳐</strong> 조건마다 자기 인덱스를 타게 함</li>
+                  <li>OR 조건은 <strong>컬럼마다 나눈 쿼리를 UNION으로 합쳐</strong> 조건마다 자기 인덱스를 쓰게 함</li>
                 </ul>
+                <figure class="diagram"><img src="../images/diagrams/oc-search-after.jpg" alt="개선 후 실행 계획: 이름 조건은 idx_users_name_trgm, 이메일 조건은 idx_users_email_trgm을 Bitmap Index Scan으로 각각 사용한 뒤 Append로 합침" loading="lazy"><figcaption>50만 건으로 재현한 개선 후 실행 계획: 이름과 이메일 조건이 각자 인덱스를 사용</figcaption></figure>
                 <h4>결과</h4>
                 <table class="cmp"><thead><tr><th>항목</th><th>이전</th><th>이후</th></tr></thead><tbody>
                   <tr><td>쿼리 평균 실행 시간</td><td>987ms</td><td>20ms</td></tr>
                   <tr><td>검색 API p99</td><td>1초 이상</td><td>200ms 이내</td></tr>
-                  <tr><td>실행 계획</td><td>테이블 전체 읽기</td><td>인덱스 사용</td></tr>
+                  <tr><td>실행 계획</td><td>테이블 전체 읽기</td><td>조건마다 인덱스 사용</td></tr>
                 </tbody></table>
+                <p class="memo">실행 계획 그림은 같은 조건을 다시 재현한 것이고 표의 수치는 당시 부하 시험에서 측정한 값</p>
+              </div>
+            </details>
+            <details id="s-onboard" data-toc="고객사 온보딩">
+              <summary><span class="s-title">고객사별 Schema로 데이터를 격리하고 실패하면 자동으로 되돌리는 고객사 온보딩</span><span class="s-res"><b>실패해도 자동 복구</b><small>만든 리소스와 Schema 역순 삭제</small></span></summary>
+              <div class="story">
+                <figure class="diagram"><img src="../images/diagrams/oc-tenant.png" alt="요청마다 고객사 Schema로 연결하는 격리와 고객사 추가가 실패했을 때 되돌리는 순서" loading="lazy"></figure>
+                <h4>찾은 문제</h4>
+                <ul>
+                  <li>여러 고객사가 한 서비스를 함께 써도 고객사끼리 데이터가 섞이지 않아야 함</li>
+                  <li>고객사가 늘어도 DB 비용이 고객사 수만큼 늘지 않아야 함</li>
+                </ul>
+                <table class="cmp opt"><thead><tr><th>방식</th><th>장점</th><th>감수할 점</th></tr></thead><tbody>
+                  <tr><td>모든 테이블에 고객사 id 컬럼</td><td>DB 하나로 가장 저렴</td><td>쿼리에 고객사 조건이 하나라도 빠지면 다른 고객사 데이터 노출</td></tr>
+                  <tr><td>고객사별 DB</td><td>격리가 가장 확실</td><td>고객사 수만큼 DB 비용과 운영 부담 증가</td></tr>
+                  <tr class="pick"><td>고객사별 DB Schema (선택)</td><td>DB 하나 안에서 커넥션 단계에서 격리</td><td>고객사를 추가할 때마다 Schema 생성, 테이블 변경은 모든 Schema에 적용</td></tr>
+                </tbody></table>
+                <h4>해결 과정</h4>
+                <ul>
+                  <li class="sub-h">요청마다 고객사 격리</li>
+                  <li>Resolve Server가 서브도메인으로 고객사를 찾아 요청 스레드에 저장</li>
+                  <li>Hibernate Multi-Tenancy가 커넥션을 열 때 이 값을 읽어 그 고객사 Schema에 연결</li>
+                  <li>스레드가 재사용돼도 앞 고객사 Schema로 연결되지 않게 요청이 끝나면 이전 고객사 값을 삭제</li>
+                  <li class="sub-h">고객사 추가와 실패 시 되돌리기</li>
+                  <li>온보딩 서비스가 Route 53 서브도메인, ACM 인증서, IAM, DB Schema를 순서대로 생성</li>
+                  <li>실패한 단계는 재시도하고 그래도 실패하면 <strong>보상 트랜잭션으로 끝난 단계를 역순 삭제</strong></li>
+                </ul>
+                <p class="memo">설계만 한 부분: 고객사마다 Namespace를 만들고 같은 서비스를 띄워 서브도메인별로 각 Namespace로 라우팅하는 구조로 부하와 메모리까지 격리하도록 설계. Kubernetes 단계는 설계까지 마치고 AWS 리소스 자동화를 먼저 구현</p>
+                <h4>결과</h4>
+                <ul class="res">
+                  <li>DB 커넥션 단계에서 Schema로 나뉘어 개발자가 <strong>쿼리에 고객사 조건을 빠뜨려도 데이터 노출로 이어지지 않음</strong></li>
+                  <li>고객사 추가가 중간에 실패해도 만든 리소스와 Schema가 자동으로 지워져 수작업 없이 추가 전 상태로 복구</li>
+                </ul>
               </div>
             </details>
 
@@ -294,7 +306,7 @@
                   <li>Worker Node Role에는 노드 운영 권한만 남기고 Pod의 IMDS 접근 차단</li>
                   <li>VPC CNI NetworkPolicy로 <strong>Pod의 들어오고 나가는 통신을 Default Deny로 막고</strong> 필요한 경로만 허용</li>
                   <li>Security Groups for Pods로 서비스마다 Security Group을 붙이고 RDS는 그 그룹만 접속 허용</li>
-                  <li>DB 접속 정보와 설정 값은 Secrets Manager와 Parameter Store에 두고 Secrets Store CSI Driver로 주입. 읽기 권한도 서비스별 Role로 제한</li>
+                  <li>DB 접속 정보와 설정 값은 Secrets Manager와 Parameter Store에 두고 Secrets Store CSI Driver로 주입하고 읽기 권한은 서비스별 Role로 제한</li>
                 </ul>
                 <h4>결과</h4>
                 <ul class="res">

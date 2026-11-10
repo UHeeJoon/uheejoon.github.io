@@ -263,6 +263,8 @@ h1 em { font-style: normal; color: var(--accent); }
 .cmp.opt td:first-child { color: var(--ink); font-weight: 500; }
 .cmp.opt tr.pick td { background: var(--accent-soft); color: var(--ink); }
 .cmp.opt tr.pick td:first-child { color: var(--accent); font-weight: 700; }
+.cmp.opt.pick-col3 td:nth-child(3) { background: var(--accent-soft); color: var(--ink); }
+.cmp.opt.pick-col3 th:nth-child(3) { background: var(--accent-soft); color: var(--accent); }
 .table-scroll { overflow-x: auto; }
 
 .case-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
