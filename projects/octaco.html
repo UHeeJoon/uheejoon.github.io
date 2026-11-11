@@ -344,6 +344,30 @@
                 </ul>
               </div>
             </details>
+            <details id="s-scale" data-toc="자동 확장">
+              <summary><span class="s-title">기동에 1분 걸리는 앱에 맞춰 앞서 늘리고 늦게 줄이는 Pod와 노드 자동 확장</span><span class="s-res"><b>확장과 축소 반복 방지</b><small>축소는 30분 유예</small></span></summary>
+              <div class="story">
+                <figure class="diagram"><img src="../images/diagrams/oc-scale.png" alt="부하가 잠깐 줄어도 Pod와 노드 수를 30분 유지하는 축소 유예와 유예 없이 바로 줄였을 때 다시 늘리며 기동을 기다리는 구간을 비교한 동작 개념 그래프" loading="lazy"><figcaption>부하가 잠깐 줄어도 Pod와 노드를 30분 유지하는 축소 유예의 동작 개념</figcaption></figure>
+                <h4>설정 배경</h4>
+                <ul>
+                  <li>새 Pod는 준비가 끝나 트래픽을 받기까지 1분가량 걸려 부하가 몰린 뒤에 늘리면 그동안 기존 Pod가 부하를 떠안음</li>
+                  <li>늘린 Pod가 들어갈 노드 자리가 없으면 노드를 추가하는 시간까지 더해짐</li>
+                  <li>부하가 잠깐 줄었을 때 바로 줄이면 다시 늘어날 때 같은 기동 시간을 또 기다림</li>
+                </ul>
+                <h4>해결 과정</h4>
+                <ul>
+                  <li>HPA로 CPU 60%를 넘으면 Pod를 늘려 <strong>새 Pod가 준비되는 1분 동안의 부하 증가에 미리 대비</strong></li>
+                  <li>늘어난 Pod가 자리를 못 잡아 Pending이 되면 Cluster Autoscaler가 ASG에 노드 추가</li>
+                  <li>HPA는 scale down 안정화 시간을 30분으로 두어 부하가 30분 동안 계속 낮을 때만 Pod 축소</li>
+                  <li>Cluster Autoscaler도 노드가 30분 동안 필요 없을 때만 축소해 <strong>잠깐 줄어든 부하에 노드를 반납했다가 다시 추가하는 반복 방지</strong></li>
+                </ul>
+                <h4>결과</h4>
+                <ul class="res">
+                  <li>부하에 따라 Pod와 노드가 자동으로 늘고 줄어 사람이 수를 조정하지 않음</li>
+                  <li><strong>잠깐 줄어든 부하에는 축소하지 않아</strong> 확장과 축소가 반복되며 새 Pod 기동을 기다리는 구간이 생기지 않음</li>
+                </ul>
+              </div>
+            </details>
             <details id="s-admission" data-toc="Admission 정책">
               <summary><span class="s-title">기본 설정은 자동으로 넣고 기준이 빠진 배포는 API 서버에서 거절하는 Admission 정책</span><span class="s-res"><b>기준 누락 배포는 생성 전에 거절</b><small>시간대, JVM, 보안 설정은 자동 삽입</small></span></summary>
               <div class="story">
