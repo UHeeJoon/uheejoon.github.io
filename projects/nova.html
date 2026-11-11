@@ -16,7 +16,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap">
-  <link rel="stylesheet" href="../assets/css/style.css?v=20261110e">
+  <link rel="stylesheet" href="../assets/css/style.css?v=20261111a">
   <script>
     (function () {
       try {
@@ -54,6 +54,11 @@
             <div>
               <ul class="case-meta"><li>팀 프로젝트</li><li>2026.09 – 2026.10</li><li>LG U+ 유레카 부트캠프 7인 팀 (백엔드 5명, 프론트엔드 2명)</li></ul>
               <h1 class="case-title">사전예약 서비스 NOVA</h1>
+              <ul class="decks" aria-label="발표 자료와 시연 영상">
+                <li><a href="../assets/docs/nova-core.pdf" target="_blank" rel="noopener"><span class="deck-thumb"><img src="../images/docs/nova-core.jpg" alt="핵심 서비스 설계와 트러블슈팅 발표 자료 표지" width="720" height="405" loading="lazy"></span><span class="deck-k">백엔드 발표 자료 · PDF 29쪽</span><span class="deck-t">핵심 서비스 설계와 트러블슈팅</span></a></li>
+                <li><a href="../assets/docs/nova-infra.pdf" target="_blank" rel="noopener"><span class="deck-thumb"><img src="../images/docs/nova-infra.jpg" alt="인프라 구축과 부하 테스트 발표 자료 표지" width="720" height="405" loading="lazy"></span><span class="deck-k">인프라 발표 자료 · PDF 36쪽</span><span class="deck-t">인프라 구축과 부하 테스트</span></a></li>
+                <li><a href="https://youtu.be/pQZanjpM1-o" target="_blank" rel="noopener"><span class="deck-thumb deck-video"><img src="https://i.ytimg.com/vi/pQZanjpM1-o/hqdefault.jpg" alt="NOVA 시연 영상 미리보기" width="480" height="360" loading="lazy"></span><span class="deck-k">시연 영상 · YouTube</span><span class="deck-t">사전예약 서비스 NOVA 시연</span></a></li>
+              </ul>
               <p class="case-desc">판매가 열리면 10초 안에 5,000명이 몰리는 사전예약 서비스입니다. 사용자는 대기열에서 차례를 기다려 예약을 접수하고 요청이 몰리면 느려지는 외부 예약 시스템 등록은 SQS를 거쳐 worker가 따로 처리합니다.</p>
           <p class="ov-h">주요 성과</p>
           <ul class="hl" aria-label="주요 결과">
@@ -414,7 +419,7 @@
                 <ul>
                   <li>CPU 기준 확장은 새 태스크가 붙기까지 6~10분이 걸려 1분 지표 1~2번으로 바로 늘리는 <strong>Step Scaling을 추가</strong></li>
                   <li>헬스체크 간격을 15초에서 5초로 줄여 새 태스크가 요청을 받기까지 약 30초에서 약 10초로 단축</li>
-                  <li>대기열 태스크 한 대의 한계인 분당 약 6,000건을 재고 그 70%인 약 4,200건부터 증설하도록 설정</li>
+                  <li>대기열 태스크 한 대의 한계인 분당 약 6,000건을 재고 그보다 낮은 3,500건부터 증설하도록 설정</li>
                 </ul>
                 <h4>결과</h4>
                 <ul class="res">

@@ -1,0 +1,1153 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>NOVA 핵심 서비스 설계와 트러블슈팅</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<style>
+:root{
+  --ink:#16181d; --ink2:#3d424d; --mute:#7a808c; --faint:#a9aeb8;
+  --line:#e4e6eb; --tile:#f5f6f8; --tile2:#eef0f4;
+  --acc:#3e4a8b; --acc-soft:#e9ebf5; --acc-mid:#b9bfdc;
+  --bad:#b25b52; --bad-soft:#f6ebe9; --good:#4a7a5c; --good-soft:#e8f1eb;
+  --mono:"JetBrains Mono","Noto Sans Mono CJK KR",monospace;
+}
+@page{size:1600px 900px;margin:0}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:#fff}
+body{font-family:Pretendard,"Noto Sans CJK KR",sans-serif;color:var(--ink);-webkit-print-color-adjust:exact;print-color-adjust:exact;letter-spacing:-0.01em}
+.slide{width:1600px;height:900px;position:relative;overflow:hidden;page-break-after:always;padding:56px 80px 0;background:#fff}
+.kicker{font-size:17px;color:var(--mute);font-weight:500}
+.kicker b{color:var(--acc);font-weight:600}
+h1{font-size:46px;font-weight:700;letter-spacing:-0.03em;margin-top:10px;line-height:1.2}
+.sub{font-size:21px;color:var(--ink2);margin-top:10px}
+.chips{position:absolute;top:52px;right:80px;display:flex;gap:8px}
+.chips span{font-size:16px;padding:6px 14px;border-radius:20px;background:var(--tile2);color:var(--mute);font-weight:500}
+.chips span.on{background:var(--acc);color:#fff}
+.body{position:absolute;left:80px;right:80px;top:190px;bottom:78px}
+.foot{position:absolute;left:80px;right:80px;bottom:0;height:62px;border-top:1px solid var(--line);display:flex;align-items:center;font-size:16px;color:var(--mute)}
+.foot .nav{display:flex;gap:28px}
+.foot .nav span{border-left:3px solid var(--line);padding-left:9px}
+.foot .nav span.on{border-color:var(--acc);color:var(--acc);font-weight:600}
+.foot .brand{margin-left:auto;letter-spacing:.22em;color:var(--acc);font-weight:500;font-size:17px}
+.foot .pg{margin-left:28px;color:var(--ink);font-weight:600;min-width:52px;text-align:right}
+img.fig{display:block;max-width:100%;max-height:100%;object-fit:contain}
+.shot{border-radius:10px;border:1px solid var(--line);display:block}
+.row{display:flex;gap:24px}
+.col{display:flex;flex-direction:column}
+.tile{background:var(--tile);border-radius:12px;padding:24px 26px}
+.card{border:1px solid var(--line);border-radius:12px;padding:24px 26px;background:#fff}
+.card.on{border-color:var(--acc)}
+.lab{font-size:16px;color:var(--mute);font-weight:500}
+.big{font-size:60px;font-weight:700;letter-spacing:-0.03em;line-height:1.1}
+.big small{font-size:28px;font-weight:600;margin-left:4px}
+.acc{color:var(--acc)}
+.badc{color:var(--bad)} .goodc{color:var(--good)}
+.t{font-size:20px;color:var(--ink2);line-height:1.55}
+.t b{color:var(--ink)}
+.h3{font-size:24px;font-weight:700;letter-spacing:-0.02em}
+.note{font-size:17px;color:var(--mute);line-height:1.5}
+.num{font-size:15px;font-weight:600;color:var(--acc)}
+.pill{display:inline-block;font-size:15px;padding:4px 11px;border-radius:14px;background:var(--tile2);color:var(--ink2);font-weight:500;margin:0 6px 6px 0}
+.pill.a{background:var(--acc-soft);color:var(--acc)}
+.arrow{color:var(--acc);font-size:26px;display:flex;align-items:center;justify-content:center}
+code,.mono{font-family:var(--mono);font-size:.88em}
+.side-list .it{padding:16px 0;border-bottom:1px solid var(--line)}
+.side-list .it:first-child{padding-top:0}
+.side-list .it:last-child{border-bottom:none}
+.side-list .it .h{font-size:20px;font-weight:700;margin-bottom:5px}
+.side-list .it .d{font-size:17.5px;color:var(--ink2);line-height:1.5}
+/* tables */
+table.tb{width:100%;border-collapse:collapse}
+table.tb th{font-size:16px;color:var(--mute);font-weight:500;text-align:left;padding:0 14px 12px;border-bottom:1px solid var(--ink2)}
+table.tb td{font-size:19px;color:var(--ink2);padding:13px 14px;border-bottom:1px solid var(--line);vertical-align:middle;line-height:1.45}
+table.tb td.k{width:170px;padding:7px 14px 7px 0}
+table.tb td.k div{background:var(--tile);border-radius:8px;font-weight:700;color:var(--ink);text-align:center;padding:14px 8px;font-size:19px}
+table.tb td.strong{color:var(--ink);font-weight:600}
+/* steps */
+.steps{display:flex;align-items:stretch;gap:0}
+.steps .st{flex:1;background:var(--tile);padding:18px 22px;border-radius:4px}
+.steps .st .n{font-size:15px;color:var(--acc);font-weight:500}
+.steps .st .s{font-size:21px;font-weight:700;margin-top:6px}
+.steps .st .d{font-size:16px;color:var(--ink2);margin-top:6px;line-height:1.45}
+.steps .st.on{background:var(--acc)} .steps .st.on .n,.steps .st.on .s,.steps .st.on .d{color:#fff}
+.steps .ar{width:44px;display:flex;align-items:center;justify-content:center;color:var(--acc);font-size:24px}
+/* bars */
+.hbar{display:flex;align-items:center;gap:16px;margin-bottom:14px}
+.hbar .nm{width:250px;font-size:19px;font-weight:600}
+.hbar .nm small{display:block;font-size:15px;color:var(--mute);font-weight:400;margin-top:2px}
+.hbar .tr{flex:1;height:34px;position:relative}
+.hbar .fl{height:100%;background:var(--acc);border-radius:3px}
+.hbar .vl{width:110px;font-size:21px;font-weight:700;text-align:right}
+.tall table.tb td{padding:26px 14px;font-size:21px}
+.tall table.tb td.k div{padding:22px 8px;font-size:21px}
+.tall .side-list .it{padding:30px 0}
+.tall .side-list .it .h{font-size:25px;margin-bottom:10px}
+.tall .side-list .it .d{font-size:20px}
+/* divider */
+.divider{background:var(--tile)}
+.divider .no{position:absolute;left:80px;top:250px;font-size:130px;font-weight:200;color:var(--acc);letter-spacing:-0.04em}
+.divider .ti{position:absolute;left:80px;top:420px;font-size:72px;font-weight:700;letter-spacing:-0.03em}
+.divider .ds{position:absolute;left:84px;top:525px;font-size:24px;color:var(--ink2)}
+.divider .ls{position:absolute;right:80px;top:250px;width:520px;font-size:20px;color:var(--ink2)}
+.divider .ls div{padding:13px 0;border-bottom:1px solid #dcdfe5;display:flex;gap:18px}
+.divider .ls div span{color:var(--acc);font-weight:600;width:28px}
+/* 핵심 서비스 덱 공용: 인프라 덱의 슬라이드별 컴포넌트를 공용으로 */
+body{word-break:keep-all;overflow-wrap:break-word}
+.pb{display:flex;flex-direction:column;gap:14px}
+.ph{background:var(--bad-soft);border:1px solid #e3c8c4;border-radius:8px;padding:14px 24px}
+.ph .k{font-size:14px;color:var(--bad);font-weight:700}
+.ph .tt{font-size:25px;font-weight:700;margin-top:2px}
+.ph .dd{font-size:17px;color:var(--ink2);margin-top:4px}
+.hv{flex:1;border:1.5px solid var(--acc);border-radius:8px;background:#fff;padding:18px 26px;display:flex;flex-direction:column;justify-content:center}
+.hv .top{display:flex;align-items:center;justify-content:space-between}
+.hv .nm{font-size:22px;font-weight:700}
+.hv .bd{background:var(--acc);color:#fff;font-size:16px;font-weight:700;padding:5px 14px;border-radius:999px}
+.hv .nums{display:flex;align-items:baseline;gap:16px;margin-top:16px}
+.hv .bf{font-size:30px;font-weight:600;color:var(--mute);text-decoration:line-through;text-decoration-thickness:2px}
+.hv .ar{font-size:30px;color:var(--acc)}
+.hv .af{font-size:56px;font-weight:800;color:var(--acc);letter-spacing:-0.02em;line-height:1}
+.hv .ds{font-size:18px;color:var(--ink2);margin-top:14px;line-height:1.45}
+.why .it{font-size:17.5px;color:var(--ink2);line-height:1.5;padding:12px 0;border-bottom:1px solid var(--line)}
+.why .it:last-child{border-bottom:none}
+.why .it b{display:block;font-size:19px;color:var(--ink);margin-bottom:2px}
+.fx{display:grid;grid-template-columns:1fr 60px 1fr;row-gap:16px;align-items:stretch}
+.fx .h3{font-size:20px} .fx .t{font-size:17.5px;margin-top:6px}
+.fx .pill{font-size:14px;margin:0 8px 0 0;vertical-align:3px}
+.box{border:1.5px dashed var(--acc-mid);border-radius:12px;padding:14px 16px 16px}
+.box .bl{font-size:15px;font-weight:600;color:var(--acc);margin-bottom:10px}
+.nd{background:var(--tile);border-radius:8px;padding:14px 18px}
+.nd .s{font-size:19px;font-weight:700}
+.nd .d{font-size:15.5px;color:var(--ink2);margin-top:4px;line-height:1.45}
+.nd.on{background:var(--acc)} .nd.on .s,.nd.on .d{color:#fff}
+.nd.cd{background:#fff;border:1px solid var(--line)}
+.nd.db{background:#f6f1e4}
+.va{color:var(--acc);font-size:20px;text-align:center;line-height:1;padding:6px 0}
+.va small{display:block;font-size:14px;color:var(--mute);margin-top:3px}
+.rs{font-size:15px;font-weight:700;padding:4px 12px;border-radius:6px;display:inline-block}
+.rs.no{background:var(--bad-soft);color:var(--bad)} .rs.q{background:#f6f1e4;color:#8a6d22} .rs.go{background:var(--good-soft);color:var(--good)}
+
+/* 테두리 없이 배경과 여백으로만 구분 */
+.card{border:none;background:var(--tile)}
+.card.on{border:none;background:var(--acc-soft)}
+.hv{border:none;background:var(--acc-soft);border-radius:10px}
+.ph{border:none}
+.box{border:none;background:var(--tile);border-radius:12px}
+.nd{background:var(--tile)}
+.nd.cd{border:none;background:#fff}
+.tile .nd.cd{background:#fff}
+</style>
+</head>
+<body>
+<!-- 1. 표지 -->
+<section class="slide" style="padding:0">
+  <div style="position:absolute;left:80px;top:72px;letter-spacing:.3em;color:var(--acc);font-size:22px;font-weight:500">NOVA</div>
+  <div style="position:absolute;left:80px;top:290px">
+    <div style="font-size:84px;font-weight:700;letter-spacing:-0.04em;margin-top:18px;line-height:1.15">핵심 서비스 설계와<br>트러블슈팅</div>
+    <div style="font-size:26px;color:var(--ink2);margin-top:28px">대기열, 사전예약 접수, 외부 연동 서비스의 구조와 부하 상황에서 고친 문제</div>
+    <div style="margin-top:22px;display:flex;gap:8px"><span class="pill a" style="font-size:17px;padding:6px 14px">백엔드 담당 · 대기열 · 사전예약 접수 · 외부 연동 worker</span></div>
+  </div>
+  <div style="position:absolute;left:80px;right:80px;bottom:72px;display:flex;border-top:1px solid var(--line);padding-top:28px">
+    <div style="flex:1"><div class="lab">10초에 5,000명 진입 시 거절</div><div style="font-size:40px;font-weight:700;margin-top:6px">0<small style="font-size:22px"> 건</small></div></div>
+    <div style="flex:1"><div class="lab">차례 도착 후 입장 확인 (p95)</div><div style="font-size:40px;font-weight:700;margin-top:6px">31 → 3<small style="font-size:22px"> 초</small></div></div>
+    <div style="flex:1"><div class="lab">접수 잠금 안의 작업</div><div style="font-size:40px;font-weight:700;margin-top:6px">7 → 3<small style="font-size:22px"> 개</small></div></div>
+    <div style="flex:1"><div class="lab">외부 호출 수 회복 시간</div><div style="font-size:40px;font-weight:700;margin-top:6px">12 → 1<small style="font-size:22px"> 분</small></div></div>
+  </div>
+</section>
+
+<!-- 2. 목차 -->
+<section class="slide">
+  <div class="kicker">목차</div>
+  <h1>목차</h1>
+  <div class="body" style="display:flex;gap:28px">
+    <div class="tile" style="flex:1;padding:34px 30px">
+      <div style="font-size:64px;font-weight:200;color:var(--acc)">01</div>
+      <div style="font-size:36px;font-weight:700;margin-top:4px">대기열</div>
+      <div class="t" style="margin-top:22px;font-size:19.5px;line-height:2.05">대기열 아키텍처<br>진입 판정과 입장 흐름<br>입장 속도 조절<br>입장 알림 지연 개선<br>대기열 503<br>그 밖의 트러블슈팅</div>
+    </div>
+    <div class="tile" style="flex:1;padding:34px 30px">
+      <div style="font-size:64px;font-weight:200;color:var(--acc)">02</div>
+      <div style="font-size:36px;font-weight:700;margin-top:4px">사전예약 접수</div>
+      <div class="t" style="margin-top:22px;font-size:19.5px;line-height:2.05">접수 아키텍처<br>순번 발급: 빠진 번호 없이<br>MySQL 지표로 찾은 병목<br>잠금 구간 단축<br>동시 접수 제한<br>두 개선 뒤 접수 응답<br>재전송 처리<br>Outbox 메시지 발행</div>
+    </div>
+    <div class="tile" style="flex:1;padding:34px 30px">
+      <div style="font-size:64px;font-weight:200;color:var(--acc)">03</div>
+      <div style="font-size:36px;font-weight:700;margin-top:4px">외부 연동</div>
+      <div class="t" style="margin-top:22px;font-size:19.5px;line-height:2.05">worker 아키텍처<br>mock 응답 판정<br>차단기 열림 판정<br>동시 요청 수 조절<br>차단기 반복 열림 개선<br>그 밖의 트러블슈팅</div>
+    </div>
+    <div class="tile" style="flex:1;padding:34px 30px">
+      <div style="font-size:64px;font-weight:200;color:var(--acc)">04</div>
+      <div style="font-size:36px;font-weight:700;margin-top:4px">부하 테스트</div>
+      <div class="t" style="margin-top:22px;font-size:19.5px;line-height:2.05">찾은 문제 한눈에</div>
+    </div>
+  </div>
+  <div class="foot"><div class="nav"><span>1 대기열</span><span>2 사전예약</span><span>3 외부 연동</span><span>4 부하 테스트</span></div><div class="brand">NOVA</div><div class="pg">2</div></div>
+</section>
+
+<!-- 2-1. 전체 흐름 -->
+<section class="slide">
+  <style>
+    .fl{display:grid;grid-template-columns:150px 34px 1fr 34px 1fr 34px 120px 34px 1fr 34px 150px;align-items:stretch;height:250px}
+    .fl .ar{display:flex;align-items:center;justify-content:center;color:var(--acc);font-size:24px}
+    .fl .nd{display:flex;flex-direction:column;justify-content:center;padding:16px 16px;min-height:220px}
+    .fl .nd .s{font-size:20px} .fl .nd .d{font-size:15.5px;margin-top:6px;line-height:1.4}
+    .fl .sv{background:var(--acc-soft);border-radius:10px;padding:22px 20px;display:flex;flex-direction:column}
+    .fl .sv .no{font-size:15px;font-weight:700;color:var(--acc)}
+    .fl .sv .s{font-size:25px;font-weight:700;margin-top:4px}
+    .fl .sv .d{font-size:17px;color:var(--ink2);margin-top:10px;line-height:1.5}
+    .fl .sv .ds{margin-top:auto;padding-top:12px;font-size:14.5px;color:var(--ink2)}
+    .fl .sv .ds span{display:inline-block;background:#f6f1e4;border-radius:6px;padding:3px 9px;margin:4px 4px 0 0;font-weight:600}
+    .zn{display:grid;grid-template-columns:150px 34px 1fr 34px 1fr 34px 120px 34px 1fr 34px 150px;margin-top:14px}
+    .zn div{border-top:3px solid var(--acc);padding-top:8px;font-size:16px;font-weight:600;color:var(--acc)}
+    .zn div.b{border-color:var(--faint);color:var(--mute)}
+    .gl{display:grid;grid-template-columns:repeat(4,1fr);gap:18px}
+    .gl .card{padding:30px 28px}
+    .gl .k{font-size:15px;font-weight:700;color:var(--mute)}
+    .gl .v{font-size:36px;font-weight:800;margin-top:8px;letter-spacing:-0.02em}
+    .gl .d{font-size:16px;color:var(--ink2);margin-top:4px}
+  </style>
+  <div class="kicker">전체 흐름</div>
+  <h1>예약 한 건이 지나가는 길</h1>
+  <div class="sub">세 서비스가 한 요청을 나눠 맡고 사용자 응답은 접수에서 끝남</div>
+  <div class="body" style="top:215px">
+    <div class="fl">
+      <div class="nd"><div class="s">사용자</div><div class="d">오픈 10초에<br>5,000명</div></div>
+      <div class="ar">→</div>
+      <div class="sv"><div class="no">01</div><div class="s">대기열</div><div class="d">줄을 세우고 접수 서버가 감당할 만큼만 입장</div><div class="ds"><span>Valkey 대기 줄</span></div></div>
+      <div class="ar">→</div>
+      <div class="sv"><div class="no">02</div><div class="s">사전예약 접수</div><div class="d">예약 · 순번 · Outbox를 한 트랜잭션에 저장하고 바로 응답</div><div class="ds"><span>MySQL</span></div></div>
+      <div class="ar">→</div>
+      <div class="nd db"><div class="s">SQS</div><div class="d">등록 · 취소<br>작업 큐</div></div>
+      <div class="ar">→</div>
+      <div class="sv"><div class="no">03</div><div class="s">외부 연동 worker</div><div class="d">외부 응답 속도에 맞춰 보내는 양을 조절</div><div class="ds"><span>DLQ · Slack 알림</span></div></div>
+      <div class="ar">⇄</div>
+      <div class="nd"><div class="s">외부 예약 시스템</div><div class="d">평균 0.5초<br>실패 5%</div></div>
+    </div>
+    <div class="zn">
+      <div style="grid-column:1 / span 5">사용자가 기다리는 구간 · 접수 202 응답까지</div>
+      <div class="b" style="grid-column:7 / span 5">큐 뒤에서 처리 · 외부가 느려도 접수에 영향 없음</div>
+    </div>
+    <div class="lab" style="margin-top:70px">목표</div>
+    <div class="gl" style="margin-top:12px">
+      <div class="card"><div class="k">오픈 직후 급증</div><div class="v">10초 5,000명</div><div class="d">진입 실패 0건</div></div>
+      <div class="card"><div class="k">응답 시간</div><div class="v">p99 500ms</div><div class="d">진입 · 순번 조회 · 접수</div></div>
+      <div class="card"><div class="k">순번</div><div class="v">중복 · 빈틈 0</div><div class="d">상품마다 1부터 도착 순서대로</div></div>
+      <div class="card on"><div class="k">외부 연동</div><div class="v">유실 · 중복 0</div><div class="d">외부가 멈춰도 접수는 계속</div></div>
+    </div>
+  </div>
+  <div class="foot"><div class="nav"><span>1 대기열</span><span>2 사전예약</span><span>3 외부 연동</span><span>4 부하 테스트</span></div><div class="brand">NOVA</div><div class="pg">3</div></div>
+</section>
+
+<!-- 3. 구분: 대기열 -->
+<section class="slide divider">
+  <div class="no">01</div>
+  <div class="ti">대기열</div>
+  <div class="ds">몰린 사람을 줄 세우고, 접수 서버가 감당할 만큼만 입장</div>
+  <div class="ls">
+    <div><span>1</span>대기열 아키텍처</div>
+    <div><span>2</span>진입 판정과 입장 흐름</div>
+    <div><span>3</span>입장 속도 조절</div>
+    <div><span>4</span>입장 알림 지연 개선</div>
+    <div><span>5</span>대기열 503</div>
+    <div><span>6</span>그 밖의 트러블슈팅</div>
+  </div>
+</section>
+
+<!-- 4. 대기열 아키텍처 -->
+<section class="slide">
+  <style>
+    .a4{display:grid;grid-template-columns:200px 90px 1fr 90px 280px;align-items:center}
+    .a4 .nd{padding:15px 20px} .a4 .nd .s{font-size:22px} .a4 .nd .d{font-size:17px;margin-top:6px}
+    .a4 .box .bl{font-size:16px}
+    .nb{display:inline-flex;width:28px;height:28px;border-radius:50%;background:var(--acc);color:#fff;font-size:16px;font-weight:700;align-items:center;justify-content:center;flex:none}
+    .a4 .ar2{display:flex;flex-direction:column;align-items:center;gap:6px;color:var(--acc);font-size:26px;line-height:1}
+    .a4 .ar2 small{font-size:15px;color:var(--mute);text-align:center;line-height:1.35}
+    .a4 .vr{display:flex;align-items:center;justify-content:center;gap:10px;color:var(--acc);font-size:24px;padding:8px 0}
+    .a4 .vr small{font-size:15.5px;color:var(--mute)}
+    .a4 .vl{display:flex;align-items:center;justify-content:center;gap:12px;height:58px}
+    .a4 .vl .ln{width:3px;align-self:stretch;background:var(--acc);position:relative}
+    .a4 .vl .ln::after{content:"";position:absolute;bottom:-1px;left:-6px;border:7.5px solid transparent;border-top:9px solid var(--acc);border-bottom:0}
+    .a4 .vl small{font-size:16px;color:var(--ink2);font-weight:600}
+    .a4 .in{display:flex;gap:12px;align-items:flex-start}
+    .c4{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;margin-top:30px}
+    .c4 .card{padding:20px 22px}
+    .c4 .hd{display:flex;gap:10px;align-items:center;font-size:19px;font-weight:700}
+    .c4 .v{font-size:34px;font-weight:800;margin-top:12px;letter-spacing:-0.02em}
+    .c4 .v small{font-size:18px;font-weight:600;margin-left:3px}
+    .c4 .d{font-size:16.5px;color:var(--ink2);margin-top:6px;line-height:1.45}
+  </style>
+  <div class="kicker">01 대기열 · 아키텍처</div>
+  <h1>대기열 아키텍처</h1>
+  <div class="sub">몰린 요청은 대기열이 받아 줄을 세우고, preorder가 감당할 만큼만 입장 · 10초에 5,000명 진입 시 거절 0건</div>
+  <div class="body" style="top:205px;display:flex;flex-direction:column">
+    <div class="a4">
+      <div class="nd"><div class="s">사용자</div><div class="d">오픈 순간 몰림</div></div>
+      <div class="ar2">→<small>진입</small></div>
+      <div class="box">
+        <div class="bl">waitingroom 서버 1~5대</div>
+        <div class="nd cd in"><span class="nb">1</span><div><div class="s">진입 판정, 순번 안내</div><div class="d">모든 서버가 나눠 처리</div></div></div>
+        <div class="nd cd in" style="margin-top:10px"><span class="nb">3</span><div><div class="s">입장 인원 계산</div><div class="d">대표 서버 1대가 1초마다</div></div></div>
+      </div>
+      <div class="ar2">→<small>차례가 된<br>접수만</small></div>
+      <div class="nd on"><div class="s">preorder</div><div class="d">사전예약 접수</div></div>
+      <div></div><div></div>
+      <div class="vr"><span class="nb">2</span>↕<small>줄 서기, 순번 조회, 입장 인원 공유</small></div>
+      <div></div>
+      <div class="vl"><span class="nb">4</span><div class="ln"></div><small>처리 가능량<br>5초마다 보고</small></div>
+      <div></div><div></div>
+      <div class="nd db" style="grid-column:3 / span 3"><div class="s">ElastiCache Valkey</div><div class="d">대기 줄 하나 · 입장 인원</div></div>
+    </div>
+    <div class="c4">
+      <div class="card"><div class="hd"><span class="nb">1</span>진입 판정은 모든 서버가</div><div class="v">100<small>ms 이내</small></div><div class="d">진입 응답 p95 · 서버 대수만큼 처리량 증가</div></div>
+      <div class="card"><div class="hd"><span class="nb">2</span>줄은 Valkey 한 곳에</div><div class="v">0<small>건</small></div><div class="d">앞지르기 · 서버가 여러 대여도 도착 순서대로 순번</div></div>
+      <div class="card"><div class="hd"><span class="nb">3</span>입장 인원은 1대만 계산</div><div class="v">1<small>초마다</small></div><div class="d">여러 대가 각자 계산하면 입장 인원이 겹쳐 증가</div></div>
+      <div class="card on"><div class="hd"><span class="nb">4</span>preorder 상태 반영</div><div class="v">5<small>초마다</small></div><div class="d">처리 가능량을 보고받아 입장 속도 상한으로 사용</div></div>
+    </div>
+  </div>
+  <div class="foot"><div class="nav"><span class="on">1 대기열</span><span>2 사전예약</span><span>3 외부 연동</span><span>4 부하 테스트</span></div><div class="brand">NOVA</div><div class="pg">5</div></div>
+</section>
+
+<!-- 5. 진입 판정 -->
+<section class="slide">
+  <div class="kicker">01 대기열 · 진입 판정</div>
+  <h1>진입 판정과 입장 흐름</h1>
+  <div class="sub">위에서부터 확인해 처음 해당하는 결과로 응답 · 확실하지 않으면 줄로 보내 새치기 방지</div>
+  <div class="body" style="top:220px">
+    <table class="tb">
+      <tr><th style="width:80px">순서</th><th style="width:430px">조건</th><th>이유</th><th style="width:200px">결과</th></tr>
+      <tr><td class="strong">1</td><td class="strong">접수 기간이 아님</td><td>오픈 전이거나 마감 후</td><td><span class="rs no">거절 409</span></td></tr>
+      <tr><td class="strong">2</td><td class="strong">줄이 이미 너무 김</td><td>최대 대기 시간 안에 입장할 수 없는 길이</td><td><span class="rs no">거절 429</span></td></tr>
+      <tr><td class="strong">3</td><td class="strong">줄 정보가 5초 넘게 오래됨</td><td>그사이 누가 줄을 섰는지 알 수 없음</td><td><span class="rs q">줄 서기 202</span></td></tr>
+      <tr><td class="strong">4</td><td class="strong">이미 기다리는 사람이 있음</td><td>먼저 온 사람을 앞지르지 않도록</td><td><span class="rs q">줄 서기 202</span></td></tr>
+      <tr><td class="strong">5</td><td class="strong">입장 여유가 남아 있음</td><td>한산할 때만 해당</td><td><span class="rs go">바로 입장 200</span></td></tr>
+    </table>
+    <div class="lab" style="margin:30px 0 10px">줄을 선 뒤의 흐름</div>
+    <div class="steps">
+      <div class="st"><div class="n">01</div><div class="s">대기 번호 받음</div><div class="d">현재 순번과 다음 확인 시각</div></div><div class="ar">→</div>
+      <div class="st"><div class="n">02</div><div class="s">순번 확인</div><div class="d">대기가 길수록 드물게 (1~30초)<br>250초 동안 확인이 없으면 줄에서 제외</div></div><div class="ar">→</div>
+      <div class="st"><div class="n">03</div><div class="s">입장권 발급</div><div class="d">차례가 되면 발급, 120초 동안 유효</div></div><div class="ar">→</div>
+      <div class="st on"><div class="n">04</div><div class="s">접수</div><div class="d">입장권 확인 후 preorder로 전달</div></div>
+    </div>
+  </div>
+  <div class="foot"><div class="nav"><span class="on">1 대기열</span><span>2 사전예약</span><span>3 외부 연동</span><span>4 부하 테스트</span></div><div class="brand">NOVA</div><div class="pg">6</div></div>
+</section>
+
+<!-- 6. 입장 속도 조절 -->
+<section class="slide">
+  <style>
+    .q6 svg{overflow:visible}
+    .q6s .it{padding:24px 0} .q6s .it .h{font-size:23px} .q6s .it .d{font-size:18.5px}
+  </style>
+  <div class="kicker">01 대기열 · 입장 속도</div>
+  <h1>입장 속도 조절 (AIMD)</h1>
+  <div class="sub">preorder가 버거워하면 입장 속도를 바로 절반으로 줄이고, 회복되면 10%씩 천천히 복구</div>
+  <div class="body" style="top:215px;display:flex;gap:56px">
+    <div style="flex:1" class="col">
+      <div class="tile" style="padding:16px 22px;font-size:19.5px;color:var(--ink2)"><b class="acc">입장 속도</b> = <b style="color:var(--ink)">관리자 설정</b>(기본 초당 150명)과 <b style="color:var(--ink)">preorder 처리 가능량</b> 중 작은 값 × <b style="color:var(--ink)">감속 배율</b>(10~100%)</div>
+      <div class="q6" style="margin-top:26px;zoom:1.05"><svg viewBox="0 0 880 410" width="880" height="410" font-family="Pretendard, Noto Sans CJK KR, sans-serif"><text x="0" y="83" font-size="18.5" font-weight="600" fill="#3d424d">나쁜 응답 비율</text><line x1="112" x2="769" y1="78.0" y2="78.0" stroke="#b25b52" stroke-width="1.5" stroke-dasharray="6 5"/><text x="775" y="83.0" font-size="17.5" font-weight="600" fill="#b25b52">20% 이상: 줄임</text><line x1="112" x2="769" y1="115.5" y2="115.5" stroke="#3e4a8b" stroke-width="1.5" stroke-dasharray="6 5"/><text x="775" y="120.5" font-size="17.5" font-weight="600" fill="#3e4a8b">5% 미만: 복구</text><rect x="120" y="120.5" width="30" height="7.5" fill="#cfd2d9" rx="2"/><rect x="167" y="118.0" width="30" height="10.0" fill="#cfd2d9" rx="2"/><rect x="214" y="40.5" width="30" height="87.5" fill="#e2b4ae" rx="2"/><text x="229.0" y="34.5" text-anchor="middle" font-size="17" font-weight="600" fill="#b25b52">35%</text><rect x="261" y="53.0" width="30" height="75.0" fill="#e2b4ae" rx="2"/><text x="276.0" y="47.0" text-anchor="middle" font-size="17" font-weight="600" fill="#b25b52">30%</text><rect x="308" y="118.0" width="30" height="10.0" fill="#cfd2d9" rx="2"/><rect x="355" y="120.5" width="30" height="7.5" fill="#cfd2d9" rx="2"/><rect x="402" y="123.0" width="30" height="5.0" fill="#cfd2d9" rx="2"/><rect x="449" y="123.0" width="30" height="5.0" fill="#cfd2d9" rx="2"/><rect x="496" y="123.0" width="30" height="5.0" fill="#cfd2d9" rx="2"/><rect x="543" y="123.0" width="30" height="5.0" fill="#cfd2d9" rx="2"/><rect x="590" y="123.0" width="30" height="5.0" fill="#cfd2d9" rx="2"/><rect x="637" y="123.0" width="30" height="5.0" fill="#cfd2d9" rx="2"/><rect x="684" y="123.0" width="30" height="5.0" fill="#cfd2d9" rx="2"/><rect x="731" y="123.0" width="30" height="5.0" fill="#cfd2d9" rx="2"/><text x="0" y="270" font-size="18.5" font-weight="600" fill="#3d424d">입장 속도</text><text x="0" y="290" font-size="16.5" fill="#7a808c">(명/초)</text><rect x="120" y="180.0" width="30" height="190.0" fill="#7f88bd" rx="2"/><text x="135.0" y="173.0" text-anchor="middle" font-size="18" font-weight="700" fill="#16181d">100</text><rect x="167" y="180.0" width="30" height="190.0" fill="#7f88bd" rx="2"/><text x="182.0" y="173.0" text-anchor="middle" font-size="18" font-weight="700" fill="#16181d">100</text><rect x="214" y="275.0" width="30" height="95.0" fill="#b25b52" rx="2"/><text x="229.0" y="268.0" text-anchor="middle" font-size="18" font-weight="700" fill="#16181d">50</text><rect x="261" y="322.5" width="30" height="47.5" fill="#b25b52" rx="2"/><text x="276.0" y="315.5" text-anchor="middle" font-size="18" font-weight="700" fill="#16181d">25</text><rect x="308" y="322.5" width="30" height="47.5" fill="#cfd2d9" rx="2"/><text x="323.0" y="315.5" text-anchor="middle" font-size="18" font-weight="700" fill="#16181d">25</text><rect x="355" y="322.5" width="30" height="47.5" fill="#cfd2d9" rx="2"/><text x="370.0" y="315.5" text-anchor="middle" font-size="18" font-weight="700" fill="#16181d">25</text><rect x="402" y="303.5" width="30" height="66.5" fill="#b9bfdc" rx="2"/><text x="417.0" y="296.5" text-anchor="middle" font-size="18" font-weight="700" fill="#16181d">35</text><rect x="449" y="284.5" width="30" height="85.5" fill="#b9bfdc" rx="2"/><text x="464.0" y="277.5" text-anchor="middle" font-size="18" font-weight="700" fill="#16181d">45</text><rect x="496" y="265.5" width="30" height="104.50000000000001" fill="#b9bfdc" rx="2"/><text x="511.0" y="258.5" text-anchor="middle" font-size="18" font-weight="700" fill="#16181d">55</text><rect x="543" y="246.5" width="30" height="123.5" fill="#b9bfdc" rx="2"/><text x="558.0" y="239.5" text-anchor="middle" font-size="18" font-weight="700" fill="#16181d">65</text><rect x="590" y="227.5" width="30" height="142.5" fill="#b9bfdc" rx="2"/><text x="605.0" y="220.5" text-anchor="middle" font-size="18" font-weight="700" fill="#16181d">75</text><rect x="637" y="208.5" width="30" height="161.5" fill="#b9bfdc" rx="2"/><text x="652.0" y="201.5" text-anchor="middle" font-size="18" font-weight="700" fill="#16181d">85</text><rect x="684" y="189.5" width="30" height="180.5" fill="#b9bfdc" rx="2"/><text x="699.0" y="182.5" text-anchor="middle" font-size="18" font-weight="700" fill="#16181d">95</text><rect x="731" y="180.0" width="30" height="190.0" fill="#7f88bd" rx="2"/><text x="746.0" y="173.0" text-anchor="middle" font-size="18" font-weight="700" fill="#16181d">100</text><circle cx="229.0" cy="239.0" r="12" fill="#b25b52"/><text x="229.0" y="244.0" text-anchor="middle" font-size="17.5" font-weight="700" fill="#fff">1</text><circle cx="276.0" cy="286.5" r="12" fill="#b25b52"/><text x="276.0" y="291.5" text-anchor="middle" font-size="17.5" font-weight="700" fill="#fff">2</text><circle cx="323.0" cy="286.5" r="12" fill="#7a808c"/><text x="323.0" y="291.5" text-anchor="middle" font-size="17.5" font-weight="700" fill="#fff">3</text><circle cx="417.0" cy="267.5" r="12" fill="#3e4a8b"/><text x="417.0" y="272.5" text-anchor="middle" font-size="17.5" font-weight="700" fill="#fff">4</text><line x1="112" x2="769" y1="370" y2="370" stroke="#7a808c" stroke-width="1"/><text x="135.0" y="392" text-anchor="middle" font-size="17" fill="#7a808c">0초</text><text x="229.0" y="392" text-anchor="middle" font-size="17" fill="#7a808c">10초</text><text x="323.0" y="392" text-anchor="middle" font-size="17" fill="#7a808c">20초</text><text x="417.0" y="392" text-anchor="middle" font-size="17" fill="#7a808c">30초</text><text x="511.0" y="392" text-anchor="middle" font-size="17" fill="#7a808c">40초</text><text x="605.0" y="392" text-anchor="middle" font-size="17" fill="#7a808c">50초</text><text x="699.0" y="392" text-anchor="middle" font-size="17" fill="#7a808c">60초</text></svg></div>
+    </div>
+    <div style="flex:0 0 380px" class="side-list q6s">
+      <div class="it" style="padding-top:0"><div class="num">줄임</div><div class="h">나쁜 응답 20% 이상 → 절반</div><div class="d">최근 5초 응답 기준 (최소 20건)<br>최저 10%까지</div></div>
+      <div class="it"><div class="num">늘림</div><div class="h">5% 미만이 10초 지속 → 10%씩</div><div class="d">한 번에 되돌리면 다시 무너지므로 단계적으로</div></div>
+      <div class="it"><div class="num">나쁜 응답</div><div class="h">서버 오류, 응답 전 끊김, 2초 초과</div><div class="d">한 사람의 응답은 1초에 1건만 집계</div></div>
+    </div>
+  </div>
+  <div class="foot"><div class="nav"><span class="on">1 대기열</span><span>2 사전예약</span><span>3 외부 연동</span><span>4 부하 테스트</span></div><div class="brand">NOVA</div><div class="pg">7</div></div>
+</section>
+
+<!-- 7. 대기열 트러블슈팅 ① -->
+<section class="slide">
+  <style>
+    .t7-rw{display:grid;grid-template-columns:290px 1fr;align-items:center}
+    .t7-rw .lk .k{font-size:24px;font-weight:700}
+    .t7-rw .lk .s{font-size:18px;color:var(--ink2);margin-top:6px}
+    .t7-tr{position:relative;height:120px;margin-right:24px}
+    .t7-tr .ln{position:absolute;left:0;right:0;top:56px;height:4px;background:var(--tile2)}
+    .t7-tr .gp{position:absolute;top:52px;height:12px;border-radius:6px}
+    .t7-tr .gl{position:absolute;top:6px;transform:translateX(-50%);font-size:21px;font-weight:700;white-space:nowrap}
+    .t7-tr .ev{position:absolute;top:0;width:0}
+    .t7-tr .ev i{position:absolute;top:48px;left:-10px;width:20px;height:20px;border-radius:50%;background:#fff;border:4px solid var(--ink2)}
+    .t7-tr .ev.ok i{border-color:var(--good);background:var(--good)}
+    .t7-tr .ev .b{position:absolute;top:80px;left:-10px;font-size:18px;font-weight:700;white-space:nowrap}
+    .t7-tr .ev .a{position:absolute;top:10px;left:-10px;font-size:18px;font-weight:700;color:var(--good);white-space:nowrap}
+    .t7-ax{position:relative;margin:0 24px 0 290px;height:24px;border-top:1px solid var(--line);font-size:15px;color:var(--mute)}
+    .t7-ax span{position:absolute;top:5px;transform:translateX(-50%)}
+    .t7-bt{display:grid;grid-template-columns:1fr 1fr 300px;gap:40px;margin-top:56px;border-top:1px solid var(--line);padding-top:26px}
+    .t7-bt .k{font-size:16px;font-weight:700}
+    .t7-bt .d{font-size:18.5px;color:var(--ink2);line-height:1.55;margin-top:6px}
+    .t7-bt .d b{color:var(--ink)}
+  </style>
+  <div class="kicker">01 대기열 · 트러블슈팅</div>
+  <h1>입장 알림 지연 개선</h1>
+  <div class="sub">대기 화면은 서버에 "내 차례인가"를 주기적으로 물어보는 구조 · 오픈 직후에는 차례가 와도 화면이 30초 가까이 늦게 바뀜</div>
+  <div class="body" style="top:245px;display:flex;flex-direction:column">
+    <div class="t7-rw">
+      <div class="lk"><div class="k badc">개선 전</div><div class="s">서버 답 "30초 뒤에 다시 물어봐"</div></div>
+      <div class="t7-tr"><div class="ln"></div>
+        <div class="gp" style="left:6.25%;width:87.5%;background:var(--bad)"></div>
+        <div class="gl" style="left:50%;color:var(--bad)">차례가 왔는데 화면은 28초 동안 '대기 중'</div>
+        <div class="ev"><i></i><div class="b">물어봄</div></div>
+        <div class="ev ok" style="left:6.25%"><i></i><div class="a">차례 옴</div></div>
+        <div class="ev" style="left:93.75%"><i></i><div class="b" style="left:auto;right:-10px">다시 물어봄 → 입장</div></div>
+      </div>
+    </div>
+    <div class="t7-rw" style="margin-top:30px">
+      <div class="lk"><div class="k acc">개선 후</div><div class="s">서버 답 "3초 뒤에 다시 물어봐"</div></div>
+      <div class="t7-tr"><div class="ln"></div>
+        <div class="gp" style="left:6.25%;width:3.1%;background:var(--acc)"></div>
+        <div class="ev"><i></i><div class="b">물어봄</div></div>
+        <div class="ev ok" style="left:6.25%"><i></i><div class="a">차례 옴</div></div>
+        <div class="ev" style="left:9.375%"><i></i><div class="b" style="left:40px;color:var(--acc)">다시 물어봄 → 바로 입장</div></div>
+      </div>
+    </div>
+    <div class="t7-ax"><span style="left:0">0초</span><span style="left:31.25%">10초</span><span style="left:62.5%">20초</span><span style="left:93.75%">30초</span></div>
+    <div class="t7-bt">
+      <div><div class="k badc">원인</div><div class="d">다음 확인 간격은 서버가 예상 대기 시간으로 정함<br>(5초 미만 1초, 2분 이상 30초)<br>예상 대기 시간 = 앞 인원 ÷ 상품의 입장 속도<br>오픈 직후에는 상품의 입장 속도가 아직 <b>0</b>이라 계산 불가 → 가장 긴 <b>30초</b></div></div>
+      <div><div class="k acc">조치</div><div class="d">상품의 입장 속도가 아직 0이면<br><b>전체 입장 속도(기본 초당 150명)</b>로 대신 계산<br>→ 차례가 가까운 사람은 1~3초 간격으로 확인</div></div>
+      <div><div class="k">결과 · 차례가 온 뒤 화면이 바뀌기까지 (p95)</div><div style="display:flex;align-items:baseline;gap:12px;margin-top:6px"><span style="font-size:28px;font-weight:600;color:var(--mute);text-decoration:line-through">31초</span><span style="font-size:28px;color:var(--acc)">→</span><span style="font-size:56px;font-weight:800;color:var(--acc);line-height:1">3초</span></div></div>
+    </div>
+  </div>
+  <div class="foot"><div class="nav"><span class="on">1 대기열</span><span>2 사전예약</span><span>3 외부 연동</span><span>4 부하 테스트</span></div><div class="brand">NOVA</div><div class="pg">8</div></div>
+</section>
+
+<!-- 7-1. 대기열 503 -->
+<section class="slide">
+  <style>
+    .hy2{display:flex;gap:14px;align-items:flex-start;padding:10px 16px;border-radius:6px;background:var(--tile)}
+    .hy2 .mk{flex:0 0 32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:17px;background:var(--bad-soft);color:var(--bad)}
+    .hy2.o{background:#fff;border:1.5px solid var(--acc)} .hy2.o .mk{background:var(--acc);color:#fff}
+    .hy2 .q{font-size:19px;font-weight:700}
+    .hy2 .e{font-size:16px;color:var(--ink2);margin-top:3px;line-height:1.45}
+    .cs{flex:1;display:flex;flex-direction:column;padding:14px 18px;border:1px solid var(--line);border-radius:8px}
+    .cs .dt{font-size:15px;font-weight:700;color:var(--mute)} .cs .dt b{color:var(--ink);font-size:17px;margin-left:6px}
+    .cs .rw{display:grid;grid-template-columns:42px 1fr;gap:8px;font-size:16px;line-height:1.45;margin-top:6px}
+    .cs .rw .k{font-weight:700;font-size:15px}
+    .cs .rw .v{color:var(--ink2)}
+    .cs .fx{display:block;margin-top:auto;padding:8px 14px;border-radius:6px;background:var(--acc-soft)}
+    .cs .fx .fxt{display:block;font-size:14px;font-weight:700;color:var(--acc);margin-bottom:2px}
+    .cs .fx .fxi{display:block;font-size:16.5px;font-weight:700;color:var(--ink);line-height:1.5}
+    .cs .fx .fxi::before{content:"✓ ";color:var(--acc)}
+  </style>
+  <div class="kicker">01 대기열 · 트러블슈팅</div>
+  <h1>대기열 503: Valkey가 아니라 대기열 CPU</h1>
+  <div class="sub">대기열 부하 시험 · 대기열에서 5xx 596건, 오류율 0.565%로 합격 기준 0.1% 초과</div>
+  <div class="body" style="top:215px;display:flex;gap:28px">
+    <div style="flex:0 0 820px">
+      <div class="lab" style="margin-bottom:8px">대기열 서비스 대시보드</div>
+      <img class="shot" src="assets/service-top.jpg" style="width:820px">
+      <div class="lab" style="margin:14px 0 8px">같은 시간대의 Valkey 서버</div>
+      <img class="shot" src="assets/open-redis.jpg" style="width:820px;height:110px;object-fit:cover;object-position:left top">
+    </div>
+    <div style="flex:1;margin-top:28px;height:517px;display:flex;flex-direction:column;gap:10px">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        <div class="hy2"><div class="mk">✕</div><div><div class="q">Valkey 과부하?</div><div class="e">엔진 CPU 최대 약 7%<br>명령 처리 0.25ms 이하</div></div></div>
+        <div class="hy2"><div class="mk">✕</div><div><div class="q">접수 서버 장애?</div><div class="e">503은 대기열<br>응답에서 발생</div></div></div>
+      </div>
+      <div class="hy2 o"><div class="mk">✓</div><div><div class="q acc">대기열 CPU 포화</div><div class="e">CPU 100% → Redis 응답을 제때 처리 못 해 앱 쪽 시간 초과</div></div></div>
+      <div class="cs"><div class="dt">첫 시험<b>5xx 596건</b></div>
+        <div class="rw"><div class="k badc">원인</div><div class="v">첫 몰림에 CPU 절반을 JIT 컴파일이 사용 · 증설은 6~10분 뒤</div></div>
+        <div class="fx"><div class="fxt">조치</div><div class="fxi">대기열 태스크 1 vCPU → 2 vCPU</div><div class="fxi">회차 오픈 15분 전 사전 증설 · 단계 증설 추가</div></div></div>
+      <div class="cs"><div class="dt">재시험<b>몰림 첫 10초 503 870건</b></div>
+        <div class="rw"><div class="k badc">원인</div><div class="v">모두 Redis 명령 시한 500ms 초과 · Valkey CPU 2%</div></div>
+        <div class="fx"><div class="fxt">조치</div><div class="fxi">Redis 명령 시한 500ms → 1.5초</div><div class="fxi">예상 방문자 수가 빈 회차도 최소 3대로 증설</div></div></div>
+    </div>
+  </div>
+  <div class="foot"><div class="nav"><span class="on">1 대기열</span><span>2 사전예약</span><span>3 외부 연동</span><span>4 부하 테스트</span></div><div class="brand">NOVA</div><div class="pg">9</div></div>
+</section>
+
+<!-- 8. 대기열 트러블슈팅 ② -->
+<section class="slide">
+  <style>
+    .t8{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);grid-auto-rows:1fr;gap:20px;height:610px}
+    .t8 .c{background:var(--tile);border-radius:12px;padding:26px 30px;display:flex;flex-direction:column}
+    .t8 .tg{font-size:15px;font-weight:700;color:var(--mute)}
+    .t8 .h{font-size:25px;font-weight:700;margin-top:4px;letter-spacing:-0.01em}
+    .t8 .rw{display:grid;grid-template-columns:52px 1fr;gap:10px;font-size:18.5px;line-height:1.5;margin-top:14px}
+    .t8 .rw .k{font-weight:700;font-size:16px;padding-top:2px}
+    .t8 .rw .v{color:var(--ink2)} .t8 .rw .v b{color:var(--ink)}
+    .t8 .rs{display:flex;align-items:center;gap:12px;margin-top:auto;padding-top:18px;border-top:1px solid var(--line)}
+    .t8 .rs .o{font-size:19px;font-weight:600;color:var(--mute);text-decoration:line-through}
+    .t8 .rs .ar{color:var(--acc);font-size:20px}
+    .t8 .rs .n{font-size:24px;font-weight:800;color:var(--acc)}
+  </style>
+  <div class="kicker">01 대기열 · 트러블슈팅</div>
+  <h1>그 밖의 트러블슈팅</h1>
+  <div class="sub">입장권 재사용, 초과 입장, 배포 중 오류 · 문제 → 원인 → 조치 → 결과</div>
+  <div class="body" style="top:205px">
+    <div class="t8">
+      <div class="c">
+        <div class="tg">보안</div><div class="h">입장권 한 장으로 여러 번 접수</div>
+        <div class="rw"><div class="k badc">원인</div><div class="v">서명 끝에 '='를 붙여도 해독하면 같은 값이라 통과 · '사용한 입장권' 기록과는 글자가 달라 <b>새 입장권으로 인정</b></div></div>
+        <div class="rw"><div class="k acc">조치</div><div class="v">해독하지 않고 <b>발급한 글자 그대로 비교</b></div></div>
+        <div class="rs"><span class="o">변형 입장권 통과</span><span class="ar">→</span><span class="n">한 글자라도 다르면 거절</span></div>
+      </div>
+      <div class="c">
+        <div class="tg">정확성</div><div class="h">계획보다 많은 인원 입장</div>
+        <div class="rw"><div class="k badc">원인</div><div class="v">대표 서버가 입장 인원 반영을 재시도하면 <b>같은 계산이 두 번 반영</b></div></div>
+        <div class="rw"><div class="k acc">조치</div><div class="v">계산마다 번호를 기록 · <b>이미 반영한 번호는 건너뜀</b></div></div>
+        <div class="rs"><span class="o">재시도 시 두 번 반영</span><span class="ar">→</span><span class="n">몇 번을 재시도해도 한 번</span></div>
+      </div>
+      <div class="c">
+        <div class="tg">배포</div><div class="h">새 서버가 최대 5분 동안 요청 처리 못 함</div>
+        <div class="rw"><div class="k badc">원인</div><div class="v">로그인 검증 키(JWKS) 응답이 비어도 성공으로 처리 → <b>5분 뒤 정기 갱신까지 대기</b></div></div>
+        <div class="rw"><div class="k acc">조치</div><div class="v">빈 응답도 실패로 보고 <b>1초부터 두 배씩, 최대 10초 간격</b>으로 재요청</div></div>
+        <div class="rs"><span class="o">최대 5분</span><span class="ar">→</span><span class="n">최대 10초 간격 재시도</span></div>
+      </div>
+      <div class="c">
+        <div class="tg">배포</div><div class="h">preorder 배포 중 접수 오류 500</div>
+        <div class="rw"><div class="k badc">원인</div><div class="v">종료 중인 preorder가 응답 전에 연결을 끊으면 <b>서버 오류(500)</b>로 응답</div></div>
+        <div class="rw"><div class="k acc">조치</div><div class="v"><b>503과 "2초 뒤 재시도"</b> 안내 · 같은 요청 키로 다시 보내 중복 없이 접수</div></div>
+        <div class="rs"><span class="o">500 실패</span><span class="ar">→</span><span class="n">503 · 2초 뒤 재시도</span></div>
+      </div>
+    </div>
+  </div>
+  <div class="foot"><div class="nav"><span class="on">1 대기열</span><span>2 사전예약</span><span>3 외부 연동</span><span>4 부하 테스트</span></div><div class="brand">NOVA</div><div class="pg">10</div></div>
+</section>
+
+<!-- 9. 구분: 사전예약 -->
+<section class="slide divider">
+  <div class="no">02</div>
+  <div class="ti">사전예약 접수</div>
+  <div class="ds">오픈 순간 몰리는 접수를 정확하고 빠르게, 다른 기능에 피해 없이</div>
+  <div class="ls">
+    <div><span>1</span>접수 아키텍처</div>
+    <div><span>2</span>순번 발급: 빠진 번호 없이</div>
+    <div><span>3</span>MySQL 지표로 찾은 병목</div>
+    <div><span>4</span>잠금 구간 단축</div>
+    <div><span>5</span>동시 접수 제한</div>
+    <div><span>6</span>두 개선 뒤 접수 응답</div>
+    <div><span>7</span>재전송 처리</div>
+    <div><span>8</span>Outbox 메시지 발행</div>
+  </div>
+</section>
+
+<!-- 10. 접수 아키텍처 -->
+<section class="slide">
+  <style>
+    .a10{display:grid;grid-template-columns:180px 56px 1fr 56px 210px;align-items:stretch}
+    .a10 .nd{display:flex;flex-direction:column;justify-content:center;padding:18px 20px}
+    .a10 .nd .s{font-size:22px} .a10 .nd .d{font-size:17px;margin-top:6px;line-height:1.45}
+    .a10 .st .nd{justify-content:flex-start;min-height:150px;padding:20px 20px 16px}
+    .a10 .ar{display:flex;align-items:center;justify-content:center;color:var(--acc);font-size:28px}
+    .a10 .pre{background:var(--tile);border-radius:12px;padding:14px 16px 16px}
+    .a10 .pre .bl{font-size:16px;font-weight:700;color:var(--acc);margin-bottom:10px}
+    .a10 .st{display:grid;grid-template-columns:1fr 36px 1fr 36px 1.25fr;align-items:stretch}
+    .a10 .st .ar{font-size:22px}
+    .a10 .pg10{display:inline-block;margin-top:auto;font-size:14px;font-weight:700;color:var(--acc);background:var(--acc-soft);border-radius:999px;padding:2px 10px;align-self:flex-start}
+    .a10 .nd.on .pg10{background:rgba(255,255,255,.18);color:#fff}
+    .c10{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;margin-top:40px}
+    .c10 .card{padding:26px 26px}
+    .c10 .tg{font-size:15px;font-weight:700;color:var(--acc)}
+    .c10 .h{font-size:21px;font-weight:700;margin-top:4px}
+    .c10 .v{font-size:40px;font-weight:800;margin-top:14px;letter-spacing:-0.02em;color:var(--acc)}
+    .c10 .v small{font-size:18px;font-weight:600;margin-left:4px;color:var(--ink2)}
+    .c10 .d{font-size:16.5px;color:var(--ink2);margin-top:6px;line-height:1.45}
+  </style>
+  <div class="kicker">02 사전예약 · 아키텍처</div>
+  <h1>사전예약 접수 아키텍처</h1>
+  <div class="sub">대기열을 통과한 접수만 받아, 예약 저장과 순번 발급을 한 트랜잭션으로 처리</div>
+  <div class="body" style="top:225px;display:flex;flex-direction:column">
+    <div class="lab" style="margin-bottom:12px">접수 한 건이 지나가는 길</div>
+    <div class="a10">
+      <div class="nd"><div class="s">대기열</div><div class="d">입장권을 확인한 접수만 전달</div></div>
+      <div class="ar">→</div>
+      <div class="pre">
+        <div class="bl">preorder 서버 1~5대</div>
+        <div class="st">
+          <div class="nd cd"><div class="s">동시 접수 제한</div><div class="d">허가받은 요청만 커넥션 사용</div><span class="pg10">16쪽</span></div>
+          <div class="ar">→</div>
+          <div class="nd cd"><div class="s">접수 확인</div><div class="d">같은 요청인지, 판매 중인지</div><span class="pg10">18쪽</span></div>
+          <div class="ar">→</div>
+          <div class="nd on"><div class="s">예약 저장 → 순번 발급</div><div class="d">한 트랜잭션 · 순번 잠금은 맨 끝에 짧게</div><span class="pg10">13 ~ 15쪽</span></div>
+        </div>
+      </div>
+      <div class="ar">⇄</div>
+      <div class="nd db"><div class="s">RDS MySQL</div><div class="d">예약 · Outbox<br>상품별 다음 순번</div></div>
+    </div>
+    <div class="lab" style="margin-top:52px;margin-bottom:12px">이 파트에서 보여 줄 것</div>
+    <div class="c10" style="margin-top:0">
+      <div class="card"><div class="tg">13쪽 · 정확성</div><div class="h">빠진 번호 없는 순번</div><div class="v">1 2 3 4</div><div class="d">순번을 예약과 같은 트랜잭션에서 발급</div></div>
+      <div class="card"><div class="tg">14 · 15쪽 · 처리량</div><div class="h">잠금 시간 단축</div><div class="v">7 → 3<small>개</small></div><div class="d">순번 잠금을 잡은 채 하는 작업 수</div></div>
+      <div class="card"><div class="tg">16쪽 · 격리</div><div class="h">커넥션 독점 방지</div><div class="v">10 → 4<small>개</small></div><div class="d">한 상품 접수가 쓰는 DB 커넥션 최대치</div></div>
+      <div class="card"><div class="tg">18쪽 · 안전성</div><div class="h">재전송해도 예약은 하나</div><div class="v">1<small>건</small></div><div class="d">같은 요청 키면 같은 예약과 순번 응답</div></div>
+    </div>
+  </div>
+  <div class="foot"><div class="nav"><span>1 대기열</span><span class="on">2 사전예약</span><span>3 외부 연동</span><span>4 부하 테스트</span></div><div class="brand">NOVA</div><div class="pg">12</div></div>
+</section>
+
+<!-- 11. 순번 발급 -->
+<section class="slide">
+  <style>
+    .sn-rw{display:grid;grid-template-columns:330px 1fr;gap:36px;align-items:center}
+    .sn-lb .k{font-size:15px;font-weight:700}
+    .sn-lb .h{font-size:24px;font-weight:700;margin-top:4px;line-height:1.3}
+    .sn-lb .d{font-size:17px;color:var(--ink2);margin-top:6px;line-height:1.45}
+    .sn-ln{display:flex;gap:14px;align-items:flex-start}
+    .sn-ln .c{display:flex;flex-direction:column;align-items:center;gap:8px}
+    .sn-ln .n{width:104px;height:104px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:48px;font-weight:800;background:var(--acc);color:#fff}
+    .sn-ln .n.gap{background:#fff;border:3px dashed var(--bad);color:var(--bad)}
+    .sn-ln .n.dim{background:var(--tile2);color:var(--mute)}
+    .sn-ln .w{font-size:16px;color:var(--mute);height:22px}
+    .sn-ln .w.x{color:var(--bad);font-weight:700}
+    .sn-out{margin-left:10px;align-self:center;font-size:24px;font-weight:800;padding-bottom:30px}
+  </style>
+  <div class="kicker">02 사전예약 · 정확성</div>
+  <h1>순번 발급: 빠진 번호 없이</h1>
+  <div class="sub">저장에 실패한 접수가 번호만 가져가면 순번에 빈칸이 생김 → 번호 발급과 예약 저장을 한 트랜잭션으로 묶음</div>
+  <div class="body" style="top:225px;display:flex;flex-direction:column;justify-content:center;gap:44px">
+    <div class="sn-rw">
+      <div class="sn-lb"><div class="k badc">번호를 따로 발급하면 (Valkey)</div><div class="h">3번째 접수가 저장에 실패해도<br>번호 3은 이미 사용</div></div>
+      <div class="sn-ln">
+        <div class="c"><div class="n">1</div><div class="w">저장</div></div>
+        <div class="c"><div class="n">2</div><div class="w">저장</div></div>
+        <div class="c"><div class="n gap">3</div><div class="w x">저장 실패</div></div>
+        <div class="c"><div class="n">4</div><div class="w">저장</div></div>
+        <div class="c"><div class="n">5</div><div class="w">저장</div></div>
+        <div class="sn-out badc">→ 3번이 빈 순번</div>
+      </div>
+    </div>
+    <div style="height:1px;background:var(--line)"></div>
+    <div class="sn-rw">
+      <div class="sn-lb"><div class="k acc">예약과 함께 발급하면 (MySQL)</div><div class="h">저장에 실패하면<br>번호도 함께 취소</div></div>
+      <div class="sn-ln">
+        <div class="c"><div class="n">1</div><div class="w">저장</div></div>
+        <div class="c"><div class="n">2</div><div class="w">저장</div></div>
+        <div class="c"><div class="n dim">–</div><div class="w x">저장 실패</div></div>
+        <div class="c"><div class="n">3</div><div class="w">저장</div></div>
+        <div class="c"><div class="n">4</div><div class="w">저장</div></div>
+        <div class="sn-out acc">→ 빈칸 없음</div>
+      </div>
+    </div>
+    <div class="tile" style="padding:16px 24px;display:flex;justify-content:space-between;align-items:center">
+      <div class="t" style="font-size:18px"><b>대가</b> 같은 상품의 접수가 순번 행 하나를 차례로 잠가야 함 → 잠금 시간이 곧 처리 한계</div>
+    </div>
+  </div>
+  <div class="foot"><div class="nav"><span>1 대기열</span><span class="on">2 사전예약</span><span>3 외부 연동</span><span>4 부하 테스트</span></div><div class="brand">NOVA</div><div class="pg">13</div></div>
+</section>
+
+<!-- 11-1. 접수 병목 근거 -->
+<section class="slide">
+  <style>
+    .ev{display:flex;flex-direction:column;gap:12px}
+    .ev .it{display:flex;gap:14px;align-items:flex-start;padding:16px 18px;border-radius:6px;background:var(--tile)}
+    .ev .it.on{background:#fff;border:1.5px solid var(--acc)}
+    .ev .n{flex:0 0 32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:16px;background:var(--acc);color:#fff}
+    .ev .q{font-size:19.5px;font-weight:700}
+    .ev .e{font-size:16.5px;color:var(--ink2);margin-top:4px;line-height:1.45}
+    .mk1{position:absolute;border:2.5px solid #e5484d;border-radius:4px}
+    .mch{margin-top:6px}
+    .mch .st{font-size:16.5px;line-height:1.4;padding:9px 14px;border-left:3px solid var(--acc-mid);background:#fff}
+    .mch .st.bad{border-left-color:var(--bad);color:var(--bad);font-weight:600}
+    .mch .ar{font-size:15px;color:var(--mute);padding:1px 0 1px 18px}
+    .mch .nx{margin-top:12px;font-size:16.5px;font-weight:700;color:var(--acc)}
+    .pin{position:absolute;width:26px;height:26px;border-radius:50%;background:#e5484d;color:#fff;font-weight:800;font-size:14px;display:flex;align-items:center;justify-content:center}
+  </style>
+  <div class="kicker">02 사전예약 · 처리량</div>
+  <h1>MySQL 대시보드로 찾은 접수 병목</h1>
+  <div class="sub">부하 시험 · 잠금 구간 단축 전 · 상품 하나의 접수가 초당 약 200건에서 정체</div>
+  <div class="body" style="top:215px;display:flex;gap:28px">
+    <div style="flex:0 0 1000px">
+      <div class="lab" style="margin-bottom:8px">상위 SQL (총 시간 순)</div>
+      <div style="position:relative">
+        <img class="shot" src="assets/mysql-sql.jpg" style="width:1000px">
+        <div class="mk1" style="left:2px;top:42px;width:994px;height:22px"></div>
+        <div class="pin" style="left:-13px;top:40px">2</div>
+      </div>
+      <div style="display:flex;gap:20px;margin-top:16px">
+        <div style="flex:1;position:relative"><div class="lab" style="margin-bottom:8px">RDS CPU</div><img class="shot" src="assets/mysql-cpu.jpg" style="width:490px"><div class="pin" style="right:-10px;top:24px">1</div></div>
+        <div style="flex:1;position:relative"><div class="lab" style="margin-bottom:8px">행 잠금 대기</div><img class="shot" src="assets/mysql-lock.jpg" style="width:490px"><div class="pin" style="right:-10px;top:24px">3</div></div>
+      </div>
+    </div>
+    <div style="flex:1" class="ev">
+      <div class="it"><div class="n">1</div><div><div class="q">DB 자원은 여유</div><div class="e">RDS CPU 최대 약 17% · 연결 사용률 12.8%</div></div></div>
+      <div class="it on"><div class="n">2</div><div><div class="q acc">회차 행 SELECT의 97%가 잠금 대기</div><div class="e">총 32.3초 중 31.4초 · 접수 1건마다 1번 실행 (3.18K)</div></div></div>
+      <div class="it"><div class="n">3</div><div><div class="q">오픈 직후 행 잠금 대기 증가</div><div class="e">같은 상품 접수가 순번 행 하나에 줄을 섬</div></div></div>
+      <div class="mch">
+        <div class="lab" style="margin-bottom:8px">왜 막혔나</div>
+        <div class="st">접수 1건이 회차 행 잠금을 쥔 채 SQL 7개 실행</div>
+        <div class="ar">↓</div>
+        <div class="st">다음 접수는 <b>커넥션을 쥔 채</b> 잠금 대기</div>
+        <div class="ar">↓</div>
+        <div class="st bad">풀 10개가 한 상품 대기로 참 → 무관한 조회도 커넥션 2초 대기 뒤 503</div>
+        <div class="nx">다음 장 → 잠금 구간 단축 · 동시 접수 제한</div>
+      </div>
+    </div>
+  </div>
+  <div class="foot"><div class="nav"><span>1 대기열</span><span class="on">2 사전예약</span><span>3 외부 연동</span><span>4 부하 테스트</span></div><div class="brand">NOVA</div><div class="pg">14</div></div>
+</section>
+
+<!-- 12. 잠금 구간 단축 -->
+<section class="slide">
+  <style>
+    .lz{display:grid;grid-template-columns:118px repeat(10,1fr);column-gap:5px;row-gap:6px}
+    .lz .ln{grid-row:span 2;display:flex;flex-direction:column;justify-content:center}
+    .lz .ln .k{font-size:20px;font-weight:700}
+    .lz .ln .s{font-size:14.5px;color:var(--mute);margin-top:4px;line-height:1.4}
+    .lz .q{border-radius:4px;padding:26px 4px;font-size:15.5px;font-weight:600;line-height:1.3;color:var(--ink2);background:var(--tile);display:flex;align-items:center;justify-content:center;text-align:center}
+    .lz .q.l{background:var(--acc-soft);color:var(--acc)}
+    .lz .bar{border-radius:4px;padding:10px 12px;font-size:16px;font-weight:700}
+    .lz .bar.bad{background:var(--bad);color:#fff}
+    .lz .bar.lock{background:var(--acc);color:#fff}
+    .lz .bar.free{background:var(--tile);color:var(--mute)}
+    .lz .gap{grid-column:1 / -1;height:46px}
+  </style>
+  <div class="kicker">02 사전예약 · 처리량</div>
+  <h1>잠금 구간 단축</h1>
+  <div class="sub">같은 상품의 접수는 순번 행 하나를 차례로 잠금 → 잠금이 짧을수록 다음 접수가 빨리 진행</div>
+  <div class="body" style="top:215px;display:flex;gap:40px">
+    <div style="flex:1" class="col">
+      <div class="lab" style="margin-bottom:12px">접수 트랜잭션 한 건의 작업 순서</div>
+      <div class="lz">
+        <div class="ln"><div class="k badc">개선 전</div><div class="s">처음에 잠그고<br>끝까지 유지</div></div>
+        <div class="q l">순번 행 잠금</div><div class="q l">중복 요청 확인</div><div class="q l">순번 +1</div><div class="q l">예약 저장</div><div class="q l">이력 저장</div><div class="q l">외부 작업 저장</div><div class="q l">메시지 저장</div><div class="q l">커밋</div><div></div><div></div>
+        <div class="bar bad" style="grid-column:2 / span 8">잠금 구간 · 작업 7개 + 커밋 동안 같은 상품의 다음 접수 대기</div>
+        <div class="gap"></div>
+        <div class="ln"><div class="k acc">개선 후</div><div class="s">저장을 먼저<br>잠금은 맨 끝</div></div>
+        <div class="q">중복 요청 확인</div><div class="q">판매 상태 확인</div><div class="q">예약 저장<br>(순번 비움)</div><div class="q">이력 저장</div><div class="q">외부 작업 저장</div><div class="q">메시지 저장</div><div class="q l">순번 행 잠금</div><div class="q l">순번 +1</div><div class="q l">순번 기록</div><div class="q l">커밋</div>
+        <div class="bar free" style="grid-column:2 / span 6">잠금 없음 · 같은 상품의 다른 접수와 동시에 진행</div>
+        <div class="bar lock" style="grid-column:8 / span 4">잠금 · 작업 3개 + 커밋</div>
+      </div>
+      <div class="tile" style="margin-top:auto;padding:16px 22px"><div class="t" style="font-size:18px"><b>개선 전 실측</b> 서버 1대 기준 상품 하나의 접수 한계 초당 약 200건 → 대기열 기본 입장 속도(초당 150명)의 근거</div></div>
+    </div>
+    <div style="flex:0 0 380px" class="col" >
+      <div class="hv"><div class="top"><div class="nm">잠금 안의 작업</div><div class="bd">대기 단축</div></div><div class="nums"><span class="bf">7개</span><span class="ar">→</span><span class="af">3개</span></div><div class="ds">판매 상태, 접수 기간은 잠근 뒤 한 번 더 확인</div></div>
+      <div class="hv" style="margin-top:16px"><div class="top"><div class="nm">동시 접수 교착</div><div class="bd">격리 수준</div></div><div class="nums"><span class="bf">4번</span><span class="ar">→</span><span class="af">0번</span></div><div class="ds">기본 격리 수준이 빈 구간까지 잠가 서로 대기 → READ COMMITTED로 고정</div></div>
+    </div>
+  </div>
+  <div class="foot"><div class="nav"><span>1 대기열</span><span class="on">2 사전예약</span><span>3 외부 연동</span><span>4 부하 테스트</span></div><div class="brand">NOVA</div><div class="pg">15</div></div>
+</section>
+
+<!-- 13. 동시 접수 제한 -->
+<section class="slide">
+  <style>
+    .pg-rw{display:grid;grid-template-columns:100px 1fr;gap:16px;align-items:center}
+    .pg-rw .k{font-size:20px;font-weight:700}
+    .cpl{display:grid;grid-template-columns:repeat(10,1fr);gap:4px}
+    .cpl .sg{height:70px;border-radius:6px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:19px;font-weight:700;line-height:1.25;text-align:center}
+    .cpl .sg small{font-size:14.5px;font-weight:500;opacity:.9}
+    .cpl .x{background:var(--bad);color:#fff}
+    .cpl .a{background:var(--acc);color:#fff}
+    .cpl .a2{background:var(--acc-mid);color:var(--ink)}
+    .cpl .f{background:var(--good-soft);color:var(--good)}
+    .pg-br{display:grid;grid-template-columns:repeat(10,1fr);gap:4px;margin:0 0 6px 116px;font-size:14.5px;font-weight:600;color:var(--acc)}
+    .pg-br div{border-bottom:2px solid var(--acc-mid);padding-bottom:3px}
+    .pg-note{font-size:17px;color:var(--ink2);margin:8px 0 0 116px}
+    .pg-note b{color:var(--ink)}
+  </style>
+  <div class="kicker">02 사전예약 · 격리</div>
+  <h1>동시 접수 제한</h1>
+  <div class="sub">한 상품에 접수가 몰려도 DB 커넥션을 다 쓰지 못하게 제한 · 다른 상품 접수와 조회는 정상</div>
+  <div class="body" style="top:215px;display:flex;gap:40px">
+    <div style="flex:1" class="col">
+      <div class="lab" style="margin-bottom:14px">서버 1대의 DB 커넥션 10개를 누가 쓰는가 · 상품 A에 접수가 몰린 순간</div>
+      <div class="pg-rw"><div class="k badc">제한 전</div>
+        <div class="cpl"><div class="sg x" style="grid-column:span 10">상품 A 접수 10개<small>모두 같은 순번 잠금을 기다리는 중</small></div></div></div>
+      <div class="pg-note">다른 상품 접수, 예약 조회는 쓸 커넥션이 없어 <b class="badc">실패</b></div>
+      <div style="margin-top:34px">
+        <div class="pg-br"><div style="grid-column:span 5">접수용 최대 5개</div><div style="grid-column:span 5;color:var(--good);border-color:#c5dccb">접수 외 기능용 5개</div></div>
+        <div class="pg-rw"><div class="k acc">제한 후</div>
+          <div class="cpl"><div class="sg a" style="grid-column:span 4">상품 A 접수 4개</div><div class="sg a2">다른<br>상품</div><div class="sg f" style="grid-column:span 5">조회 · 이벤트 처리 · 메시지 발행</div></div></div>
+        <div class="pg-note">나머지 상품 A 접수는 커넥션 없이 서버 메모리에서 차례를 기다림</div>
+      </div>
+      <div class="lab" style="margin:auto 0 10px">제한 방법 · 트랜잭션 전에 세마포어 두 개에서 허가</div>
+      <div class="steps">
+        <div class="st"><div class="n">허가 ①</div><div class="s">상품별 4개</div><div class="d">잠금 중 1 + 잠그기 전 저장 2 + 다음 차례 1</div></div><div class="ar">→</div>
+        <div class="st"><div class="n">허가 ②</div><div class="s">서버 전체 5개</div><div class="d">커넥션의 절반 · 나머지는 조회, 이벤트용</div></div><div class="ar">→</div>
+        <div class="st on"><div class="n">커넥션</div><div class="s">트랜잭션 시작</div><div class="d">허가를 받은 뒤 처음 사용</div></div>
+      </div>
+      <div class="note" style="margin-top:8px">3초 안에 허가를 못 받으면 503 + 1~3초 뒤 재시도 안내 · 상품별 허가를 먼저 받아 한 상품이 서버 전체 허가를 쥐고 대기하지 않도록</div>
+    </div>
+    <div style="flex:0 0 380px" class="col">
+      <div class="hv"><div class="top"><div class="nm">한 상품이 쓰는 커넥션</div><div class="bd">최대치</div></div><div class="nums"><span class="bf">10개</span><span class="ar">→</span><span class="af">4개</span></div><div class="ds">늘려도 같은 잠금 앞에서 대기만 증가</div></div>
+      <div class="hv" style="margin-top:16px"><div class="top"><div class="nm">다른 상품 접수, 조회</div><div class="bd">영향 차단</div></div><div class="nums"><span class="bf">실패</span><span class="ar">→</span><span class="af">정상</span></div><div class="ds">접수 외 기능용 커넥션 5개 항상 확보</div></div>
+    </div>
+  </div>
+  <div class="foot"><div class="nav"><span>1 대기열</span><span class="on">2 사전예약</span><span>3 외부 연동</span><span>4 부하 테스트</span></div><div class="brand">NOVA</div><div class="pg">16</div></div>
+</section>
+
+<!-- 13-1. 두 개선 뒤 결과 -->
+<section class="slide">
+  <style>
+    .tp{display:grid;grid-template-columns:1fr;gap:20px}
+    .tp .card{padding:22px 24px}
+    .ln{display:grid;grid-template-columns:110px 1fr;gap:10px 16px;align-items:center}
+    .ln .lb{font-size:16px;font-weight:700;color:var(--mute)}
+    .ln .tr{display:flex;gap:6px;height:44px}
+    .ln .tr span{display:flex;align-items:center;padding:0 14px;font-size:16.5px;font-weight:600;border-radius:5px;white-space:nowrap;overflow:hidden}
+    .ln .lk{background:var(--bad-soft);color:var(--bad);border:1px solid #e3c8c4}
+    .ln .fr{background:var(--tile);color:var(--ink2);border:1px solid var(--line)}
+    .ln .cm{flex:0 0 90px;justify-content:center;background:var(--tile2);color:var(--ink2)}
+    .ln .fr2{flex:1;background:var(--acc-soft);color:var(--acc)}
+    .tp .k{font-size:15px;font-weight:700;color:var(--mute)}
+    .tp .k.b{color:var(--bad)} .tp .k.a{color:var(--acc)}
+    .tp .h{font-size:21px;font-weight:700;margin-top:6px;line-height:1.35}
+    .tp .d{font-size:16.5px;color:var(--ink2);margin-top:6px;line-height:1.45}
+    .rb{margin-top:22px}
+    .sc{display:flex;align-items:center;gap:0;margin-top:34px;font-size:16.5px;color:var(--ink2)}
+    .sc span+span::before{content:"";display:inline-block;width:1px;height:14px;background:var(--line);margin:0 16px;vertical-align:-2px}
+    .sc .sk{font-size:15px;font-weight:700;color:var(--acc);margin-right:4px}
+    .sc .sk+span::before{display:none}
+    .sc b{color:var(--ink)}
+    .rb .r{display:grid;grid-template-columns:220px 1fr 1fr 150px;align-items:center;gap:18px;padding:12px 0;border-bottom:1px solid var(--line)}
+    .rb .r:last-child{border-bottom:none}
+    .rb .nm{font-size:19px;font-weight:700}
+    .rb .bf{font-size:24px;font-weight:600;color:var(--mute)}
+    .rb .af{font-size:34px;font-weight:800;color:var(--acc)}
+    .rb .gn{font-size:17px;font-weight:700;color:var(--good);text-align:right}
+    .rb .hd{font-size:15px;color:var(--mute);font-weight:500;padding-bottom:6px}
+  </style>
+  <div class="kicker">02 사전예약 · 처리량 결과</div>
+  <h1>잠금 구간 단축 + 동시 접수 제한 뒤 접수 응답</h1>
+  <div class="sub">14쪽 원인: 회차 행 SELECT 시간의 97%가 잠금 대기 → 15쪽 잠금 구간 단축과 16쪽 동시 접수 제한을 함께 적용해 같은 조건으로 재측정</div>
+  <div class="body" style="top:215px">
+    <div class="tp">
+      <div class="ln">
+        <div class="lb">변경 전</div>
+        <div class="tr"><span class="lk" style="flex:7">회차 행 잠금 · SQL 7개 (예약 · 이력 · 작업 · Outbox · 순번)</span><span class="cm">커밋</span></div>
+        <div class="lb">잠금 단축</div>
+        <div class="tr"><span class="fr" style="flex:4">예약 · 이력 · 작업 · Outbox 먼저 저장 (잠금 밖)</span><span class="lk" style="flex:3">잠금 · SQL 3개</span><span class="cm">커밋</span></div>
+        <div class="lb">동시 접수<br>제한</div>
+        <div class="tr"><span class="fr2">넘친 접수는 커넥션을 잡기 전 메모리에서 대기 (격벽) · 상품당 동시 접수 4건 · 3초 넘으면 503 + 재시도 안내</span></div>
+      </div>
+    </div>
+    <div class="sc"><span class="sk">시험 규모 · rush 시나리오</span><span>오픈 10초에 <b>5,000명</b> 진입 (초당 500명)</span><span>대기열 → 접수 → 절반은 주문 · 결제 시도까지</span><span>상품 조회 배경 초당 200건</span></div>
+    <div class="rb">
+      <div class="r"><div class="hd">접수 응답</div><div class="hd">변경 전</div><div class="hd">변경 후</div><div></div></div>
+      <div class="r"><div class="nm">p50</div><div class="bf">521ms</div><div class="af">48ms</div><div class="gn">91% 단축</div></div>
+      <div class="r"><div class="nm">p95</div><div class="bf">4.81초</div><div class="af">1.72초</div><div class="gn">64% 단축</div></div>
+      <div class="r"><div class="nm">0.5초 안에 끝난 비율</div><div class="bf">49.8%</div><div class="af">92.8%</div><div class="gn">43%p 증가</div></div>
+      <div class="r"><div class="nm">서버 오류 (5xx)</div><div class="bf">0.82%</div><div class="af">0.05%</div><div class="gn">94% 감소</div></div>
+    </div>
+  </div>
+  <div class="foot"><div class="nav"><span>1 대기열</span><span class="on">2 사전예약</span><span>3 외부 연동</span><span>4 부하 테스트</span></div><div class="brand">NOVA</div><div class="pg">17</div></div>
+</section>
+
+<!-- 14. 재전송 처리 -->
+<section class="slide tall">
+  <div class="kicker">02 사전예약 · 안전성</div>
+  <h1>재전송 처리: 몇 번 보내도 예약은 하나</h1>
+  <div class="sub">대기열이 503과 함께 재시도를 안내하므로 같은 접수가 여러 번 도착 · 같은 요청 키면 같은 결과로 응답</div>
+  <div class="body" style="top:215px;display:flex;gap:40px">
+    <div style="flex:1">
+      <table class="tb">
+        <tr><th style="width:330px">상황 (예시)</th><th>응답</th></tr>
+        <tr><td class="strong">첫 접수 · 요청 키 K, 상품 A</td><td>예약 생성, <b>순번 1024</b></td></tr>
+        <tr><td class="strong">응답을 못 받아 키 K로 재전송</td><td>새로 만들지 않고 <b>같은 예약, 같은 순번 1024</b> 응답</td></tr>
+        <tr><td class="strong">키 K로 다른 상품, 옵션 요청</td><td><span class="rs no">422 거절</span> 어느 항목이 다른지 안내</td></tr>
+        <tr><td class="strong">다른 키로 같은 상품 동시 접수</td><td>DB 고유 제약으로 <b>1건만 저장</b> · 한 회원은 한 상품에 예약 1건</td></tr>
+        <tr><td class="strong">마감 직전 접수를 마감 직후 재전송</td><td><span style="text-decoration:line-through;color:var(--mute)">마감으로 거절</span> → <b>기존 예약 응답</b></td></tr>
+      </table>
+    </div>
+    <div style="flex:0 0 380px" class="col">
+      <div class="card on" style="flex:1;display:flex;flex-direction:column;justify-content:center">
+        <div class="lab">결과</div>
+        <div class="h3" style="margin-top:10px;font-size:32px;line-height:1.3">재전송해도 예약 1건,<br>순번 1개</div>
+        <div class="t" style="font-size:17px;margin-top:8px">같은 요청 키의 기존 예약을 먼저 찾아 그대로 응답</div>
+      </div>
+      <div class="ph" style="margin-top:16px">
+        <div class="k">고친 문제</div>
+        <div class="t" style="font-size:17px;margin-top:4px"><b>마감 직전 접수의 재전송이 거절됨</b><br>저장해 둔 마감 시각으로 먼저 판단 → 이미 접수된 요청도 거절</div>
+        <div class="t" style="font-size:17px;margin-top:10px"><b class="acc">같은 요청인지 먼저 확인</b>하고, 마감은 순번을 발급하는 순간의 시각으로 판단</div>
+      </div>
+    </div>
+  </div>
+  <div class="foot"><div class="nav"><span>1 대기열</span><span class="on">2 사전예약</span><span>3 외부 연동</span><span>4 부하 테스트</span></div><div class="brand">NOVA</div><div class="pg">18</div></div>
+</section>
+
+<!-- 14-1. Outbox -->
+<section class="slide">
+  <style>
+    .ob{display:flex;align-items:stretch;gap:0}
+    .ob .src{flex:0 0 250px;display:flex;flex-direction:column;justify-content:center;padding:20px 24px}
+    .ob .src .s{font-size:23px} .ob .src .d{font-size:16.5px;margin-top:8px;line-height:1.45}
+    .ob .paths{flex:1;display:flex;flex-direction:column;gap:26px}
+    .ob .rw{display:grid;grid-template-columns:54px 1fr 44px 1fr 54px;align-items:stretch}
+    .ob .rw .nd{padding:28px 24px} .ob .rw .nd .s{font-size:22px} .ob .rw .nd .d{font-size:17px;margin-top:8px;line-height:1.45}
+    .ob .ar{display:flex;align-items:center;justify-content:center;color:var(--acc);font-size:24px}
+    .ob .ar.dash{color:#a8862a}
+    .ob .pl{font-size:15px;font-weight:700;color:var(--acc);margin:0 0 6px 54px}
+    .ob .pl.s2{color:#8a6d22}
+    .ob .nd.sf{background:#f6f1e4}
+    .ob .db.src{flex-basis:170px}
+    .op{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:48px}
+    .op .card{padding:28px 28px}
+    .op .h{font-size:22px;font-weight:700;display:flex;align-items:center;gap:10px}
+    .op .d{font-size:17.5px;color:var(--ink2);margin-top:8px;line-height:1.45}
+  </style>
+  <div class="kicker">02 사전예약 · 메시지 발행</div>
+  <h1>Outbox: 외부 등록 메시지를 잃지 않게</h1>
+  <div class="sub">예약과 보낼 메시지를 한 트랜잭션에 기록 · 커밋되면 메시지도 반드시 남고 롤백되면 메시지도 없음</div>
+  <div class="body" style="top:215px">
+    <div class="ob">
+      <div class="nd on src"><div class="s">한 트랜잭션</div><div class="d">예약 · 이력 · 외부 작업 ·<br>Outbox 행 INSERT</div></div>
+      <div class="paths">
+        <div class="pt"><div class="pl">빠른 길 · 커밋 직후</div><div class="rw"><div class="ar">→</div><div class="nd"><div class="s">메모리 버퍼</div><div class="d">커밋된 이벤트만 담음</div></div><div class="ar">→</div><div class="nd"><div class="s">발행 스레드 2개</div><div class="d">10건씩 묶어 전송</div></div><div class="ar">→</div></div></div>
+        <div class="pt"><div class="pl s2">안전한 길 · 남은 행 다시 보내기</div><div class="rw"><div class="ar dash">⇢</div><div class="nd sf"><div class="s">남은 Outbox 행</div><div class="d">버퍼 넘침 · 전송 실패 · 태스크 종료</div></div><div class="ar dash">⇢</div><div class="nd sf"><div class="s">Relay 10초마다</div><div class="d">SKIP LOCKED로 가져와 리스를 걸고 커밋 뒤 전송</div></div><div class="ar dash">⇢</div></div></div>
+      </div>
+      <div class="nd db src"><div class="s">SQS</div><div class="d">worker가 받아<br>외부 등록</div></div>
+    </div>
+    <div class="op">
+      <div class="card"><div class="h"><span class="rs no">✕</span>외부 동기 호출</div><div class="d">외부가 느려지면 접수도 함께 느려짐</div></div>
+      <div class="card"><div class="h"><span class="rs no">✕</span>저장 후 SQS 직접 발행</div><div class="d">커밋과 발행 사이에 죽으면 메시지 유실</div></div>
+      <div class="card on"><div class="h"><span class="rs go">✓</span>Outbox + SQS</div><div class="d">못 보낸 행도 DB에 남아 다시 발행 · 두 번 가도 받는 쪽이 이벤트 id로 한 번만 반영</div></div>
+    </div>
+    <div class="tile" style="margin-top:22px;padding:18px 26px;font-size:18px;color:var(--ink2)"><b style="color:var(--ink)">고친 것</b> Relay가 행 잠금을 쥔 채 SQS 호출 → 리스를 걸고 커밋한 뒤 트랜잭션 밖에서 전송 · 발행 스레드 32개가 커넥션 경쟁 → 2개가 10건씩 묶어 전송</div>
+  </div>
+  <div class="foot"><div class="nav"><span>1 대기열</span><span class="on">2 사전예약</span><span>3 외부 연동</span><span>4 부하 테스트</span></div><div class="brand">NOVA</div><div class="pg">19</div></div>
+</section>
+
+<!-- 15. 구분: 외부 연동 -->
+<section class="slide divider">
+  <div class="no">03</div>
+  <div class="ti">외부 연동 (worker)</div>
+  <div class="ds">느리고 가끔 실패하는 외부 시스템을 견디는 호출</div>
+  <div class="ls">
+    <div><span>1</span>worker 아키텍처</div>
+    <div><span>2</span>mock 응답 판정</div>
+    <div><span>3</span>차단기 열림 판정</div>
+    <div><span>4</span>동시 요청 수 조절</div>
+    <div><span>5</span>차단기 반복 열림 개선</div>
+    <div><span>6</span>그 밖의 트러블슈팅</div>
+  </div>
+</section>
+
+<!-- 16. worker 아키텍처 -->
+<section class="slide">
+  <div class="kicker">03 외부 연동 · 아키텍처</div>
+  <h1>외부 연동(worker) 아키텍처</h1>
+  <div class="sub">접수와 외부 등록을 SQS로 분리하고, 외부 시스템(mock)이 버틸 만큼만 호출</div>
+  <div class="body" style="top:225px;display:flex;gap:56px">
+    <div style="flex:1;display:grid;grid-template-columns:170px 44px 1fr 44px 160px;align-items:center;align-content:center">
+      <div class="col" style="gap:10px"><div class="lab">SQS 작업 큐</div><div class="nd"><div class="s">예약 등록</div></div><div class="nd"><div class="s">예약 취소</div></div></div>
+      <div class="arrow">→</div>
+      <div class="box">
+        <div class="bl">worker 서버 1~4대 (DB 없음)</div>
+        <div class="nd cd"><div class="s">① 차단기</div><div class="d">mock이 고장 나면 호출 중단</div></div>
+        <div class="va">↓</div>
+        <div class="nd cd"><div class="s">② 동시 요청 수 조절</div><div class="d">응답 속도에 맞춰 자동 조절</div></div>
+        <div class="va">↓</div>
+        <div class="nd on"><div class="s">③ 호출, ④ 응답 판정</div><div class="d">결과 알림, 재시도, DLQ 중 하나</div></div>
+      </div>
+      <div class="arrow">⇄</div>
+      <div class="nd db"><div class="s">외부 mock</div><div class="d">1~5대<br>평균 0.5초, 실패 5%</div></div>
+    </div>
+    <div style="flex:0 0 400px" class="side-list">
+      <div class="it"><div class="num">01 분리</div><div class="h">접수와 외부 등록 분리</div><div class="d">외부 시스템이 느려도 접수 응답은 0.5초 이내 (p99)</div></div>
+      <div class="it"><div class="num">02 조절</div><div class="h">mock은 거절 대신 느려짐</div><div class="d">몰려도 오류를 내지 않음 → 보내는 양은 worker가 직접 조절</div></div>
+      <div class="it"><div class="num">03 확인</div><div class="h">시간 초과면 결과를 모름</div><div class="d">같은 키로 먼저 조회 → 필요할 때만 다시 등록</div></div>
+    </div>
+  </div>
+  <div class="foot"><div class="nav"><span>1 대기열</span><span>2 사전예약</span><span class="on">3 외부 연동</span><span>4 부하 테스트</span></div><div class="brand">NOVA</div><div class="pg">21</div></div>
+</section>
+
+<!-- 17. mock 응답 판정 -->
+<section class="slide">
+  <div class="kicker">03 외부 연동 · 응답 판정</div>
+  <h1>mock 응답 판정</h1>
+  <div class="sub">같은 실패라도 바로 다시 보낼지, 결과를 먼저 확인할지에 따라 다음 동작이 다름</div>
+  <div class="body" style="top:205px">
+    <table class="tb">
+      <tr><th style="width:170px">판정</th><th style="width:560px">해당 응답</th><th>다음 동작</th><th style="width:120px;text-align:center">차단기 실패</th></tr>
+      <tr><td class="k"><div style="background:var(--good-soft);color:var(--good)">성공</div></td><td>201과 외부 예약 번호</td><td class="strong">결과 알림 후 작업 종료</td><td style="text-align:center;color:var(--faint)">아니요</td></tr>
+      <tr><td class="k"><div>일시 실패</div></td><td>연결 실패, mock의 일시 장애(500), 앞단 장비의 502·503</td><td class="strong">저장되지 않은 것이 확실 → 0.2~0.5초 뒤 한 번 더</td><td style="text-align:center" class="badc"><b>예</b></td></tr>
+      <tr><td class="k"><div>대기 요청</div></td><td>429, 기다릴 시간이 붙은 503</td><td class="strong">알려 준 시간만큼 기다린 뒤 재시도</td><td style="text-align:center" class="badc"><b>예</b></td></tr>
+      <tr><td class="k"><div>결과 모름</div></td><td>3초 넘게 응답 없음, 도중 끊김, 504 등</td><td class="strong">재전송 없이 다음 차례에 조회부터</td><td style="text-align:center" class="badc"><b>예</b></td></tr>
+      <tr><td class="k"><div style="background:var(--bad-soft);color:var(--bad)">거절</div></td><td>잘못된 요청(400), 취소된 키(409), 내용 불일치(422)</td><td class="strong">다시 보내도 같은 결과 → 바로 최종 실패</td><td style="text-align:center;color:var(--faint)">아니요</td></tr>
+      <tr><td class="k"><div style="background:var(--bad-soft);color:var(--bad)">설정 오류</div></td><td>주소 오류(404 <code>NO_SUCH_ENDPOINT</code>) 등</td><td class="strong">설정 수정까지 재시도, 30분 지나면 실패</td><td style="text-align:center;color:var(--faint)">아니요</td></tr>
+      <tr><td class="k"><div>호출 안 함</div></td><td>차단기 열림, 초당 호출 한도 초과</td><td class="strong">시도 횟수를 쓰지 않고 잠시 뒤 다시</td><td style="text-align:center;color:var(--faint)">아니요</td></tr>
+    </table>
+    <div class="tile" style="margin-top:16px;padding:12px 20px;font-size:17px;color:var(--ink2)"><b style="color:var(--ink)">결과 모름 다음 차례</b> → 같은 키로 조회 → 등록돼 있으면 <b class="goodc">성공</b>, 취소돼 있으면 <b class="badc">거절</b>, 없으면 같은 내용으로 <b class="acc">다시 등록</b></div>
+  </div>
+  <div class="foot"><div class="nav"><span>1 대기열</span><span>2 사전예약</span><span class="on">3 외부 연동</span><span>4 부하 테스트</span></div><div class="brand">NOVA</div><div class="pg">22</div></div>
+</section>
+
+<!-- 18. 차단기 -->
+<section class="slide">
+  <style>
+    .cb .rw{display:grid;grid-template-columns:100px 1fr;align-items:center;gap:14px;margin-bottom:20px}
+    .cb .k{font-size:18px;font-weight:700;color:var(--ink2)}
+    .cb .tr{position:relative;height:50px}
+    .cb .sg{position:absolute;top:0;height:50px;border-radius:4px;display:flex;align-items:center;padding:0 12px;font-size:16px;font-weight:700;white-space:nowrap;overflow:hidden}
+    .cb .ok{background:var(--good-soft);color:var(--good)}
+    .cb .x{background:var(--bad-soft);color:var(--bad)}
+    .cb .h{background:var(--acc);color:#fff;justify-content:center;padding:0}
+    .cb .e{background:var(--tile);color:var(--ink2)}
+    .cb .mk{position:absolute;top:-13px;width:26px;height:26px;margin-left:-13px;border-radius:50%;color:#fff;font-size:15px;font-weight:700;display:flex;align-items:center;justify-content:center;z-index:2}
+    .cb .axl{position:relative;margin-left:114px;height:24px;border-top:1px solid var(--faint);font-size:15px;color:var(--mute)}
+    .cb .axl span{position:absolute;top:5px;transform:translateX(-50%);white-space:nowrap}
+  </style>
+  <div class="kicker">03 외부 연동 · 차단기</div>
+  <h1>차단기 열림 판정</h1>
+  <div class="sub">mock이 고장 나면 호출을 멈추고, 쉬는 시간을 두 배씩 늘리며 시험 호출 3건으로 회복 확인</div>
+  <div class="body" style="top:240px">
+    <div class="cb">
+      <div class="rw"><div class="k">mock</div><div class="tr">
+        <div class="sg ok" style="left:0;width:24.5%">정상</div><div class="sg x" style="left:25%;width:37.2%">고장 (서버 오류, 시간 초과)</div><div class="sg ok" style="left:62.5%;width:37.5%">회복</div></div></div>
+      <div class="rw"><div class="k">차단기</div><div class="tr">
+        <div class="sg ok" style="left:0;width:28.3%">닫힘</div><div class="sg x" style="left:28.75%;width:12.1%">열림 10초</div><div class="sg h" style="left:41.25%;width:2.1%"></div><div class="sg x" style="left:43.75%;width:24.6%">열림 20초 (두 배)</div><div class="sg h" style="left:68.75%;width:2.1%"></div><div class="sg ok" style="left:71.25%;width:28.75%">닫힘</div>
+        <div class="mk" style="left:28.75%;background:var(--bad)">1</div><div class="mk" style="left:42.3%;background:var(--acc)">2</div><div class="mk" style="left:69.8%;background:var(--acc)">3</div></div></div>
+      <div class="rw"><div class="k">worker</div><div class="tr">
+        <div class="sg e" style="left:0;width:28.3%">평소대로 호출</div><div class="sg e" style="left:28.75%;width:12.1%;color:var(--mute)">호출 안 함</div><div class="sg h" style="left:41.25%;width:2.1%">3</div><div class="sg e" style="left:43.75%;width:24.6%;color:var(--mute)">호출 안 함</div><div class="sg h" style="left:68.75%;width:2.1%">3</div><div class="sg e" style="left:71.25%;width:28.75%">평소대로</div></div></div>
+      <div class="axl"><span style="left:0">0초</span><span style="left:25%">20초</span><span style="left:50%">40초</span><span style="left:75%">60초</span><span style="left:100%">80초</span></div>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-top:40px">
+      <div class="card"><div class="num" style="color:var(--bad)">① 열림</div><div class="h3" style="font-size:21px;margin-top:6px">최근 20건 중 실패 절반 이상</div><div class="t" style="font-size:17px;margin-top:6px">최소 10건이 모인 뒤 판단 · 잘못된 요청과 설정 오류는 실패에서 제외</div></div>
+      <div class="card"><div class="num">② 시험 호출</div><div class="h3" style="font-size:21px;margin-top:6px">열린 동안은 작업을 미룸</div><div class="t" style="font-size:17px;margin-top:6px">시험 3건이 실패하면 두 배 더 열림 (최대 2분)</div></div>
+      <div class="card on"><div class="num">③ 닫힘</div><div class="h3" style="font-size:21px;margin-top:6px">시험 3건 중 2건 성공</div><div class="t" style="font-size:17px;margin-top:6px">느린 응답은 실패로 세지 않음 · 속도 대응은 AIMD 담당</div></div>
+    </div>
+  </div>
+  <div class="foot"><div class="nav"><span>1 대기열</span><span>2 사전예약</span><span class="on">3 외부 연동</span><span>4 부하 테스트</span></div><div class="brand">NOVA</div><div class="pg">23</div></div>
+</section>
+
+<!-- 19. worker AIMD -->
+<section class="slide">
+  <div class="kicker">03 외부 연동 · 요청 수 조절</div>
+  <h1>동시 요청 수 조절 (AIMD)</h1>
+  <div class="sub">mock은 몰리면 느려지기만 함 → 동시에 보내는 요청 수를 10초마다 응답 속도에 맞춰 재설정</div>
+  <div class="body" style="top:215px;display:flex;gap:48px">
+    <div style="flex:1">
+      <div class="lab" style="margin-bottom:6px">worker 1대가 동시에 보내는 요청 수 (예시)</div>
+      <div style="zoom:.95"><svg viewBox="0 0 880 380" width="880" height="380" font-family="Pretendard, Noto Sans CJK KR, sans-serif"><line x1="44" x2="851" y1="75.0" y2="75.0" stroke="#b25b52" stroke-width="1.5" stroke-dasharray="6 5"/><text x="857" y="80.0" font-size="17.5" font-weight="600" fill="#b25b52">상한 80</text><text x="36" y="350.0" text-anchor="end" font-size="16.5" fill="#7a808c">0</text><text x="36" y="215.0" text-anchor="end" font-size="16.5" fill="#7a808c">40</text><text x="36" y="80.0" text-anchor="end" font-size="16.5" fill="#7a808c">80</text><rect x="50" y="338.25" width="30" height="6.75" fill="#3e4a8b" rx="2"/><text x="65.0" y="331.25" text-anchor="middle" font-size="17.5" font-weight="700" fill="#16181d">2</text><rect x="95" y="331.5" width="30" height="13.5" fill="#3e4a8b" rx="2"/><text x="110.0" y="324.5" text-anchor="middle" font-size="17.5" font-weight="700" fill="#16181d">4</text><rect x="140" y="318.0" width="30" height="27.0" fill="#3e4a8b" rx="2"/><text x="155.0" y="311.0" text-anchor="middle" font-size="17.5" font-weight="700" fill="#16181d">8</text><rect x="185" y="291.0" width="30" height="54.0" fill="#3e4a8b" rx="2"/><text x="200.0" y="284.0" text-anchor="middle" font-size="17.5" font-weight="700" fill="#16181d">16</text><rect x="230" y="237.0" width="30" height="108.0" fill="#3e4a8b" rx="2"/><text x="245.0" y="230.0" text-anchor="middle" font-size="17.5" font-weight="700" fill="#16181d">32</text><rect x="275" y="129.0" width="30" height="216.0" fill="#3e4a8b" rx="2"/><text x="290.0" y="122.0" text-anchor="middle" font-size="17.5" font-weight="700" fill="#16181d">64</text><rect x="320" y="75.0" width="30" height="270.0" fill="#3e4a8b" rx="2"/><text x="335.0" y="68.0" text-anchor="middle" font-size="17.5" font-weight="700" fill="#16181d">80</text><rect x="365" y="75.0" width="30" height="270.0" fill="#cfd2d9" rx="2"/><text x="380.0" y="68.0" text-anchor="middle" font-size="17.5" font-weight="700" fill="#16181d">80</text><rect x="410" y="210.0" width="30" height="135.0" fill="#b25b52" rx="2"/><text x="425.0" y="203.0" text-anchor="middle" font-size="17.5" font-weight="700" fill="#16181d">40</text><rect x="455" y="206.625" width="30" height="138.375" fill="#b9bfdc" rx="2"/><text x="470.0" y="199.625" text-anchor="middle" font-size="17.5" font-weight="700" fill="#16181d">41</text><rect x="500" y="203.25" width="30" height="141.75" fill="#b9bfdc" rx="2"/><text x="515.0" y="196.25" text-anchor="middle" font-size="17.5" font-weight="700" fill="#16181d">42</text><rect x="545" y="338.25" width="30" height="6.75" fill="#b25b52" rx="2"/><text x="560.0" y="331.25" text-anchor="middle" font-size="17.5" font-weight="700" fill="#16181d">2</text><rect x="590" y="331.5" width="30" height="13.5" fill="#3e4a8b" rx="2"/><text x="605.0" y="324.5" text-anchor="middle" font-size="17.5" font-weight="700" fill="#16181d">4</text><rect x="635" y="318.0" width="30" height="27.0" fill="#3e4a8b" rx="2"/><text x="650.0" y="311.0" text-anchor="middle" font-size="17.5" font-weight="700" fill="#16181d">8</text><rect x="680" y="291.0" width="30" height="54.0" fill="#3e4a8b" rx="2"/><text x="695.0" y="284.0" text-anchor="middle" font-size="17.5" font-weight="700" fill="#16181d">16</text><rect x="725" y="274.125" width="30" height="70.875" fill="#3e4a8b" rx="2"/><text x="740.0" y="267.125" text-anchor="middle" font-size="17.5" font-weight="700" fill="#16181d">21</text><rect x="770" y="270.75" width="30" height="74.25" fill="#b9bfdc" rx="2"/><text x="785.0" y="263.75" text-anchor="middle" font-size="17.5" font-weight="700" fill="#16181d">22</text><rect x="815" y="267.375" width="30" height="77.625" fill="#b9bfdc" rx="2"/><text x="830.0" y="260.375" text-anchor="middle" font-size="17.5" font-weight="700" fill="#16181d">23</text><circle cx="200.0" cy="255.0" r="12" fill="#3e4a8b"/><text x="200.0" y="260.0" text-anchor="middle" font-size="17.5" font-weight="700" fill="#fff">1</text><circle cx="425.0" cy="174.0" r="12" fill="#b25b52"/><text x="425.0" y="179.0" text-anchor="middle" font-size="17.5" font-weight="700" fill="#fff">2</text><circle cx="470.0" cy="170.625" r="12" fill="#7f88bd"/><text x="470.0" y="175.625" text-anchor="middle" font-size="17.5" font-weight="700" fill="#fff">3</text><circle cx="560.0" cy="302.25" r="12" fill="#b25b52"/><text x="560.0" y="307.25" text-anchor="middle" font-size="17.5" font-weight="700" fill="#fff">4</text><circle cx="740.0" cy="238.125" r="12" fill="#3e4a8b"/><text x="740.0" y="243.125" text-anchor="middle" font-size="17.5" font-weight="700" fill="#fff">5</text><line x1="44" x2="851" y1="345" y2="345" stroke="#7a808c" stroke-width="1"/><text x="65.0" y="367" text-anchor="middle" font-size="17" fill="#7a808c">0초</text><text x="200.0" y="367" text-anchor="middle" font-size="17" fill="#7a808c">30초</text><text x="335.0" y="367" text-anchor="middle" font-size="17" fill="#7a808c">60초</text><text x="470.0" y="367" text-anchor="middle" font-size="17" fill="#7a808c">90초</text><text x="605.0" y="367" text-anchor="middle" font-size="17" fill="#7a808c">120초</text><text x="740.0" y="367" text-anchor="middle" font-size="17" fill="#7a808c">150초</text></svg></div>
+      <div class="note" style="margin-top:6px;line-height:1.7">① 빠르면 두 배씩 (2 → 80까지 약 1분) · ② 느려지면 절반 · ③ 줄인 뒤에는 1씩<br>④ 차단기가 열리면 바로 2 · ⑤ 직전 값의 절반까지 두 배, 이후 1씩</div>
+    </div>
+    <div style="flex:0 0 400px" class="side-list">
+      <div class="it"><div class="num">줄임</div><div class="h">절반으로 감소</div><div class="d">최근 10초 실패 20% 이상 또는 p95 1.5초 이상</div></div>
+      <div class="it"><div class="num">늘림</div><div class="h">두 배 또는 1씩 증가</div><div class="d">p95 1초 미만, 실패 10% 미만이면서 보낼 수 있는 만큼 모두 보낸 경우</div></div>
+      <div class="it"><div class="num">한도</div><div class="h">최대 80, 취소 전용 1자리</div><div class="d">mock 1대당 16 × 최대 5대 · 등록이 몰려도 취소는 즉시 처리</div></div>
+    </div>
+  </div>
+  <div class="foot"><div class="nav"><span>1 대기열</span><span>2 사전예약</span><span class="on">3 외부 연동</span><span>4 부하 테스트</span></div><div class="brand">NOVA</div><div class="pg">24</div></div>
+</section>
+
+<!-- 20. worker 트러블슈팅 ① -->
+<section class="slide">
+  <div class="kicker">03 외부 연동 · 트러블슈팅</div>
+  <h1>차단기 반복 열림 개선</h1>
+  <div class="sub">등록이 몰릴 때마다 차단기가 열려 처리량이 0으로 하락</div>
+  <div class="body" style="top:215px;display:grid;grid-template-columns:1fr 1fr;gap:28px;height:575px">
+    <div class="pb">
+      <div class="ph"><div class="k">문제</div><div class="tt">느린 mock 때문에 차단기가 열렸다 닫히기를 반복</div><div class="dd">느린 응답 80% 초과 시 열리도록 설정 · 몰리면 느려지는 mock이라 몰릴 때마다 열림</div></div>
+      <div class="tile" style="flex:1;display:grid;grid-template-columns:1fr 44px 1fr;grid-template-rows:auto 40px auto;align-content:center;padding:22px">
+        <div class="nd cd"><div class="s">등록이 몰림</div><div class="d">mock 응답이 느려짐</div></div><div class="arrow">→</div><div class="nd cd"><div class="s">느린 응답 80% 초과</div><div class="d">느림을 실패로 판단</div></div>
+        <div class="va">↑</div><div class="va" style="font-weight:700;color:var(--bad);font-size:16px">반복</div><div class="va">↓</div>
+        <div class="nd cd"><div class="s">한산해져 닫힘</div><div class="d">밀린 작업이 다시 몰림</div></div><div class="arrow">←</div><div class="nd cd" style="border-color:#e3c8c4;background:var(--bad-soft)"><div class="s badc">차단기 열림</div><div class="d">작업 처리 중단 · 처리량 0</div></div>
+      </div>
+    </div>
+    <div class="pb">
+      <div class="hv">
+        <div class="top"><div class="nm">차단기가 보는 것</div><div class="bd">역할 분리</div></div>
+        <div class="nums"><span class="bf">실패 + 느림</span><span class="ar">→</span><span class="af">실패만</span></div>
+        <div class="ds">서버 오류, 시간 초과 같은 고장만 집계 · 느린 응답은 열림 조건에서 제외</div>
+      </div>
+      <div class="hv">
+        <div class="top"><div class="nm">느려질 때의 대응</div><div class="bd">AIMD</div></div>
+        <div class="nums"><span class="bf">호출 중단</span><span class="ar">→</span><span class="af">요청 수 절반</span></div>
+        <div class="ds">p95 1.5초 이상이면 동시 요청 수를 줄여 처리를 이어감</div>
+      </div>
+    </div>
+  </div>
+  <div class="foot"><div class="nav"><span>1 대기열</span><span>2 사전예약</span><span class="on">3 외부 연동</span><span>4 부하 테스트</span></div><div class="brand">NOVA</div><div class="pg">25</div></div>
+</section>
+
+<!-- 21. worker 트러블슈팅 ② -->
+<section class="slide">
+  <div class="kicker">03 외부 연동 · 트러블슈팅</div>
+  <h1>그 밖의 트러블슈팅</h1>
+  <div class="sub">회복 속도, 재시도 몰림, 배포 중 메시지 처리, 메시지 유실과 격리</div>
+  <div class="body" style="top:200px">
+    <div class="fx" style="row-gap:10px">
+      <div class="lab">문제</div><div></div><div class="lab">조치</div>
+      <div class="tile"><div class="h3"><span class="pill">회복 속도</span>요청 수 회복에 12분</div><div class="t">10초마다 1씩만 늘려 2에서 80까지 12분 넘게 소요</div></div>
+      <div class="arrow">→</div>
+      <div class="card on"><div class="h3">두 배씩 늘린 뒤 1씩</div><div class="t">직전 값의 절반까지는 두 배씩, 이후 1씩 → 회복 <b>약 1분</b></div></div>
+      <div class="tile"><div class="h3"><span class="pill">재시도</span>15분 뒤 한꺼번에 몰린 재시도</div><div class="t">재시도 간격 15분 ±20%의 위쪽이 SQS 최대 지연 15분에 잘려 같은 시각에 집중</div></div>
+      <div class="arrow">→</div>
+      <div class="card"><div class="h3">간격 12분 ±20%</div><div class="t">최대 14.4분 · SQS 한도 안에서 고르게 분산</div></div>
+      <div class="tile"><div class="h3"><span class="pill">배포</span>배포 때마다 DLQ로 간 정상 작업</div><div class="t">종료하며 큐에 돌려놓은 작업의 받은 횟수가 배포마다 누적</div></div>
+      <div class="arrow">→</div>
+      <div class="card"><div class="h3">새 메시지로 재전송</div><div class="t">받은 횟수를 초기화 · 종료 중에는 새 작업 수신 중단</div></div>
+      <div class="tile"><div class="h3"><span class="pill">유실</span>읽을 수 없는 메시지를 지워 원본 소실</div><div class="t">DLQ로 간 작업은 진행 중으로 남아 아무도 모름</div></div>
+      <div class="arrow">→</div>
+      <div class="card"><div class="h3">지우지 않고 DLQ로</div><div class="t">DLQ를 받아 실패로 기록하고 DLQ 깊이 경보</div></div>
+      <div class="tile"><div class="h3"><span class="pill">격리</span>설정 오류 하나가 큐 3개 수신을 모두 멈춤</div><div class="t">연쇄 거절 차단이 작업 종류 구분 없이 동작</div></div>
+      <div class="arrow">→</div>
+      <div class="card"><div class="h3">작업 종류별로 차단</div><div class="t">등록이 멈춰도 취소는 계속 처리</div></div>
+    </div>
+  </div>
+  <div class="foot"><div class="nav"><span>1 대기열</span><span>2 사전예약</span><span class="on">3 외부 연동</span><span>4 부하 테스트</span></div><div class="brand">NOVA</div><div class="pg">26</div></div>
+</section>
+<!-- 21-1. 구분: 부하 테스트 -->
+<section class="slide divider">
+  <div class="no">04</div>
+  <div class="ti" style="font-size:60px">부하 테스트로 찾아 고친 것</div>
+  <div class="ds">운영과 같은 경로로 판매 오픈 몰림을 재현해 찾은 서비스 문제</div>
+  <div class="ls">
+    <div><span>1</span>찾은 문제 한눈에</div>
+  </div>
+</section>
+
+<!-- 21-2. 찾은 문제 한눈에 -->
+<section class="slide">
+  <style>
+    .lt td.sv{width:150px} .lt table.tb td{padding:19px 14px}
+    .lt .pr{display:inline-block;margin-left:6px;font-size:13px;font-weight:700;color:var(--acc);background:var(--acc-soft);border-radius:999px;padding:2px 9px}
+    .lt td.sv span{display:inline-block;font-size:15px;font-weight:700;padding:4px 12px;border-radius:6px;background:var(--acc-soft);color:var(--acc)}
+  </style>
+  <div class="kicker">04 부하 테스트 · 요약</div>
+  <h1>부하 테스트로 찾은 문제 한눈에</h1>
+  <div class="sub">오픈 10초에 5,000명 · CloudFront, WAF, ALB를 지나는 운영 경로 그대로 · 합격 기준 p95 0.5초, 5xx 0.1%</div>
+  <div class="body lt" style="top:215px">
+    <table class="tb">
+      <tr><th style="width:150px">서비스</th><th style="width:400px">증상</th><th>원인</th><th style="width:360px">조치</th></tr>
+      <tr><td class="sv"><span>사전예약</span></td><td class="strong">서버를 늘려도 상품 하나의 접수가 초당 약 200건에서 정체</td><td>같은 상품 접수가 줄 서는 순번 행 잠금 안에서 SQL 7개 실행</td><td class="strong">잠금을 커밋 직전으로 옮겨 7개 → 3개 <span class="pr">14~17쪽</span></td></tr>
+      <tr><td class="sv"><span>사전예약</span></td><td class="strong">1대가 분당 약 2,100건에서 CPU 84%</td><td>태스크 1대의 처리 한계</td><td class="strong">분당 1,500건부터 증설</td></tr>
+      <tr><td class="sv"><span>대기열</span></td><td class="strong">차례가 와도 화면이 최대 30초 늦게 입장</td><td>오픈 직후 상품별 입장 속도가 0이라 가장 긴 조회 간격 안내</td><td class="strong">전체 입장 속도로 계산 · 31초 → 3초 <span class="pr">8쪽</span></td></tr>
+      <tr><td class="sv"><span>대기열</span></td><td class="strong">5xx 596건 (0.565%)</td><td>대기열 태스크 CPU 100% → Redis 응답을 제때 처리하지 못해 시간 초과</td><td class="strong">2 vCPU · 단계 증설 · 오픈 15분 전 사전 증설 <span class="pr">9쪽</span></td></tr>
+      <tr><td class="sv"><span>대기열</span></td><td class="strong">재시험 몰림 첫 10초 503 870건</td><td>Valkey CPU 2%인데 Redis 명령 시한 500ms 초과</td><td class="strong">명령 시한 1.5초 <span class="pr">9쪽</span></td></tr>
+      <tr><td class="sv"><span>대기열</span></td><td class="strong">예상 방문자 수가 빈 회차는 증설 안 됨</td><td>사전 증설이 예상 방문자 수로만 대수를 계산</td><td class="strong">값이 없어도 최소 3대 <span class="pr">9쪽</span></td></tr>
+    </table>
+  </div>
+  <div class="foot"><div class="nav"><span>1 대기열</span><span>2 사전예약</span><span>3 외부 연동</span><span class="on">4 부하 테스트</span></div><div class="brand">NOVA</div><div class="pg">28</div></div>
+</section>
+
+<!-- 22. 검증 결과 -->
+<section class="slide">
+  <style>
+    .vr3{display:grid;grid-template-columns:repeat(3,1fr);gap:22px}
+    .vr3 .col{background:var(--tile);border-radius:12px;padding:26px 28px}
+    .vr3 .no{font-size:15px;font-weight:700;color:var(--acc)}
+    .vr3 .ti{font-size:26px;font-weight:700;margin-top:2px}
+    .vr3 .it{padding:20px 0;border-bottom:1px solid #dcdfe5}
+    .vr3 .it:last-child{border-bottom:none;padding-bottom:0}
+    .vr3 .lb{font-size:16px;color:var(--mute);font-weight:500}
+    .vr3 .v{font-size:40px;font-weight:800;letter-spacing:-0.02em;margin-top:4px;color:var(--acc);line-height:1.15}
+    .vr3 .v s{font-size:26px;font-weight:600;color:var(--mute)}
+    .vr3 .v small{font-size:20px;font-weight:600;color:var(--ink2);margin-left:3px}
+    .vr3 .d{font-size:15.5px;color:var(--ink2);margin-top:4px}
+  </style>
+  <div class="kicker">정리</div>
+  <h1>검증 결과</h1>
+  <div class="sub">k6 부하 시험, 실제 MySQL 컨테이너, SQS 에뮬레이터 시험으로 확인</div>
+  <div class="body" style="top:205px">
+    <div class="vr3">
+      <div class="col"><div class="no">01</div><div class="ti">대기열</div>
+        <div class="it"><div class="lb">10초에 5,000명 진입</div><div class="v">거절 0<small>건</small></div><div class="d">순번 역행 0건 · 5,000명 전원 입장</div></div>
+        <div class="it"><div class="lb">진입 응답 p95</div><div class="v">100<small>ms 이내</small></div><div class="d">목표 p99 500ms</div></div>
+        <div class="it"><div class="lb">차례 도착 후 입장 확인 p95</div><div class="v"><s>31초</s> → 3<small>초</small></div></div>
+      </div>
+      <div class="col"><div class="no">02</div><div class="ti">사전예약 접수</div>
+        <div class="it"><div class="lb">모든 부하 측정 회차</div><div class="v">순번 중복 · 빈틈 0</div><div class="d">입장권 중복 사용 0 · 발행 유실 0</div></div>
+        <div class="it"><div class="lb">순번 잠금 안의 SQL</div><div class="v"><s>7개</s> → 3<small>개</small></div><div class="d">문장 수를 세는 시험이 계속 지킴</div></div>
+        <div class="it"><div class="lb">상품 하나에 몰려도</div><div class="v">다른 상품 · 조회 정상</div><div class="d">한 상품 접수가 쓰는 커넥션 최대 4개</div></div>
+      </div>
+      <div class="col"><div class="no">03</div><div class="ti">외부 연동</div>
+        <div class="it"><div class="lb">10초에 5,000건 등록이 몰리면</div><div class="v">약 90<small>초에 소진</small></div><div class="d">등록 큐 최대 약 3,400건 · 설정값 기반 시뮬레이션</div></div>
+        <div class="it"><div class="lb">동시 요청 수 회복 (2 → 80)</div><div class="v"><s>12분</s> → 1<small>분</small></div></div>
+        <div class="it"><div class="lb">결과 모르는 등록</div><div class="v">조회 후 재전송</div><div class="d">시간 초과 요청도 외부에 두 번 등록되지 않음</div></div>
+      </div>
+    </div>
+  </div>
+  <div class="foot"><div class="nav"><span>1 대기열</span><span>2 사전예약</span><span>3 외부 연동</span><span>4 부하 테스트</span></div><div class="brand">NOVA</div><div class="pg">29</div></div>
+</section>
+</body>
+</html>

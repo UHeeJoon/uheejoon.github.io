@@ -1,0 +1,1196 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>NOVA 인프라와 부하 테스트</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<style>
+:root{
+  --ink:#16181d; --ink2:#3d424d; --mute:#7a808c; --faint:#a9aeb8;
+  --line:#e4e6eb; --tile:#f5f6f8; --tile2:#eef0f4;
+  --acc:#3e4a8b; --acc-soft:#e9ebf5; --acc-mid:#b9bfdc;
+  --bad:#b25b52; --bad-soft:#f6ebe9; --good:#4a7a5c; --good-soft:#e8f1eb;
+  --mono:"JetBrains Mono","Noto Sans Mono CJK KR",monospace;
+}
+@page{size:1600px 900px;margin:0}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:#fff}
+body{font-family:Pretendard,"Noto Sans CJK KR",sans-serif;color:var(--ink);-webkit-print-color-adjust:exact;print-color-adjust:exact;letter-spacing:-0.01em}
+.slide{width:1600px;height:900px;position:relative;overflow:hidden;page-break-after:always;padding:56px 80px 0;background:#fff}
+.kicker{font-size:17px;color:var(--mute);font-weight:500}
+.kicker b{color:var(--acc);font-weight:600}
+h1{font-size:46px;font-weight:700;letter-spacing:-0.03em;margin-top:10px;line-height:1.2}
+.sub{font-size:21px;color:var(--ink2);margin-top:10px}
+.chips{position:absolute;top:52px;right:80px;display:flex;gap:8px}
+.chips span{font-size:16px;padding:6px 14px;border-radius:20px;background:var(--tile2);color:var(--mute);font-weight:500}
+.chips span.on{background:var(--acc);color:#fff}
+.body{position:absolute;left:80px;right:80px;top:190px;bottom:78px}
+.foot{position:absolute;left:80px;right:80px;bottom:0;height:62px;border-top:1px solid var(--line);display:flex;align-items:center;font-size:16px;color:var(--mute)}
+.foot .nav{display:flex;gap:28px}
+.foot .nav span{border-left:3px solid var(--line);padding-left:9px}
+.foot .nav span.on{border-color:var(--acc);color:var(--acc);font-weight:600}
+.foot .brand{margin-left:auto;letter-spacing:.22em;color:var(--acc);font-weight:500;font-size:17px}
+.foot .pg{margin-left:28px;color:var(--ink);font-weight:600;min-width:52px;text-align:right}
+img.fig{display:block;max-width:100%;max-height:100%;object-fit:contain}
+.shot{border-radius:10px;border:1px solid var(--line);display:block}
+.row{display:flex;gap:24px}
+.col{display:flex;flex-direction:column}
+.tile{background:var(--tile);border-radius:12px;padding:24px 26px}
+.card{border:1px solid var(--line);border-radius:12px;padding:24px 26px;background:#fff}
+.card.on{border-color:var(--acc)}
+.lab{font-size:16px;color:var(--mute);font-weight:500}
+.big{font-size:60px;font-weight:700;letter-spacing:-0.03em;line-height:1.1}
+.big small{font-size:28px;font-weight:600;margin-left:4px}
+.acc{color:var(--acc)}
+.badc{color:var(--bad)} .goodc{color:var(--good)}
+.t{font-size:20px;color:var(--ink2);line-height:1.55}
+.t b{color:var(--ink)}
+.h3{font-size:24px;font-weight:700;letter-spacing:-0.02em}
+.note{font-size:17px;color:var(--mute);line-height:1.5}
+.num{font-size:15px;font-weight:600;color:var(--acc)}
+.pill{display:inline-block;font-size:15px;padding:4px 11px;border-radius:14px;background:var(--tile2);color:var(--ink2);font-weight:500;margin:0 6px 6px 0}
+.pill.a{background:var(--acc-soft);color:var(--acc)}
+.arrow{color:var(--acc);font-size:26px;display:flex;align-items:center;justify-content:center}
+code,.mono{font-family:var(--mono);font-size:.88em}
+.side-list .it{padding:16px 0;border-bottom:1px solid var(--line)}
+.side-list .it:first-child{padding-top:0}
+.side-list .it:last-child{border-bottom:none}
+.side-list .it .h{font-size:20px;font-weight:700;margin-bottom:5px}
+.side-list .it .d{font-size:17.5px;color:var(--ink2);line-height:1.5}
+/* tables */
+table.tb{width:100%;border-collapse:collapse}
+table.tb th{font-size:16px;color:var(--mute);font-weight:500;text-align:left;padding:0 14px 12px;border-bottom:1px solid var(--ink2)}
+table.tb td{font-size:19px;color:var(--ink2);padding:13px 14px;border-bottom:1px solid var(--line);vertical-align:middle;line-height:1.45}
+table.tb td.k{width:170px;padding:7px 14px 7px 0}
+table.tb td.k div{background:var(--tile);border-radius:8px;font-weight:700;color:var(--ink);text-align:center;padding:14px 8px;font-size:19px}
+table.tb td.strong{color:var(--ink);font-weight:600}
+/* steps */
+.steps{display:flex;align-items:stretch;gap:0}
+.steps .st{flex:1;background:var(--tile);padding:18px 22px;border-radius:4px}
+.steps .st .n{font-size:15px;color:var(--acc);font-weight:500}
+.steps .st .s{font-size:21px;font-weight:700;margin-top:6px}
+.steps .st .d{font-size:16px;color:var(--ink2);margin-top:6px;line-height:1.45}
+.steps .st.on{background:var(--acc)} .steps .st.on .n,.steps .st.on .s,.steps .st.on .d{color:#fff}
+.steps .ar{width:44px;display:flex;align-items:center;justify-content:center;color:var(--acc);font-size:24px}
+/* bars */
+.hbar{display:flex;align-items:center;gap:16px;margin-bottom:14px}
+.hbar .nm{width:250px;font-size:19px;font-weight:600}
+.hbar .nm small{display:block;font-size:15px;color:var(--mute);font-weight:400;margin-top:2px}
+.hbar .tr{flex:1;height:34px;position:relative}
+.hbar .fl{height:100%;background:var(--acc);border-radius:3px}
+.hbar .vl{width:110px;font-size:21px;font-weight:700;text-align:right}
+.tall table.tb td{padding:26px 14px;font-size:21px}
+.tall table.tb td.k div{padding:22px 8px;font-size:21px}
+.tall .side-list .it{padding:30px 0}
+.tall .side-list .it .h{font-size:25px;margin-bottom:10px}
+.tall .side-list .it .d{font-size:20px}
+/* divider */
+.divider{background:var(--tile)}
+.divider .no{position:absolute;left:80px;top:250px;font-size:130px;font-weight:200;color:var(--acc);letter-spacing:-0.04em}
+.divider .ti{position:absolute;left:80px;top:420px;font-size:72px;font-weight:700;letter-spacing:-0.03em}
+.divider .ds{position:absolute;left:84px;top:525px;font-size:24px;color:var(--ink2)}
+.divider .ls{position:absolute;right:80px;top:250px;width:520px;font-size:20px;color:var(--ink2)}
+.divider .ls div{padding:13px 0;border-bottom:1px solid #dcdfe5;display:flex;gap:18px}
+.divider .ls div span{color:var(--acc);font-weight:600;width:28px}
+</style>
+</head>
+<body>
+<!-- 1. 표지 -->
+<section class="slide" style="padding:0">
+  <div style="position:absolute;left:80px;top:72px;letter-spacing:.3em;color:var(--acc);font-size:22px;font-weight:500">NOVA</div>
+  <div style="position:absolute;left:80px;top:300px">
+    <div style="font-size:84px;font-weight:700;letter-spacing:-0.04em;margin-top:18px;line-height:1.15">인프라 구축과<br>부하 테스트</div>
+    <div style="font-size:26px;color:var(--ink2);margin-top:28px">사전예약 오픈 트래픽을 감당하는 AWS 인프라 구축과 운영 환경 실측 기반의 설정</div>
+    <div style="margin-top:22px"><span class="pill a" style="font-size:17px;padding:6px 14px">인프라 담당 · AWS 설계와 구축 · Terraform과 Atlantis · 부하 시험 환경</span></div>
+  </div>
+  <div style="position:absolute;left:80px;right:80px;bottom:72px;display:flex;gap:0;border-top:1px solid var(--line);padding-top:28px">
+    <div style="flex:1"><div class="lab">월 운영비 (목표 구조 추정 대비)</div><div style="font-size:40px;font-weight:700;margin-top:6px">890 → 240<small style="font-size:22px"> 달러</small></div></div>
+    <div style="flex:1"><div class="lab">판매 오픈 첫 1분 p95</div><div style="font-size:40px;font-weight:700;margin-top:6px">4.67초 → 30<small style="font-size:22px"> ms</small></div></div>
+    <div style="flex:1"><div class="lab">AWS 장기 액세스 키</div><div style="font-size:40px;font-weight:700;margin-top:6px">0<small style="font-size:22px"> 개</small></div></div>
+    <div style="flex:1"><div class="lab">급증 시 증설 판단</div><div style="font-size:40px;font-weight:700;margin-top:6px">3분 이상 → 1~2<small style="font-size:22px"> 분</small></div></div>
+  </div>
+</section>
+
+<!-- 2. 목차 -->
+<section class="slide">
+  <div class="kicker">목차</div>
+  <h1>목차</h1>
+  <div class="body" style="display:flex;gap:40px">
+    <div class="tile" style="flex:1;padding:36px 40px">
+      <div style="font-size:64px;font-weight:200;color:var(--acc)">01</div>
+      <div style="font-size:36px;font-weight:700;margin-top:4px">인프라</div>
+      <div class="t" style="margin-top:16px;font-size:18px;column-count:2;column-gap:30px;line-height:1.75">
+        인프라 개요<br>설계 시 고려한 조건<br>전체 아키텍처<br>API 앞단 CloudFront + WAF<br>Terraform 스택 구성<br>서비스 정의 방식<br>plan 단계 사전 검증<br>Atlantis 변경 절차<br>DB 무중단 이전<br>오토스케일링 개선<br>WAF와 비밀 값 관리<br>IAM 역할 구성<br>관측 아키텍처<br>관측 클러스터 분리<br>관측 데이터 수집 구조<br>관측 파이프라인 설계<br>경보에서 원인까지 추적<br>오픈 상황판<br>업무 지표<br>브라우저 사용자 경험 (RUM)<br>경보 정리<br>비용 절감
+      </div>
+    </div>
+    <div class="tile" style="flex:1;padding:36px 40px">
+      <div style="font-size:64px;font-weight:200;color:var(--acc)">02</div>
+      <div style="font-size:36px;font-weight:700;margin-top:4px">부하 테스트</div>
+      <div class="t" style="margin-top:16px;font-size:18px;column-count:2;column-gap:30px;line-height:1.75">
+        테스트 목표와 합격 기준<br>사전 시뮬레이션<br>테스트 시나리오<br>테스트 환경 구성<br>운영 환경 보호 장치<br>결과 판정 방식<br>판매 오픈 최종 결과<br>향후 개선 과제
+      </div>
+    </div>
+  </div>
+  <div class="foot"><div class="nav"><span>1 인프라</span><span>2 부하 테스트</span></div><div class="brand">NOVA</div><div class="pg">2</div></div>
+</section>
+
+<!-- 3. 구분: 인프라 -->
+<section class="slide divider">
+  <div class="no">01</div>
+  <div class="ti">인프라</div>
+  <div class="ds">오픈 시점 트래픽 대응과 월 운영비 약 240달러 유지</div>
+  <div class="ls">
+    <div><span>1</span>아키텍처와 기술 스택</div>
+    <div><span>2</span>Terraform과 Atlantis를 이용한 IaC</div>
+    <div><span>3</span>DB 이전과 오토스케일링</div>
+    <div><span>4</span>보안, 관측, 경보</div>
+    <div><span>5</span>비용 절감</div>
+  </div>
+</section>
+
+<!-- 4. 개요 -->
+<section class="slide">
+  <div class="kicker">01 인프라 · 개요</div>
+  <h1>인프라 개요</h1>
+  <div class="body">
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:20px">
+      <div class="card"><div class="lab">구축 기간 (10월 10일 ~ 26일)</div><div class="big" style="margin-top:12px">17<small>일</small></div><div class="t" style="margin-top:8px">PR 190개 병합, 커밋 554개</div></div>
+      <div class="card"><div class="lab">실행 단위</div><div class="big" style="margin-top:12px">9 <span style="color:var(--faint);font-weight:300">+</span> 1</div><div class="t" style="margin-top:8px">ECS 서비스 9개와 정해진 시각에 실행되는 배치 1개</div></div>
+      <div class="card"><div class="lab">Terraform 스택</div><div class="big" style="margin-top:12px">22<small>개</small></div><div class="t" style="margin-top:8px">서비스는 YAML로 정의, 공통 설정은 링크로 공유</div></div>
+      <div class="card"><div class="lab">AWS 장기 액세스 키</div><div class="big" style="margin-top:12px">0<small>개</small></div><div class="t" style="margin-top:8px">사람, CI, 태스크 모두 IAM 역할로 권한 부여</div></div>
+      <div class="card on"><div class="lab">월 운영비</div><div class="big acc" style="margin-top:12px">약 240<small>달러</small></div><div class="t" style="margin-top:8px">목표 구조 대비 월 약 650달러 절감</div></div>
+      <div class="card"><div class="lab">관측</div><div class="big" style="margin-top:12px">Grafana</div><div class="t" style="margin-top:8px">로그, 트레이스, 지표, 프로파일을 한 화면에서 조회<br>경보는 Slack으로 수신</div></div>
+    </div>
+    <div style="margin-top:28px;display:flex;align-items:center;gap:14px">
+      <div class="lab" style="width:130px">변경 절차</div>
+      <div class="pill a" style="font-size:18px;padding:8px 18px;margin:0">PR 생성</div><div class="arrow">→</div>
+      <div class="pill a" style="font-size:18px;padding:8px 18px;margin:0">plan 결과 리뷰</div><div class="arrow">→</div>
+      <div class="pill a" style="font-size:18px;padding:8px 18px;margin:0">Atlantis apply</div>
+      <div class="note" style="margin-left:18px">개인 계정은 읽기 권한만 보유 · 상태 버킷, VPC 등 기반 리소스만 최초 1회 관리자가 직접 적용</div>
+    </div>
+  </div>
+  <div class="foot"><div class="nav"><span class="on">1 인프라</span><span>2 부하 테스트</span></div><div class="brand">NOVA</div><div class="pg">4</div></div>
+</section>
+
+<!-- 5. 설계 조건 -->
+<section class="slide">
+  <div class="kicker">01 인프라 · 설계</div>
+  <h1>설계 시 고려한 조건</h1>
+  <div class="body" style="top:180px">
+    <table class="tb">
+      <tr><th>구분</th><th style="width:520px">상황</th><th>대응 방법</th></tr>
+      <tr><td class="k"><div>트래픽</div></td><td>평소에는 요청이 적고,<br>판매 오픈 순간에 요청이 한꺼번에 집중</td><td class="strong">대기열로 입장 속도 조절, 오픈 전 사전 증설<br>트래픽 급증 시 1~2분 안에 증설 시작</td></tr>
+      <tr><td class="k"><div>외부 연동</div></td><td>외부 예약 시스템의 응답 시간 건당 평균 0.5초,<br>실패율 5%</td><td class="strong">사용자 요청 처리와 분리해 SQS에 적재,<br>worker가 꺼내서 재시도</td></tr>
+      <tr><td class="k"><div>저장소</div></td><td>공개 저장소로 운영</td><td class="strong">비밀 값은 코드와 상태 파일 어디에도 미보관<br>상태 버킷과 실행 역할은 실행 시점에 주입</td></tr>
+      <tr><td class="k"><div>인력</div></td><td>인프라 담당 인원 부족</td><td class="strong">서버 관리가 필요 없는 관리형 서비스 위주로 구성<br>서비스 추가 시 YAML 파일 하나만 작성</td></tr>
+      <tr><td class="k"><div>비용</div></td><td>운영비 최소화 필요</td><td class="strong">목표 구조는 코드로 모두 구현,<br>비용이 큰 항목만 변수로 낮춰 운영</td></tr>
+    </table>
+  </div>
+  <div class="foot"><div class="nav"><span class="on">1 인프라</span><span>2 부하 테스트</span></div><div class="brand">NOVA</div><div class="pg">5</div></div>
+</section>
+
+<!-- 6. 전체 구조 -->
+<section class="slide">
+  <div class="kicker">01 인프라 · 아키텍처</div>
+  <h1>전체 아키텍처</h1>
+  <div class="body" style="top:150px;display:flex;gap:36px">
+    <div style="flex:0 0 960px;display:flex;align-items:center"><img class="fig" src="assets/ext/images-01-architecture.png" style="max-height:670px"></div>
+    <div class="side-list" style="flex:1;padding-top:40px">
+      <div class="it"><div class="h"><span class="num">01&nbsp;</span> WAF를 우회하는 경로 차단</div><div class="d">모든 요청은 CloudFront와 WAF를 거쳐 ALB로 유입<br>ALB는 CloudFront가 붙인 원본 확인 헤더가 있는 요청만 허용</div></div>
+      <div class="it"><div class="h"><span class="num">02&nbsp;</span> 느린 외부 호출은 큐로 분리</div><div class="d">서비스 간 호출은 Service Connect 사용<br>외부 예약 등록은 SQS에 넣어 worker가 별도 처리</div></div>
+      <div class="it"><div class="h"><span class="num">03&nbsp;</span> 앱과 관측 클러스터 분리</div><div class="d">앱 배포 권한으로는 관측 스택 변경 불가</div></div>
+      <div class="it"><div class="h"><span class="num">04&nbsp;</span> AZ 2개, 서브넷 3계층</div><div class="d">public, app, db 서브넷으로 구분<br>db 서브넷에는 인터넷으로 나가는 경로 자체가 없음</div></div>
+    </div>
+  </div>
+  <div class="foot"><div class="nav"><span class="on">1 인프라</span><span>2 부하 테스트</span></div><div class="brand">NOVA</div><div class="pg">6</div></div>
+</section>
+
+<!-- 6-1. CloudFront + WAF 효과 -->
+<section class="slide">
+  <div class="kicker">01 인프라 · 엣지</div>
+  <h1>정적 파일뿐 아니라 API까지 CloudFront + WAF 뒤에 배치</h1>
+  <div class="sub">CloudFront는 보통 이미지·정적 파일 캐시용 · NOVA는 캐시하지 않는 API 요청까지 엣지를 먼저 거치도록 구성</div>
+  <style>
+    .ln{display:flex;align-items:center;gap:0;margin-top:10px}
+    .ln .bx{padding:10px 14px;border-radius:6px;background:var(--tile);font-size:16px;font-weight:600;white-space:nowrap}
+    .ln .bx.o{background:#fff;border:1.5px solid var(--acc);color:var(--acc)}
+    .ln .bx.x{background:var(--bad-soft);border:1px solid #e3c8c4;color:var(--bad)}
+    .ln .ar{color:var(--faint);padding:0 8px;font-size:16px}
+    .ln .tg{width:64px;font-size:14px;color:var(--mute)}
+  </style>
+  <div class="body" style="top:225px">
+    <div style="display:flex;gap:24px">
+      <div class="tile" style="flex:1;padding:20px 24px;background:#fff;border:1px dashed var(--line)">
+        <div class="lab">일반적인 구성</div>
+        <div class="ln"><span class="tg">정적 파일</span><span class="bx">사용자</span><span class="ar">→</span><span class="bx">CloudFront</span><span class="ar">→</span><span class="bx">S3</span></div>
+        <div class="ln"><span class="tg">API</span><span class="bx">사용자</span><span class="ar">→</span><span class="bx x">ALB (+ WAF)</span><span class="ar">→</span><span class="bx">ECS</span></div>
+        <div class="note" style="margin-top:12px">ALB가 인터넷에 직접 노출 · 트래픽 급증과 공격을 서울 리전의 ALB가 그대로 수용</div>
+      </div>
+      <div class="card on" style="flex:1.15;padding:20px 24px">
+        <div class="lab acc">NOVA 구성</div>
+        <div class="ln"><span class="tg">정적 파일</span><span class="bx">사용자</span><span class="ar">→</span><span class="bx">CloudFront</span><span class="ar">→</span><span class="bx">S3</span><span class="note" style="margin-left:10px">캐시 사용</span></div>
+        <div class="ln"><span class="tg">API</span><span class="bx">사용자</span><span class="ar">→</span><span class="bx o">CloudFront + WAF</span><span class="ar">→</span><span class="bx">ALB (비공개)</span><span class="ar">→</span><span class="bx">ECS</span><span class="note" style="margin-left:10px">캐시 미사용</span></div>
+        <div class="note" style="margin-top:12px;color:var(--ink2)">ALB 주소가 알려져도 직접 접근 불가 · 모든 API 요청이 엣지에서 먼저 검사·흡수</div>
+      </div>
+    </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:26px">
+      <div>
+        <div style="margin-bottom:10px"><span class="pill a" style="margin:0;font-size:17px">보안 강화</span></div>
+        <div class="col" style="gap:10px">
+          <div class="card on" style="padding:14px 22px"><div class="h3" style="font-size:20px">ALB 은닉, WAF 우회 경로 차단</div><div class="t" style="font-size:16.5px;margin-top:4px">모든 요청이 WAF를 통과 · ALB 주소가 알려져도 직접 접근 불가</div></div>
+          <div class="tile" style="padding:14px 22px"><div class="h3" style="font-size:20px">공격 요청을 VPC 밖에서 차단</div><div class="t" style="font-size:16.5px;margin-top:4px">관리형 규칙 3종, <code>/api/</code> IP당 5분 3,000회 제한 · 차단된 요청은 ALB, NAT, ECS에 미도달</div></div>
+          <div class="tile" style="padding:14px 22px"><div class="h3" style="font-size:20px">앱 수정 없이 보안 수준 상향</div><div class="t" style="font-size:16.5px;margin-top:4px">HSTS 등 보안 헤더 자동 추가 · 사용자 구간 TLS 1.2 이상 강제</div></div>
+        </div>
+      </div>
+      <div>
+        <div style="margin-bottom:10px"><span class="pill a" style="margin:0;font-size:17px">트래픽 내성 강화</span></div>
+        <div class="col" style="gap:10px">
+          <div class="card on" style="padding:14px 22px"><div class="h3" style="font-size:20px">오픈 순간의 연결 폭주를 엣지가 흡수</div><div class="t" style="font-size:16.5px;margin-top:4px">TLS 연결은 엣지에서 처리, ALB 구간은 연결 재사용 · ALB의 새 연결 수와 LCU 요금 부담 감소</div></div>
+          <div class="tile" style="padding:14px 22px"><div class="h3" style="font-size:20px">DDoS 공격의 전 세계 엣지 분산</div><div class="t" style="font-size:16.5px;margin-top:4px">ALB만 둘 때처럼 서울 2 AZ의 ALB 노드로 공격이 집중되지 않음</div></div>
+          <div class="tile" style="padding:14px 22px"><div class="h3" style="font-size:20px">추가 비용 거의 없이 성능 향상</div><div class="t" style="font-size:16.5px;margin-top:4px">HTTP/2·HTTP/3 지원 · ALB → CloudFront 전송 무료 · 월 1TB, 1,000만 요청까지 무료</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="foot"><div class="nav"><span class="on">1 인프라</span><span>2 부하 테스트</span></div><div class="brand">NOVA</div><div class="pg">7</div></div>
+</section>
+
+<!-- 8. IaC 스택 -->
+<section class="slide">
+  <div class="kicker">01 인프라 · IaC</div>
+  <h1>Terraform 스택 구성</h1>
+  <div class="sub">AWS 서비스 종류별로 폴더를 나누고 폴더 하나를 스택 하나로 관리 · 스택마다 별도의 상태 파일</div>
+  <div class="body" style="top:215px;display:flex;gap:36px">
+    <div style="flex:0 0 1100px"><img class="fig" src="assets/ext/images-05-iac-structure.png" style="width:1100px"></div>
+    <div class="side-list" style="flex:1">
+      <div class="it"><div class="h">영향 범위 축소</div><div class="d">plan과 apply가 해당 스택 안에서만 실행<br>실수가 있어도 영향은 그 스택으로 한정</div></div>
+      <div class="it"><div class="h">한 방향 의존</div><div class="d">스택 간에는 출력값만 참조<br>예: ecs 스택이 vpc 스택의 서브넷 ID를 <code>terraform_remote_state</code>로 참조</div></div>
+      <div class="it"><div class="h">상태 잠금</div><div class="d">상태 파일은 S3 버킷 하나에 스택별 경로로 저장, 스택마다 잠금 적용</div></div>
+      <div class="it"><div class="h">부하 테스트 스택</div><div class="d">부하 테스트 리소스는 loadtest 스택 하나에 모아 필요 없을 때 일괄 삭제 가능</div></div>
+    </div>
+  </div>
+  <div class="foot"><div class="nav"><span class="on">1 인프라</span><span>2 부하 테스트</span></div><div class="brand">NOVA</div><div class="pg">8</div></div>
+</section>
+
+<!-- 10. service.yml -->
+<section class="slide">
+  <div class="kicker">01 인프라 · IaC</div>
+  <h1>서비스 정의 방식</h1>
+  <div class="sub">서비스 추가 시 Terraform 코드 수정 없음 · 각 스택이 같은 service.yml을 읽어 필요한 리소스 생성</div>
+  <div class="body" style="top:230px;display:flex;gap:0;align-items:flex-start">
+    <div style="width:560px;background:#f7f8fa;border:1px solid var(--line);border-radius:12px;padding:20px 24px;font-family:var(--mono);font-size:15.5px;line-height:1.62;color:var(--ink2);white-space:pre"><span style="color:var(--mute)"># application/catalog/service.yml</span>
+<b style="color:var(--acc)">cpu</b>: 1024
+<b style="color:var(--acc)">memory</b>: 2048
+<b style="color:var(--acc)">deployment</b>: blue_green
+<b style="color:var(--acc)">scaling</b>:
+  min: 2
+  max: 4
+  requests_per_task: 1400
+<b style="color:var(--acc)">routes</b>:
+  - priority: 50
+    paths: ["/api/v1/products*", ...]
+<b style="color:var(--acc)">calls</b>:
+  ...order.base-url: order
+  ...member.base-url: member
+<b style="color:var(--acc)">db</b>: shop
+<b style="color:var(--acc)">redis</b>: main
+<b style="color:var(--acc)">queues</b>:
+  send: [order-events, preorder-events]
+  consume: [catalog-events]</div>
+    <div style="width:110px;align-self:center" class="arrow"><svg width="90" height="30"><line x1="4" y1="15" x2="76" y2="15" stroke="#3e4a8b" stroke-width="2"/><path d="M74 8 L86 15 L74 22 Z" fill="#3e4a8b"/></svg></div>
+    <div style="flex:1">
+      <div class="lab" style="margin-bottom:12px">파일 하나로 생성되는 리소스 (각 스택이 서비스 목록을 <code>for_each</code>로 순회)</div>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px">
+        <div class="tile" style="padding:16px 18px;font-weight:600;font-size:18px">ECR 저장소</div>
+        <div class="tile" style="padding:16px 18px;font-weight:600;font-size:18px">IAM 역할</div>
+        <div class="tile" style="padding:16px 18px;font-weight:600;font-size:18px">보안 그룹</div>
+        <div class="tile" style="padding:16px 18px;font-weight:600;font-size:18px">ECS 서비스</div>
+        <div class="tile" style="padding:16px 18px;font-weight:600;font-size:18px">ALB 라우팅 규칙</div>
+        <div class="tile" style="padding:16px 18px;font-weight:600;font-size:18px">오토스케일링</div>
+        <div class="tile" style="padding:16px 18px;font-weight:600;font-size:18px">배치 일정</div>
+        <div class="tile" style="padding:16px 18px;font-weight:600;font-size:18px">앱 설정</div>
+      </div>
+      <div class="lab" style="margin:28px 0 12px">서비스별 배포 방식</div>
+      <div style="display:flex;gap:10px">
+        <div class="card on" style="flex:1.6;padding:16px 20px"><div class="h3" style="font-size:19px">Blue/Green</div><div class="note" style="margin-top:6px;color:var(--ink2)">catalog · member · order · preorder · waitingroom</div></div>
+        <div class="card" style="flex:1;padding:16px 20px"><div class="h3" style="font-size:19px">Rolling</div><div class="note" style="margin-top:6px;color:var(--ink2)">worker · payment · mock</div></div>
+        <div class="card" style="flex:1;padding:16px 20px"><div class="h3" style="font-size:19px">Singleton</div><div class="note" style="margin-top:6px;color:var(--ink2)">정산 배치</div></div>
+      </div>
+      <div class="tile" style="margin-top:22px;padding:18px 22px;background:var(--acc-soft)">
+        <div class="t" style="font-size:18.5px"><b>명시하지 않은 권한은 모두 차단</b><br>서비스 호출은 <code>calls</code>에 적은 대상만, 큐 접근은 <code>queues</code>에 적은 큐만 허용 → 별도 관리 없이 최소 권한 유지<br>앱 설정은 <code>SPRING_APPLICATION_JSON</code>으로 운영 값만 덮어쓰기</div>
+      </div>
+    </div>
+  </div>
+  <div class="foot"><div class="nav"><span class="on">1 인프라</span><span>2 부하 테스트</span></div><div class="brand">NOVA</div><div class="pg">9</div></div>
+</section>
+
+<!-- 11. plan 단계 검사 -->
+<section class="slide">
+  <div class="kicker">01 인프라 · IaC</div>
+  <h1>plan 단계 사전 검증</h1>
+  <div class="sub">배포 후에야 드러나는 설정 오류를 <code>check</code>, <code>precondition</code>, <code>validation</code>으로 검사해 PR 단계에서 차단</div>
+  <div class="body" style="top:240px">
+    <div class="card on" style="padding:28px 32px">
+      <div style="display:flex;align-items:baseline;gap:20px">
+        <div class="h3">DB 연결 수 예산</div>
+        <div class="note">서비스별 (최대 태스크 수 × DB 풀 크기)의 합 × 2 (배포 중 두 벌 기동) + 여유분 50 ≤ RDS <code>max_connections</code></div>
+        <div style="margin-left:auto;font-size:40px;font-weight:700"><span class="acc">830</span><span style="color:var(--faint);font-weight:400"> / 1,200</span></div>
+      </div>
+      <div style="margin-top:18px;height:36px;background:var(--tile2);border-radius:6px;position:relative">
+        <div style="position:absolute;left:0;top:0;bottom:0;width:69.2%;background:var(--acc);border-radius:6px 0 0 6px"></div>
+        <div style="position:absolute;left:69.2%;top:-8px;bottom:-8px;border-left:2px dashed var(--ink2)"></div>
+        <div style="position:absolute;right:0;top:-8px;bottom:-8px;border-left:2px solid var(--bad)"></div>
+      </div>
+      <div style="display:flex;justify-content:space-between;margin-top:10px" class="note"><span>0</span><span style="margin-left:auto;margin-right:24%">현재 830</span><span class="badc">1,200 초과 시 plan 실패</span></div>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:22px">
+      <div class="tile"><div class="h3" style="font-size:21px">입장 속도와 태스크 수</div><div class="t" style="margin-top:8px;font-size:18px">대기열 최대 입장 속도를 처리할 만큼 preorder를 늘릴 수 없는 설정이면 plan 실패</div></div>
+      <div class="tile"><div class="h3" style="font-size:21px">관측 서버 메모리</div><div class="t" style="margin-top:8px;font-size:18px">컨테이너 메모리 한도의 합이 인스턴스 메모리를 넘으면 실패<br>증설 순서 오류로 관측 서버가 뜨지 않는 문제 방지</div></div>
+      <div class="tile"><div class="h3" style="font-size:21px">service.yml 형식</div><div class="t" style="margin-top:8px;font-size:18px">정의되지 않은 필드, 중복된 ALB 규칙 우선순위, 인프라 예약 이름과 겹치는 비밀 이름 거부</div></div>
+    </div>
+    <div class="note" style="margin-top:20px">리소스 이름·위치 변경은 <code>moved</code>, <code>import</code> 블록으로 처리해 삭제 후 재생성 방지 · 22개 스택의 fmt와 validate는 상태 파일 접근 없이 일괄 실행해 문법 오류를 PR 전에 확인</div>
+  </div>
+  <div class="foot"><div class="nav"><span class="on">1 인프라</span><span>2 부하 테스트</span></div><div class="brand">NOVA</div><div class="pg">10</div></div>
+</section>
+
+<!-- 11-1. Atlantis 변경 절차 -->
+<section class="slide">
+  <style>
+    .at4{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;margin-top:26px}
+    .at4 .card{padding:20px 22px}
+    .at4 .h{font-size:20px;font-weight:700}
+    .at4 .d{font-size:16.5px;color:var(--ink2);margin-top:6px;line-height:1.45}
+  </style>
+  <div class="kicker">01 인프라 · IaC</div>
+  <h1>PR 하나가 AWS에 적용되기까지 (Atlantis)</h1>
+  <div class="sub">사람은 plan까지만 · 적용은 리뷰를 거친 PR 댓글로 Atlantis가 · 17일 동안 PR 190개 병합</div>
+  <div class="body" style="top:205px">
+    <img class="fig" src="assets/ext/atlantis-pr-flow.png" style="width:100%;max-height:390px;margin:0 auto">
+    <div class="at4">
+      <div class="card"><div class="h">스택 잠금</div><div class="d">PR이 plan한 스택은 다른 PR이 동시에 바꾸지 못함</div></div>
+      <div class="card"><div class="h">공용 파일 추적</div><div class="d">공용 파일이 바뀌면 그 파일을 읽는 스택까지 자동 plan</div></div>
+      <div class="card"><div class="h">적용 순서 고정</div><div class="d">VPC, 보안 그룹, DB, ECS 순 0~7단계 · 앞이 실패하면 뒤는 중단</div></div>
+      <div class="card on"><div class="h">자동 병합</div><div class="d">모든 apply가 성공해야 병합 → main과 실제 AWS가 일치</div></div>
+    </div>
+  </div>
+  <div class="foot"><div class="nav"><span class="on">1 인프라</span><span>2 부하 테스트</span></div><div class="brand">NOVA</div><div class="pg">11</div></div>
+</section>
+
+<!-- 13. DB 이전 흐름 -->
+<section class="slide">
+  <div class="kicker">01 인프라 · DB 이전</div>
+  <h1>NCP에서 RDS로 무중단 DB 이전</h1>
+  <div class="sub">서비스 중단 없이 하루 만에 이전 · 런북 스크립트(00~70)를 로컬 Docker 환경에서 장애 주입까지 연습한 뒤 운영에 적용</div>
+  <div class="body" style="top:240px">
+    <img class="fig" src="assets/ext/images-02-db-cutover.png" style="width:100%;max-height:390px;margin:0 auto">
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:18px;margin-top:22px">
+      <div class="tile" style="padding:18px 22px"><div class="lab">전환 시 요청 대기</div><div style="font-size:34px;font-weight:700;margin-top:4px">300<small style="font-size:20px">ms</small></div><div class="note" style="color:var(--ink2)">ProxySQL이 요청을 끊지 않고 잠시 보류</div></div>
+      <div class="tile" style="padding:18px 22px"><div class="lab">장애 주입 연습 결과</div><div style="font-size:34px;font-weight:700;margin-top:4px">313<small style="font-size:20px">ms</small></div><div class="note" style="color:var(--ink2)">여유 시간을 30ms에서 50ms로 확대</div></div>
+      <div class="tile" style="padding:18px 22px"><div class="lab">동기화 지연 시</div><div style="font-size:34px;font-weight:700;margin-top:4px">NCP로 롤백</div><div class="note" style="color:var(--ink2)">롤백 후 재시도</div></div>
+      <div class="tile" style="padding:18px 22px"><div class="lab">안전장치</div><div style="font-size:21px;font-weight:700;margin-top:10px;line-height:1.4">RDS read_only 설정<br>체크섬 비교, 롤백 스크립트</div></div>
+    </div>
+  </div>
+  <div class="foot"><div class="nav"><span class="on">1 인프라</span><span>2 부하 테스트</span></div><div class="brand">NOVA</div><div class="pg">12</div></div>
+</section>
+
+<!-- 14. DB 이전 이유와 결과 -->
+<section class="slide">
+  <div class="kicker">01 인프라 · DB 이전</div>
+  <h1>DB 이전 배경과 효과</h1>
+  <div class="body" style="display:flex;gap:40px">
+    <div style="flex:1">
+      <div class="lab">이전 배경 ① NCP DB까지 왕복 지연 약 35ms</div>
+      <div style="margin-top:18px;display:flex;gap:4px;height:46px">
+        <div style="flex:1;background:var(--bad-soft);border:1px solid #e3c8c4;border-radius:3px;display:flex;align-items:center;justify-content:center;font-size:14px;color:var(--bad)">35ms</div>
+        <div style="flex:1;background:var(--bad-soft);border:1px solid #e3c8c4;border-radius:3px"></div>
+        <div style="flex:1;background:var(--bad-soft);border:1px solid #e3c8c4;border-radius:3px"></div>
+        <div style="flex:1;background:var(--bad-soft);border:1px solid #e3c8c4;border-radius:3px"></div>
+        <div style="flex:1;background:var(--bad-soft);border:1px solid #e3c8c4;border-radius:3px"></div>
+        <div style="flex:1;background:var(--bad-soft);border:1px solid #e3c8c4;border-radius:3px"></div>
+        <div style="flex:1;background:var(--bad-soft);border:1px solid #e3c8c4;border-radius:3px"></div>
+        <div style="flex:1;background:var(--bad-soft);border:1px solid #e3c8c4;border-radius:3px"></div>
+        <div style="flex:1;background:var(--bad-soft);border:1px solid #e3c8c4;border-radius:3px"></div>
+        <div style="flex:1;background:var(--bad-soft);border:1px solid #e3c8c4;border-radius:3px"></div>
+      </div>
+      <div style="display:flex;justify-content:space-between;margin-top:10px"><span class="note">드라이버 명령마다 왕복 지연 누적</span><span style="font-size:24px;font-weight:700" class="badc">단순 조회 1건 약 370ms</span></div>
+      <div class="lab" style="margin-top:44px">이전 배경 ② 모든 DB 연결이 NAT 경유</div>
+      <div class="t" style="margin-top:10px">부하 증가 시 서비스보다 NAT가 먼저 한계에 도달할 위험</div>
+      <div class="tile" style="margin-top:44px">
+        <div class="lab">이전 후 정리</div>
+        <div class="t" style="margin-top:10px">이전 당일 ProxySQL, 런북, NCP 스택을 코드에서 삭제<br>이후 NCP 때문에 0.0.0.0/0으로 열어 둔 3306 아웃바운드를 <b>RDS 보안 그룹 하나</b>로 제한</div>
+      </div>
+    </div>
+    <div style="flex:1" class="col">
+      <div class="lab">동일 부하(평시의 1/16)에서 상품 목록 요청의 0.5초 이내 응답 비율</div>
+      <div style="display:flex;gap:28px;align-items:flex-end;margin-top:22px;height:300px;border-bottom:1px solid var(--ink2);padding:0 40px;position:relative"><div style="position:absolute;left:20px;right:20px;bottom:224px;border-top:2px dashed var(--bad);z-index:1"></div>
+        <div style="flex:1;text-align:center"><div style="font-size:40px;font-weight:700;color:var(--mute)">93.1%</div><div style="height:220px;background:var(--tile2);margin-top:14px;border-radius:4px 4px 0 0"></div></div>
+        <div style="flex:1;text-align:center"><div style="font-size:40px;font-weight:700" class="acc">100%</div><div style="height:236px;background:var(--acc);margin-top:10px;border-radius:4px 4px 0 0"></div></div>
+      </div>
+      <div style="display:flex;padding:10px 40px 0;gap:28px"><div style="flex:1;text-align:center" class="t">NCP <span class="badc" style="font-size:16px">(불합격)</span></div><div style="flex:1;text-align:center" class="t"><b>RDS</b> <span class="goodc" style="font-size:16px">(합격)</span></div></div>
+      <div class="note" style="margin-top:4px;padding-left:40px">점선: 합격 기준 95%</div>
+      <div class="row" style="margin-top:26px">
+        <div class="card" style="flex:1;padding:18px 22px"><div class="lab">이전 후 1시간 테스트</div><div style="font-size:32px;font-weight:700;margin-top:4px">약 13만 건</div><div class="note" style="color:var(--ink2)">전부 0.5초 이내 응답</div></div>
+        <div class="card" style="flex:1;padding:18px 22px"><div class="lab">같은 시간 동안 5xx</div><div style="font-size:32px;font-weight:700;margin-top:4px">0건</div><div class="note" style="color:var(--ink2)">서버 오류 미발생</div></div>
+      </div>
+    </div>
+  </div>
+  <div class="foot"><div class="nav"><span class="on">1 인프라</span><span>2 부하 테스트</span></div><div class="brand">NOVA</div><div class="pg">13</div></div>
+</section>
+
+<!-- 15. 오토스케일링 -->
+<section class="slide">
+  <div class="kicker">01 인프라 · 오토스케일링</div>
+  <h1>오토스케일링 개선</h1>
+  <div class="sub">대상 추적 정책만 사용할 때는 1분 지표 3회 연속 초과 후에야 반응 → 새 태스크 투입까지 6~10분 소요, 그사이 503 오류 발생</div>
+  <div class="body" style="top:245px;display:flex;gap:36px">
+    <div style="flex:0 0 960px">
+      <img class="fig" src="assets/ext/images-03-scale-timeline.png" style="width:100%">
+    </div>
+    <div class="col" style="flex:1;gap:16px">
+      <div class="card"><div class="lab">증설 판단 소요 시간</div><div style="display:flex;align-items:baseline;gap:12px;margin-top:6px"><span style="font-size:30px;color:var(--mute);text-decoration:line-through;text-decoration-color:var(--faint)">3분 이상</span><span class="arrow" style="font-size:22px">→</span><span style="font-size:40px;font-weight:700" class="acc">1~2분</span></div><div class="note">1분 지표 3회 연속 → 1~2회로 단축</div></div>
+      <div class="card"><div class="lab">새 태스크의 요청 수신까지</div><div style="display:flex;align-items:baseline;gap:12px;margin-top:6px"><span style="font-size:30px;color:var(--mute);text-decoration:line-through;text-decoration-color:var(--faint)">약 30초</span><span class="arrow" style="font-size:22px">→</span><span style="font-size:40px;font-weight:700" class="acc">약 10초</span></div><div class="note">헬스체크 간격 15초 → 5초로 단축</div></div>
+    </div>
+  </div>
+  <div style="position:absolute;left:80px;right:80px;bottom:96px;display:grid;grid-template-columns:repeat(3,1fr);gap:18px">
+    <div class="tile"><div class="num">회차 오픈 전: 사전 증설</div><div class="t" style="margin-top:6px;font-size:18px">오픈 15분 전부터 30분 후까지 preorder 앱이 waitingroom과 자신의 최소 태스크 수를 미리 상향</div></div>
+    <div class="tile"><div class="num">트래픽 급증 직후: 단계 조정</div><div class="t" style="margin-top:6px;font-size:18px">1분 지표 1~2회만 보고 반응<br>태스크당 요청 수가 증설 기준을 넘으면 현재 태스크 수의 100~200%를 일괄 추가</div></div>
+    <div class="tile"><div class="num">평상시: 대상 추적</div><div class="t" style="margin-top:6px;font-size:18px">CPU와 태스크당 요청 수 기준으로 태스크 수 조정<br>축소 판정은 5회 연속 실패(25초)로 여유 확보</div></div>
+  </div>
+  <div class="foot"><div class="nav"><span class="on">1 인프라</span><span>2 부하 테스트</span></div><div class="brand">NOVA</div><div class="pg">14</div></div>
+</section>
+
+<!-- 16. WAF -->
+<section class="slide">
+  <div class="kicker">01 인프라 · 엣지 보안</div>
+  <h1>WAF 구성과 오탐 대응</h1>
+  <div class="sub">ALB는 CloudFront를 거친 요청만 받으므로 WAF는 CloudFront에만 적용, ALB의 WAF는 제거</div>
+  <div class="body" style="top:235px">
+    <img class="fig" src="assets/ext/images-04-waf-exception.png" style="width:100%;max-height:360px">
+    <div style="display:grid;grid-template-columns:1.1fr 1fr 1fr;gap:18px;margin-top:18px">
+      <div class="tile">
+        <div class="lab">예외 경로는 요청 크기 상한으로 대체 검사</div>
+        <div style="margin-top:14px">
+          <div style="display:flex;align-items:center;gap:12px;margin-bottom:9px"><span style="width:90px;font-size:17px">업로드</span><div style="height:20px;width:100%;background:var(--acc);border-radius:3px"></div><span style="width:90px;font-weight:700;font-size:17px">10MiB</span></div>
+          <div style="display:flex;align-items:center;gap:12px;margin-bottom:9px"><span style="width:90px;font-size:17px">관리자 API</span><div style="flex:1"><div style="height:20px;width:67.6%;background:var(--acc-mid);border-radius:3px"></div></div><span style="width:90px;font-weight:700;font-size:17px">512KB</span></div>
+          <div style="display:flex;align-items:center;gap:12px"><span style="width:90px;font-size:17px">주문</span><div style="flex:1"><div style="height:20px;width:45.1%;background:var(--acc-mid);border-radius:3px"></div></div><span style="width:90px;font-weight:700;font-size:17px">64KB</span></div>
+          <div class="note" style="font-size:13px;margin-top:6px">막대 길이: 로그 스케일</div>
+        </div>
+      </div>
+      <div class="tile">
+        <div class="lab">실제 사용 중 발견해 수정한 오탐</div>
+        <div style="margin-top:12px"><span class="pill">카카오 로그인 콜백</span><span class="pill">상품 사진 업로드</span><span class="pill">관리자 상품 등록</span></div>
+        <div class="t" style="font-size:17px;margin-top:6px">같은 공인 IP를 쓰는 대기자의 차단을 막기 위해 대기열 경로는 <b>IP당 5분 300,000건</b>으로 별도 제한</div>
+      </div>
+      <div class="tile">
+        <div class="lab">차단 응답 형식 통일</div>
+        <div class="t" style="font-size:17px;margin-top:10px">WAF 차단 응답도 앱과 같은 JSON 형식, 한국어 메시지로 반환 → 프런트엔드에서 그대로 표시</div>
+        <div class="t" style="font-size:17px;margin-top:10px;padding-top:10px;border-top:1px solid #dfe2e7">공개 PR의 plan 출력에서 원본 확인 헤더 값 노출 발견 → <b>당일 교체</b>, 이후 <code>sensitive</code> 지정으로 plan에서 숨김 처리</div>
+      </div>
+    </div>
+  </div>
+  <div class="foot"><div class="nav"><span class="on">1 인프라</span><span>2 부하 테스트</span></div><div class="brand">NOVA</div><div class="pg">15</div></div>
+</section>
+
+<!-- 17. 접근과 비밀 -->
+<section class="slide">
+  <div class="kicker">01 인프라 · 보안</div>
+  <h1>비밀 값과 접근 권한 관리</h1>
+  <div class="sub">공개 저장소로 운영하면서도 비밀 값은 코드·상태 파일 어디에도 미보관 · 사람, CI, 태스크 모두 IAM 역할로만 권한 부여</div>
+  <div class="body" style="top:235px">
+    <div style="display:flex;align-items:center;gap:14px;margin-bottom:12px"><div class="lab">비밀 값 전달 경로</div><div style="height:1px;flex:1;background:var(--line)"></div><div class="note">비밀 값 저장 위치: <b class="acc">Secrets Manager 한 곳</b></div></div>
+    <div style="display:flex;gap:0;align-items:stretch">
+      <div style="width:150px;display:flex;flex-direction:column;justify-content:space-around;padding-right:12px">
+        <div><div class="h3" style="font-size:18px">외부 발급 키</div><div class="note">토스, 카카오 등</div></div>
+        <div><div class="h3" style="font-size:18px">자체 생성 키</div><div class="note">JWT 키, Grafana 관리자 비밀번호</div></div>
+      </div>
+      <div style="flex:1;display:grid;grid-template-columns:1fr 36px 1fr 36px 1fr 36px 1fr;grid-template-rows:auto auto;gap:10px 0;align-items:stretch">
+        <div class="tile" style="padding:20px 20px"><div class="num">저장소</div><div class="h3" style="font-size:18px;margin-top:2px">sops 파일로 커밋</div><div class="note" style="color:var(--ink2);margin-top:4px">KMS 암호화 · 전용 역할만 복호화</div></div>
+        <div class="arrow">→</div>
+        <div class="tile" style="padding:20px 20px;grid-row:span 2;display:flex;flex-direction:column;justify-content:center"><div class="num">Terraform</div><div class="h3" style="font-size:18px;margin-top:2px">ephemeral 처리</div><div class="note" style="color:var(--ink2);margin-top:4px">외부 키는 실행 중에만 복호화<br>자체 키는 실행 중에만 생성<br><b>상태 파일에 값 미기록</b></div></div>
+        <div class="arrow" style="grid-row:span 2">→</div>
+        <div class="card on" style="padding:20px 20px;grid-row:span 2;display:flex;flex-direction:column;justify-content:center"><div class="num">Secrets Manager</div><div class="h3" style="font-size:18px;margin-top:2px">쓰기 전용 속성으로 저장</div><div class="note" style="color:var(--ink2);margin-top:4px">Terraform도 값을 다시 읽지 않음<br>버전 번호만 올리면 교체</div></div>
+        <div class="arrow" style="grid-row:span 2">→</div>
+        <div class="tile" style="padding:20px 20px;grid-row:span 2;display:flex;flex-direction:column;justify-content:center;background:var(--acc)"><div class="num" style="color:#cfd3ea">ECS</div><div class="h3" style="font-size:18px;margin-top:2px;color:#fff">태스크 기동 시 주입</div><div class="note" style="color:#e2e5f3;margin-top:4px">실행 역할은 app/, shared/, db/app/ 경로만 조회<br>DB 관리자·운영자용 비밀 접근 불가</div></div>
+        <div class="tile" style="padding:20px 20px;background:#fff;border:1px dashed var(--line)"><div class="num">저장소</div><div class="h3" style="font-size:18px;margin-top:2px;color:var(--mute)">커밋할 값 없음</div><div class="note" style="margin-top:4px">코드에는 생성 규칙만 존재</div></div>
+        <div class="arrow">→</div>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;gap:14px;margin:48px 0 14px"><div class="lab">접근 주체별 권한</div><div style="height:1px;flex:1;background:var(--line)"></div><div class="note">AWS 장기 액세스 키 <b class="acc">0개</b></div></div>
+    <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:14px">
+      <div class="tile" style="padding:24px 22px"><div class="lab">개인 계정</div><div class="h3" style="font-size:19px;margin-top:4px">읽기 전용 역할</div><div class="note" style="color:var(--ink2);margin-top:6px">plan까지만 실행<br>비밀 값 조회 불가</div></div>
+      <div class="card on" style="padding:24px 22px"><div class="lab">Atlantis</div><div class="h3" style="font-size:19px;margin-top:4px">유일한 apply 경로</div><div class="note" style="color:var(--ink2);margin-top:6px">PR에서 plan 리뷰 후 적용<br>변경 이력이 PR에 보존</div></div>
+      <div class="tile" style="padding:24px 22px"><div class="lab">be 배포</div><div class="h3" style="font-size:19px;margin-top:4px">GitHub OIDC</div><div class="note" style="color:var(--ink2);margin-top:6px">main 브랜치에서만 역할 획득<br>이미지 교체만 가능</div></div>
+      <div class="tile" style="padding:24px 22px"><div class="lab">Grafana</div><div class="h3" style="font-size:19px;margin-top:4px">Cognito 로그인</div><div class="note" style="color:var(--ink2);margin-top:6px">ALB에서 로그인 후 접속<br>가입 차단, 계정은 sops로만 생성</div></div>
+      <div class="tile" style="padding:24px 22px"><div class="lab">DB 접속</div><div class="h3" style="font-size:19px;margin-top:4px">SSH 포트 미개방</div><div class="note" style="color:var(--ink2);margin-top:6px">bastion은 Session Manager<br>포트 포워딩으로만 접속</div></div>
+    </div>
+  </div>
+  <div class="foot"><div class="nav"><span class="on">1 인프라</span><span>2 부하 테스트</span></div><div class="brand">NOVA</div><div class="pg">16</div></div>
+</section>
+
+<!-- 17-1. IAM 역할 구성 -->
+<section class="slide">
+  <div class="kicker">01 인프라 · 보안</div>
+  <h1>IAM 역할 구성</h1>
+  <div class="sub">사람, CI, 애플리케이션 모두 역할을 맡아 임시 자격 증명으로만 접근 · 역할마다 필요한 범위만 허용</div>
+  <style>
+    .ig{display:flex;flex-direction:column;gap:12px}
+    .ig .gh{display:flex;align-items:baseline;gap:10px;padding-bottom:8px;border-bottom:2px solid var(--acc)}
+    .ig .gh b{font-size:22px}
+    .ig .gh span{font-size:16.5px;color:var(--ink2);font-weight:500}
+    .rc{flex:1;background:var(--tile);border-radius:6px;padding:16px 20px;display:flex;flex-direction:column;gap:6px}
+    .rc.on{background:#fff;border:1.5px solid var(--acc)}
+    .rc .t1{font-size:20px;font-weight:700}
+    .rc .rn{font-family:var(--mono);font-size:15px;color:var(--ink2);font-weight:600;margin-bottom:2px}
+    .rc .ok,.rc .no{font-size:17px;line-height:1.4;padding-left:22px;position:relative;color:var(--ink2)}
+    .rc .ok:before{content:"✓";position:absolute;left:0;color:var(--acc);font-weight:700}
+    .rc .no:before{content:"✕";position:absolute;left:0;color:var(--bad);font-weight:700}
+  </style>
+  <div class="body" style="top:215px">
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:24px">
+      <div class="card on" style="padding:12px 22px;display:flex;align-items:center;gap:16px"><div style="font-size:38px;font-weight:700" class="acc">0<small style="font-size:18px">개</small></div><div class="t" style="font-size:17px"><b>AWS 장기 액세스 키</b><br>모두 1시간 이하 임시 자격 증명</div></div>
+      <div class="tile" style="padding:12px 22px;display:flex;align-items:center;gap:16px"><div style="font-size:38px;font-weight:700">1<small style="font-size:18px">개</small></div><div class="t" style="font-size:17px"><b>인프라를 바꿀 수 있는 역할</b><br>Atlantis만 apply 가능</div></div>
+      <div class="tile" style="padding:12px 22px;display:flex;align-items:center;gap:16px"><div style="font-size:38px;font-weight:700">1<small style="font-size:18px">개</small></div><div class="t" style="font-size:17px"><b>CI가 넘길 수 있는 역할</b><br>PassRole을 마이그레이션 역할로 한정</div></div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1.1fr 0.9fr;gap:22px;height:450px">
+      <div class="ig">
+        <div class="gh"><b>사람</b><span>평소에는 읽기만</span></div>
+        <div class="rc"><div class="t1">평소</div><div class="rn">nova-readonly</div><div class="ok">리소스 조회, 로컬 plan</div><div class="no">리소스 변경, 비밀 값 조회</div></div>
+        <div class="rc"><div class="t1">비상</div><div class="rn">BreakGlassAdmin</div><div class="ok">관리자 권한 (세션 1시간)</div><div class="no">MFA 없이 사용 불가</div><div class="no">관리자 그룹 외 사용 불가</div></div>
+      </div>
+      <div class="ig">
+        <div class="gh"><b>CI</b><span>OIDC · Atlantis</span></div>
+        <div class="rc on"><div class="t1">인프라 변경</div><div class="rn">atlantis-grandis-nova-admin</div><div class="ok">인프라 apply (유일한 경로)</div><div class="no">PR plan 리뷰 없이 적용 불가</div></div>
+        <div class="rc"><div class="t1">be 배포</div><div class="rn">nova-prod-github-deploy</div><div class="ok">이미지 푸시, 재배포</div><div class="no">태스크 정의 변경 불가</div><div class="no">main 브랜치 외 발급 불가</div></div>
+      </div>
+      <div class="ig">
+        <div class="gh"><b>애플리케이션</b><span>용도별 3단 분리</span></div>
+        <div class="rc" style="padding:12px 20px"><div class="t1">태스크 실행</div><div class="rn">nova-prod-ecs-task-execution</div><div class="ok">이미지 pull, 앱 비밀 조회</div><div class="no">운영자·DB 관리자 비밀 조회</div></div>
+        <div class="rc" style="padding:12px 20px"><div class="t1">마이그레이션</div><div class="rn">nova-prod-migration-execution</div><div class="ok">스키마 변경용 DB 계정만 조회</div></div>
+        <div class="rc" style="padding:12px 20px"><div class="t1">서비스별</div><div class="rn">nova-prod-&lt;서비스&gt;-task</div><div class="ok">service.yml에 적은 큐·버킷만</div><div class="no">그 외 큐·버킷 접근</div></div>
+      </div>
+      <div class="ig">
+        <div class="gh"><b>비밀 복호화</b><span>sops</span></div>
+        <div class="rc"><div class="t1">sops 역할</div><div class="rn">nova-sops-common / secure</div><div class="ok">KMS 복호화</div><div class="ok">Atlantis, 비상 관리자만 사용</div><div class="no">읽기 전용 역할 사용 불가</div></div>
+        <div class="rc" style="flex:0 0 auto"><div class="t1" style="font-size:18px">키 분리</div><div class="t" style="font-size:16px;color:var(--ink2)">앱 비밀과 인프라 자격 증명을 서로 다른 KMS 키로 암호화</div></div>
+      </div>
+    </div>
+  </div>
+  <div class="foot"><div class="nav"><span class="on">1 인프라</span><span>2 부하 테스트</span></div><div class="brand">NOVA</div><div class="pg">17</div></div>
+</section>
+
+<!-- 18. 관측 아키텍처 -->
+<section class="slide">
+  <div class="kicker">01 인프라 · 관측</div>
+  <h1>관측 아키텍처</h1>
+  <div class="sub">수집은 Fargate, 저장과 조회는 EC2 1대의 LGTM 스택 · 관리형 서비스 대신 직접 운영</div>
+  <style>
+    .oac{display:flex;flex-direction:column;height:560px}
+    .oac .g{flex:1;padding:14px 0;display:flex;flex-direction:column;justify-content:center;gap:8px;border-top:1px solid var(--line)}
+    .oac .g:first-child{border-top:none}
+    .oac .h{font-size:15px;font-weight:600;color:var(--mute)}
+    .oac .c{font-size:19px;font-weight:700;color:var(--ink);line-height:1.2}
+    .oac .c span{display:block;font-weight:500;color:var(--ink2);font-size:15.5px;margin-top:2px}
+  </style>
+  <div class="body" style="top:205px;display:flex;gap:30px">
+    <div style="flex:0 0 1100px"><img class="fig" src="assets/ext/images-06-observability.png" style="width:1100px"></div>
+    <div style="flex:1" class="oac">
+      <div class="g"><div class="h">수집 · Fargate</div><div class="c">OTel 게이트웨이<span>앱 로그·트레이스·지표 가공</span></div><div class="c">RUM 수집기<span>브라우저 데이터 수신</span></div></div>
+      <div class="g"><div class="h">변환 · Lambda</div><div class="c">edge-logs<span>엣지 접근 로그 → OTLP</span></div></div>
+      <div class="g"><div class="h">저장 · obs EC2</div><div class="c">Loki · Tempo<span>로그 · 트레이스</span></div><div class="c">Mimir · Pyroscope<span>지표 · 프로파일</span></div></div>
+      <div class="g"><div class="h">조회 · 경보</div><div class="c">Grafana<span>Cognito 로그인 후 조회</span></div><div class="c">SNS → Chatbot<span>Slack 경보</span></div></div>
+    </div>
+  </div>
+  <div class="foot"><div class="nav"><span class="on">1 인프라</span><span>2 부하 테스트</span></div><div class="brand">NOVA</div><div class="pg">18</div></div>
+</section>
+
+<!-- 후보 B. 클러스터 분리 -->
+<section class="slide">
+  <div class="kicker">01 인프라 · 운영 안정성</div>
+  <h1>장애가 관측 도구까지 번지지 않게 클러스터 분리</h1>
+  <div class="sub">앱, 관측, 배포 도구를 서로 다른 ECS 클러스터에 배치 · 클러스터는 무료, 나누는 것은 권한과 영향 범위</div>
+  <style>
+    .cl{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+    .cl>div{border:1px solid var(--line);border-radius:10px;padding:26px 28px}
+    .cl>div.on{border:1.5px solid var(--acc)}
+    .cl .nm{font-family:var(--mono);font-size:19px;font-weight:700}
+    .cl .rl{font-size:15.5px;color:var(--mute);margin-top:2px}
+    .cl .sv{display:flex;flex-wrap:wrap;gap:6px;margin-top:14px}
+    .cl .sv span{font-size:15.5px;padding:5px 11px;border-radius:5px;background:var(--tile)}
+    .cv{display:grid;grid-template-columns:1fr 40px 1fr;align-items:center;column-gap:14px;padding:24px 0;border-bottom:1px solid var(--line)}
+    .cv:last-child{border-bottom:none}
+    .cv .b4{font-size:17px;color:var(--ink2)}
+    .cv .af{font-size:17px;font-weight:600}
+    .cv i{font-style:normal;color:var(--acc);text-align:center;font-size:20px}
+  </style>
+  <div class="body" style="top:215px">
+    <div class="clx">
+      <div><div class="nm">nova-prod</div><div class="rl">앱</div><div class="sv"><span>앱 서비스</span><span>mock</span><span>배치</span><span>DB 마이그레이션</span></div></div>
+      <div class="on"><div class="nm acc">nova-prod-observability</div><div class="rl">관측</div><div class="sv"><span>obs (LGTM)</span><span>OTel 게이트웨이</span><span>RUM 수집기</span></div></div>
+      <div><div class="nm">nova-atlantis</div><div class="rl">인프라 배포 도구</div><div class="sv"><span>Atlantis</span><span>별도 저장소에서 수동 apply</span></div></div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 40px 1fr;column-gap:14px;margin-top:44px;padding-bottom:8px;border-bottom:1.5px solid var(--ink2)"><div class="lab">한 클러스터일 때</div><div></div><div class="lab">분리 후</div></div>
+    <div class="cv"><div class="b4">be CI 배포 역할이 관측 서비스까지 재배포 · 0대 축소 가능</div><i>→</i><div class="af">배포 역할은 <span class="acc">ecs:cluster = nova-prod</span> 조건으로 앱에만 접근</div></div>
+    <div class="cv"><div class="b4">앱 클러스터를 멈추거나 다시 만들면 관측도 함께 중단</div><i>→</i><div class="af">앱 클러스터 작업과 무관하게 관측 유지</div></div>
+    <div class="cv"><div class="b4">일괄 작업마다 "관측은 제외" 를 따로 챙겨야 함</div><i>→</i><div class="af">클러스터 단위 작업이 곧 앱 단위 작업</div></div>
+    <div class="note" style="margin-top:14px">Service Connect 네임스페이스는 공유 · 클러스터가 달라도 앱 → 게이트웨이 통신 유지</div>
+  </div>
+  <div class="foot"><div class="nav"><span class="on">1 인프라</span><span>2 부하 테스트</span></div><div class="brand">NOVA</div><div class="pg">19</div></div>
+</section>
+
+<!-- 18-0. 관측 수집 상세 -->
+<section class="slide">
+  <div class="kicker">01 인프라 · 관측</div>
+  <h1>관측 데이터 수집 구조</h1>
+  <div class="sub">앱 코드 수정 없이 로그, 트레이스, 지표, 프로파일을 모아 Grafana 한곳에서 조회</div>
+  <style>
+    .ob{position:absolute;left:75px;top:205px;width:1450px;height:520px}
+    .ob .bx{position:absolute;border-radius:8px;padding:12px 16px;background:var(--tile);display:flex;flex-direction:column;justify-content:center}
+    .ob .bx b{font-size:19px;font-weight:700;color:var(--ink)}
+    .ob .bx span{font-size:15px;color:var(--ink2);margin-top:3px}
+    .ob .bx.g{background:#fff;border:1.5px solid var(--acc)}
+    .ob .bx.g b{color:var(--acc)}
+    .ob .bx.a{background:var(--acc)}
+    .ob .bx.a b,.ob .bx.a span{color:#fff}
+    .ob .hd{position:absolute;top:0;font-size:15px;color:var(--mute);font-weight:600}
+    .ob .fr{position:absolute;border:1.5px dashed var(--acc-mid);border-radius:12px}
+    .ob .fr i{position:absolute;top:-12px;left:18px;background:#fff;padding:0 8px;font-style:normal;font-size:15px;font-weight:700;color:var(--acc)}
+    .ob .st{display:flex;justify-content:space-between;align-items:baseline;padding:13px 0;border-bottom:1px solid var(--line)}
+    .ob .st:last-child{border-bottom:none}
+    .ob .st b{font-size:19px}
+    .ob .st em{font-style:normal;font-size:15px;color:var(--ink2);margin-left:8px;font-weight:400}
+    .ob .st strong{font-size:20px;color:var(--acc)}
+  </style>
+  <div class="ob">
+    <svg width="1450" height="520" style="position:absolute;left:0;top:0" fill="none" stroke="#3e4a8b" stroke-width="2">
+      <defs><marker id="oa" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="#3e4a8b" stroke="none"/></marker></defs>
+      <path d="M250 85H330" marker-end="url(#oa)"/>
+      <path d="M250 210H330" marker-end="url(#oa)"/>
+      <path d="M460 165V132" marker-end="url(#oa)"/>
+      <path d="M250 335H330" marker-end="url(#oa)"/>
+      <path d="M590 85H700" marker-end="url(#oa)"/>
+      <path d="M590 335H700" marker-end="url(#oa)"/>
+      <path d="M1010 190H1090" marker-end="url(#oa)"/>
+      <path d="M250 460H1050V235H1090" marker-end="url(#oa)" stroke-dasharray="6 5"/>
+      <path d="M1250 255V378" marker-end="url(#oa)"/>
+    </svg>
+    <div class="hd" style="left:0">수집 대상</div>
+    <div class="hd" style="left:330px">수집·가공</div>
+    <div class="hd" style="left:720px">저장 (obs, EC2 1대)</div>
+    <div class="hd" style="left:1090px">조회·경보</div>
+
+    <div class="bx" style="left:0;top:40px;width:250px;height:90px"><b>앱 서비스</b><span>OTel Java 에이전트</span></div>
+    <div class="bx" style="left:0;top:165px;width:250px;height:90px"><b>브라우저</b><span>Faro SDK (RUM)</span></div>
+    <div class="bx" style="left:0;top:290px;width:250px;height:90px"><b>CloudFront·ALB</b><span>접근 로그 → S3</span></div>
+    <div class="bx" style="left:0;top:415px;width:250px;height:90px"><b>AWS 리소스</b><span>CloudWatch 지표</span></div>
+
+    <div class="bx g" style="left:330px;top:40px;width:260px;height:90px"><b>OTel 게이트웨이</b><span>Fargate · 마스킹·샘플링</span></div>
+    <div class="bx" style="left:330px;top:165px;width:260px;height:90px"><b>RUM 수집기</b><span>게이트웨이로 전달</span></div>
+    <div class="bx" style="left:330px;top:290px;width:260px;height:90px"><b>edge-logs Lambda</b><span>OTLP로 변환</span></div>
+    <div style="position:absolute;left:330px;top:430px;width:260px;text-align:center;font-size:15px;color:var(--ink2)">Grafana에서 직접 조회</div>
+
+    <div class="fr" style="left:700px;top:40px;width:310px;height:340px"><i>장기 데이터는 S3</i></div>
+    <div style="position:absolute;left:722px;top:72px;width:266px">
+      <div class="st"><span><b>로그</b><em>Loki</em></span><strong>90일</strong></div>
+      <div class="st"><span><b>트레이스</b><em>Tempo</em></span><strong>14일</strong></div>
+      <div class="st"><span><b>지표</b><em>Mimir</em></span><strong>90일</strong></div>
+      <div class="st"><span><b>프로파일</b><em>Pyroscope</em></span><strong>7일</strong></div>
+      <div style="font-size:14px;color:var(--mute);margin-top:6px">프로파일은 에이전트 확장이 직접 전송</div>
+    </div>
+
+    <div class="bx a" style="left:1090px;top:165px;width:320px;height:90px"><b>Grafana</b><span>대시보드 11개 · 경보 규칙</span></div>
+    <div class="bx" style="left:1090px;top:380px;width:320px;height:90px"><b>SNS → Slack</b><span>사람이 움직여야 할 때만 알림</span></div>
+  </div>
+  <div style="position:absolute;left:75px;top:742px;width:1450px;display:flex;gap:16px">
+    <div class="tile" style="flex:1;padding:14px 20px;font-size:17px"><b class="acc">코드 수정 없음</b> · 컨테이너에 에이전트만 붙여 수집</div>
+    <div class="tile" style="flex:1;padding:14px 20px;font-size:17px"><b class="acc">직접 운영</b> · 관리형 대신 EC2 1대에 LGTM 스택</div>
+    <div class="tile" style="flex:1;padding:14px 20px;font-size:17px"><b class="acc">디스크 고정</b> · 보존 기간이 늘어도 S3만 증가</div>
+  </div>
+  <div class="foot"><div class="nav"><span class="on">1 인프라</span><span>2 부하 테스트</span></div><div class="brand">NOVA</div><div class="pg">20</div></div>
+</section>
+
+<!-- 18-1. 관측 파이프라인 설계 -->
+<section class="slide">
+  <div class="kicker">01 인프라 · 관측</div>
+  <h1>관측 파이프라인 설계</h1>
+  <div class="sub">OTel 게이트웨이 한 곳에서 데이터 보관, 지표 생성, 트레이스 선택, 개인정보 마스킹 처리</div>
+  <style>
+    .pp{position:absolute;left:75px;top:225px;width:1450px;height:270px}
+    .pp .bx{position:absolute;border-radius:8px;padding:10px 16px;background:var(--tile);display:flex;flex-direction:column;justify-content:center}
+    .pp .bx b{font-size:19px;font-weight:700}
+    .pp .bx span{font-size:15px;color:var(--ink2);margin-top:2px}
+    .pp .bx .n{color:#fff;margin-top:0}
+    .pp .bx.s{background:#fff;border:1.5px solid var(--acc)}
+    .pp .bx.d{background:var(--acc)}
+    .pp .bx.d b,.pp .bx.d span{color:#fff}
+    .pp .n{display:inline-flex;width:26px;height:26px;border-radius:50%;background:var(--acc);color:#fff;font-size:15px;font-weight:700;align-items:center;justify-content:center;margin-right:8px;vertical-align:2px}
+    .pp .fr{position:absolute;left:230px;top:0;width:880px;height:270px;border:1.5px dashed var(--acc-mid);border-radius:12px}
+    .pp .fr i{position:absolute;top:-12px;left:18px;background:#fff;padding:0 8px;font-style:normal;font-size:15px;font-weight:700;color:var(--acc)}
+    .pc{position:absolute;left:75px;top:560px;width:1450px;display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+    .pc>div{border:1px solid var(--line);border-radius:8px;padding:24px 24px}
+    .pc .t{font-size:18px;font-weight:700;display:flex;align-items:center}
+    .pc .h{font-size:50px;font-weight:800;color:var(--acc);margin:16px 0 12px;line-height:1}
+    .pc .h small{font-size:20px;font-weight:600;margin-left:4px}
+    .pc .d{font-size:17px;color:var(--ink2);line-height:1.45}
+    .pc .n{display:inline-flex;width:26px;height:26px;border-radius:50%;background:var(--acc);color:#fff;font-size:15px;font-weight:700;align-items:center;justify-content:center;margin-right:8px}
+  </style>
+  <div class="pp">
+    <svg width="1450" height="270" style="position:absolute;left:0;top:0" fill="none" stroke="#3e4a8b" stroke-width="2">
+      <defs><marker id="pa" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="#3e4a8b" stroke="none"/></marker></defs>
+      <path d="M180 135H265" marker-end="url(#pa)"/>
+      <path d="M475 135H510V70H560" marker-end="url(#pa)"/>
+      <path d="M510 135V200H560" marker-end="url(#pa)"/>
+      <path d="M800 200H840" marker-end="url(#pa)"/>
+      <path d="M1080 70H1190" marker-end="url(#pa)"/>
+      <path d="M1080 200H1190" marker-end="url(#pa)"/>
+    </svg>
+    <div class="bx" style="left:0;top:85px;width:180px;height:100px"><b>앱 · 브라우저</b><span>로그 · 트레이스 · 지표</span></div>
+    <div class="fr"><i>OTel 게이트웨이 (Fargate)</i></div>
+    <div class="bx s" style="left:265px;top:85px;width:210px;height:100px"><b><span class="n">1</span>수신 큐</b><span>obs 중단 중 보관</span></div>
+    <div class="bx s" style="left:560px;top:30px;width:520px;height:80px"><b><span class="n">2</span>APM 지표 생성</b><span>모든 스팬으로 경로별 요청 수·지연, 서비스 맵</span></div>
+    <div class="bx s" style="left:560px;top:160px;width:240px;height:80px"><b><span class="n">3</span>트레이스 선택</b><span>로그는 거치지 않음</span></div>
+    <div class="bx s" style="left:840px;top:160px;width:240px;height:80px"><b><span class="n">4</span>마스킹</b><span>이메일 · 전화번호</span></div>
+    <div class="bx d" style="left:1190px;top:30px;width:260px;height:80px"><b>Mimir</b><span>지표</span></div>
+    <div class="bx d" style="left:1190px;top:160px;width:260px;height:80px"><b>Tempo · Loki</b><span>트레이스 · 로그</span></div>
+  </div>
+  <div class="pc">
+    <div><div class="t"><span class="n">1</span>받는 쪽과 저장 분리</div><div class="h">15<small>분</small></div><div class="d">obs가 재배포로 멈춰도<br>게이트웨이가 보관 후 재전송</div></div>
+    <div><div class="t"><span class="n">2</span>지표는 샘플링 전에</div><div class="h">100<small>% 스팬</small></div><div class="d">샘플링과 무관하게<br>요청 수와 지연을 정확히 집계</div></div>
+    <div><div class="t"><span class="n">3</span>트레이스는 끝난 뒤 선택</div><div class="h">10<small>%만 저장</small></div><div class="d">오류와 1초 초과 요청은 전량,<br>나머지 정상 요청만 일부 저장</div></div>
+    <div><div class="t"><span class="n">4</span>저장 전 마스킹</div><div class="h">원문<small> 저장 안 함</small></div><div class="d">API로 직접 조회해도<br>이메일·전화번호 원문 없음</div></div>
+  </div>
+  <div class="foot"><div class="nav"><span class="on">1 인프라</span><span>2 부하 테스트</span></div><div class="brand">NOVA</div><div class="pg">21</div></div>
+</section>
+
+<!-- 후보 C. 장애 추적 동선 -->
+<section class="slide">
+  <div class="kicker">01 인프라 · 관측</div>
+  <h1>경보에서 원인까지 클릭으로 추적</h1>
+  <div class="sub">개요 → 서비스 → API → 트레이스 순서로 범위 축소 · 서비스 이름, 경로, exemplar를 누르면 다음 화면</div>
+  <style>
+    .tr{display:grid;grid-template-columns:repeat(4,1fr);gap:18px}
+    .tr .sh{height:300px;border:1px solid var(--line);border-radius:8px;overflow:hidden;background:#1b1d22}
+    .tr .sh img{width:100%;display:block}
+    .tr .st{font-size:15px;font-weight:700;color:var(--acc);margin-top:14px}
+    .tr .tt{font-size:20px;font-weight:700;margin-top:2px}
+    .tr .q{font-size:16px;color:var(--ink2);margin-top:6px;line-height:1.45}
+    .tr .ck{display:inline-block;font-size:14.5px;color:var(--acc);background:var(--acc-soft);padding:3px 9px;border-radius:5px;margin-top:10px}
+    .tl{display:flex;align-items:center;gap:10px;margin-top:34px;padding:14px 20px;background:var(--tile);border-radius:8px;font-size:17px}
+    .tl i{font-style:normal;color:var(--acc)}
+  </style>
+  <div class="body" style="top:215px">
+    <div class="tr">
+      <div><div class="sh"><img src="assets/ext/grafana-overview.jpg"></div><div class="st">1 개요</div><div class="tt">어느 서비스가 이상한가</div><div class="q">서비스별 요청 · 5xx · 지연 한눈에</div><span class="ck">서비스 이름 클릭 →</span></div>
+      <div><div class="sh"><img src="assets/ext/grafana-service.jpg"></div><div class="st">2 서비스 상세</div><div class="tt">왜 이상한가</div><div class="q">오류 코드 · CPU · Valkey · DB 풀<br>시간을 쓰는 API</div><span class="ck">API 경로 클릭 →</span></div>
+      <div><div class="sh"><img src="assets/ext/grafana-api.jpg"></div><div class="st">3 API 상세</div><div class="tt">언제부터, 얼마나</div><div class="q">응답 코드 · 응답 시간 · 지난주 비교<br>느린 요청 · 오류 요청</div><span class="ck">trace_id 클릭 →</span></div>
+      <div style="display:flex;flex-direction:column"><div class="sh" style="background:var(--tile);display:flex;flex-direction:column;justify-content:center;gap:12px;padding:0 22px"><div style="font-size:19px;font-weight:700">트레이스 (Tempo)</div><div style="font-size:16px;color:var(--ink2)">↓ 이 스팬의 로그</div><div style="font-size:19px;font-weight:700">로그 (Loki)</div><div style="font-size:16px;color:var(--ink2)">↓ 이 스팬의 프로파일</div><div style="font-size:19px;font-weight:700">플레임 그래프 (Pyroscope)</div></div><div class="st">4 트레이스 · 로그 · 프로파일</div><div class="tt">어느 코드에서</div><div class="q">요청 하나의 구간별 시간<br>같은 요청의 로그와 CPU 사용 코드</div></div>
+    </div>
+    <div class="tl"><b>Slack 경보</b><i>→</i>개요<i>→</i>서비스 상세<i>→</i>API 상세<i>→</i>트레이스<i>→</i>로그 · 프로파일<span style="margin-left:auto;color:var(--mute);font-size:15.5px">DB 시간이 크면 MySQL 상위 SQL 대시보드로</span></div>
+  </div>
+  <div class="foot"><div class="nav"><span class="on">1 인프라</span><span>2 부하 테스트</span></div><div class="brand">NOVA</div><div class="pg">22</div></div>
+</section>
+
+<!-- 19. 오픈 상황판 -->
+<section class="slide">
+  <div class="kicker">01 인프라 · 관측</div>
+  <h1>오픈 상황판</h1>
+  <div class="body" style="top:160px;display:flex;gap:36px">
+    <div style="flex:0 0 960px"><img class="shot" src="assets/ext/images-07-grafana-overview.jpg" style="width:960px"></div>
+    <div style="flex:1;padding-top:10px">
+      <div class="lab" style="margin-bottom:14px">위에서 아래로 1분 단위 확인</div>
+      <div class="col" style="gap:0">
+        <div class="tile" style="padding:16px 20px"><div class="num">01</div><div class="h3" style="font-size:21px;margin-top:2px">사용자가 겪은 오류</div><div class="note" style="color:var(--ink2)">요청 수, 5xx, 0.5초 초과 요청 비율</div></div>
+        <div class="arrow" style="height:30px;font-size:20px">↓</div>
+        <div class="tile" style="padding:16px 20px"><div class="num">02</div><div class="h3" style="font-size:21px;margin-top:2px">문제가 생긴 서비스</div><div class="note" style="color:var(--ink2)">서비스별 5xx, CPU, 태스크 수를 같은 시간축으로 비교</div></div>
+        <div class="arrow" style="height:30px;font-size:20px">↓</div>
+        <div class="tile" style="padding:16px 20px;background:var(--acc);"><div class="num" style="color:#cfd3ea">03</div><div class="h3" style="font-size:21px;margin-top:2px;color:#fff">원인</div><div class="note" style="color:#e2e5f3">CPU 포화, Valkey 타임아웃, 증설 지연</div></div>
+      </div>
+      <div class="note" style="margin-top:22px">503 원인 분석 당시 CloudWatch와 로그 검색 결과를 하나씩 확인해야 했던 문제를 계기로 제작 · 대시보드는 모두 파일로 관리</div>
+    </div>
+  </div>
+  <div class="foot"><div class="nav"><span class="on">1 인프라</span><span>2 부하 테스트</span></div><div class="brand">NOVA</div><div class="pg">23</div></div>
+</section>
+
+<!-- 후보 A. 업무 지표 -->
+<section class="slide">
+  <div class="kicker">01 인프라 · 관측</div>
+  <h1>업무 지표로 보는 장애</h1>
+  <div class="sub">요청 수, 5xx, 지연이 모두 정상이어도 예약이 안 들어오는 장애가 존재 · 업무 결과를 세는 지표로 감지</div>
+  <style>
+    .ka .row{display:flex;gap:14px;align-items:center;padding:26px 0;border-bottom:1px solid var(--line)}
+    .ka .row:last-child{border-bottom:none}
+    .ka .ok{font-size:15px;color:var(--good);background:var(--good-soft);padding:4px 10px;border-radius:5px;white-space:nowrap}
+    .ka .ng{font-size:15px;color:var(--bad);background:var(--bad-soft);padding:4px 10px;border-radius:5px;white-space:nowrap}
+    .ka .tx{font-size:18px;flex:1}
+    .kb .it{display:flex;justify-content:space-between;align-items:baseline;padding:21px 0;border-bottom:1px solid var(--line)}
+    .kb .it:last-child{border-bottom:none}
+    .kb .it b{font-size:19px}
+    .kb .it span{font-size:15.5px;color:var(--ink2)}
+    .kf{display:flex;align-items:center;gap:10px;margin-top:18px}
+    .kf .b{padding:9px 14px;border-radius:6px;background:var(--tile);font-size:16px;font-weight:600}
+    .kf .b.a{background:var(--acc);color:#fff}
+    .kf i{font-style:normal;color:var(--acc)}
+  </style>
+  <div class="body" style="top:215px;display:flex;gap:48px">
+    <div style="flex:1" class="ka">
+      <div class="lab" style="margin-bottom:4px">기술 지표로는 안 보이는 장애</div>
+      <div class="row"><span class="ok">HTTP 200</span><span class="tx">결제사가 실패를 200 응답으로 반환</span><span class="ng">결제 실패</span></div>
+      <div class="row"><span class="ok">HTTP 200</span><span class="tx">대기열 입장 루프가 멈춰 아무도 구매 단계로 못 감</span><span class="ng">입장 0명</span></div>
+      <div class="row"><span class="ok">요청 없음</span><span class="tx">프런트 배포 실수로 구매 버튼이 API를 호출하지 않음</span><span class="ng">예약 0건</span></div>
+      <div class="lab" style="margin-top:40px">수집 경로 · 인프라 설정 변경 없음</div>
+      <div class="kf"><span class="b">be Micrometer 카운터</span><i>→</i><span class="b">OTel 에이전트</span><i>→</i><span class="b">Mimir</span><i>→</i><span class="b a">업무 대시보드</span></div>
+      <div class="note" style="margin-top:10px">예: nova_preorder_created_total (결과별), nova_preorder_campaigns_accepting</div>
+    </div>
+    <div style="flex:0 0 560px" class="kb">
+      <div class="lab" style="margin-bottom:4px">"nova · 업무" 대시보드에서 보는 것</div>
+      <div class="it"><b>접수 중인 회차</b><span>지금 열린 회차 수</span></div>
+      <div class="it"><b>신규 예약</b><span>결과별 · 경로별</span></div>
+      <div class="it"><b>거절 · 오류 비율</b><span>접수 실패 추이</span></div>
+      <div class="it"><b>예약 상태별 수</b><span>상태 분포</span></div>
+      <div class="it"><b>결제 기한 지난 예약</b><span>후속 처리 누락</span></div>
+      <div class="it"><b>처리 대기</b><span>밀린 작업 수</span></div>
+    </div>
+  </div>
+  <div class="foot"><div class="nav"><span class="on">1 인프라</span><span>2 부하 테스트</span></div><div class="brand">NOVA</div><div class="pg">24</div></div>
+</section>
+
+<!-- 후보 D. RUM -->
+<section class="slide">
+  <div class="kicker">01 인프라 · 관측</div>
+  <h1>브라우저에서 본 사용자 경험 (RUM)</h1>
+  <div class="sub">서버에 닿기 전의 실패와 사용자가 실제로 기다린 시간까지 측정 · Grafana Faro SDK</div>
+  <style>
+    .ru .sh{height:560px;border:1px solid var(--line);border-radius:8px;overflow:hidden;background:#1b1d22}
+    .ru .sh img{width:100%;display:block}
+    .rv .it{padding:13px 0;border-bottom:1px solid var(--line)}
+    .rv .it:last-child{border-bottom:none}
+    .rv .it b{display:block;font-size:19px}
+    .rv .it span{font-size:16px;color:var(--ink2)}
+    .rp{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:4px}
+    .rp .b{padding:7px 12px;border-radius:6px;background:var(--tile);font-size:15.5px;font-weight:600}
+    .rp .b.o{background:#fff;border:1.5px solid var(--acc);color:var(--acc)}
+    .rp i{font-style:normal;color:var(--acc)}
+  </style>
+  <div class="body" style="top:205px;display:flex;gap:40px">
+    <div style="flex:0 0 720px" class="ru"><div class="sh"><img src="assets/ext/grafana-frontend.jpg"></div></div>
+    <div style="flex:1" class="rv">
+      <div class="lab" style="margin-bottom:2px">보는 것</div>
+      <div class="it"><b>웹 바이탈 p75</b><span>LCP · INP · CLS, 페이지별</span></div>
+      <div class="it"><b>JS 오류</b><span>API 호출 전 실패라 서버에는 흔적이 없는 오류</span></div>
+      <div class="it"><b>API 체감 시간</b><span>브라우저 p95 vs 서버 p95 비교</span></div>
+      <div class="it"><b>핵심 동작 소요 시간</b><span>동작별 p95 · API 실패</span></div>
+      <div class="lab" style="margin:20px 0 6px">수집 경로</div>
+      <div class="rp"><span class="b">브라우저 Faro</span><i>→</i><span class="b o">rum 도메인 CloudFront + 전용 WAF</span></div>
+      <div class="rp" style="margin-top:8px"><i>→</i><span class="b">ALB</span><i>→</i><span class="b o">RUM 수집기 (출처 검사)</span><i>→</i><span class="b">OTel 게이트웨이</span></div>
+    </div>
+  </div>
+  <div class="foot"><div class="nav"><span class="on">1 인프라</span><span>2 부하 테스트</span></div><div class="brand">NOVA</div><div class="pg">25</div></div>
+</section>
+
+<!-- 20. 경보 -->
+<section class="slide">
+  <div class="kicker">01 인프라 · 경보</div>
+  <h1>경보 정리</h1>
+  <div class="sub">경보가 많으면 중요한 경보를 놓치기 쉬움 → 담당자가 실제로 조치해야 하는 경보만 유지</div>
+  <div class="body" style="top:235px;display:flex;gap:36px">
+    <div style="flex:1" class="col">
+      <div class="lab" style="margin-bottom:12px">삭제한 경보</div>
+      <div class="card" style="padding:22px 26px"><div class="big" style="color:var(--mute);text-decoration:line-through;text-decoration-thickness:3px;text-decoration-color:var(--bad)">314<small>회</small></div><div class="t" style="margin-top:6px">21일 동안 314회 울린 ALB 전체 p95 경보</div></div>
+      <div class="card" style="padding:22px 26px;margin-top:14px"><div class="big" style="color:var(--mute);text-decoration:line-through;text-decoration-thickness:3px;text-decoration-color:var(--bad)">8<small>개</small></div><div class="t" style="margin-top:6px">최대 태스크 수 경보와 중복되던 서비스별 CPU 경보</div></div>
+    </div>
+    <div style="flex:1" class="col">
+      <div class="lab" style="margin-bottom:12px">추가·변경한 경보</div>
+      <div class="card on" style="padding:22px 26px"><div class="h3">서비스별 5xx</div><div class="t" style="margin-top:8px">기존 ALB 5xx 경보는 ALB가 만든 오류만 집계 → 앱이 반환한 503 감지 불가</div></div>
+      <div class="card" style="padding:22px 26px;margin-top:14px"><div class="h3">SLO 오류 예산 소진</div><div class="t" style="margin-top:8px">응답 시간·가용성은 오류 예산이 빠르게 줄어들 때만 알림<br>순간적인 튐에는 미발송</div></div>
+      <div class="card" style="padding:22px 26px;margin-top:14px"><div class="h3">평소 대비 이상</div><div class="t" style="margin-top:8px">지난 3주 중앙값과 비교<br>30분간 요청 300건 미만이면 미발송</div></div>
+    </div>
+    <div style="flex:0.9" class="col">
+      <div class="lab" style="margin-bottom:12px">그 밖의 확인 항목</div>
+      <div class="tile" style="flex:1;display:flex;flex-direction:column;justify-content:space-between">
+        <div style="font-size:20px;line-height:2.15;color:var(--ink2)">큐 적체와 DLQ<br>실행 중인 태스크 0개<br>배포 실패 (ECS 이벤트)<br>인증서 만료<br>관측 저장소 한도<br>최대 태스크 수에서 CPU 70% 3분 지속</div>
+        <div style="display:flex;align-items:center;gap:10px;border-top:1px solid #dfe2e7;padding-top:14px"><img src="assets/ext/slack.svg" style="width:26px"><span style="font-size:19px;font-weight:600">모든 경보는 Slack으로 수신</span></div>
+      </div>
+    </div>
+  </div>
+  <div class="foot"><div class="nav"><span class="on">1 인프라</span><span>2 부하 테스트</span></div><div class="brand">NOVA</div><div class="pg">26</div></div>
+</section>
+
+<!-- 21. 비용 -->
+<section class="slide">
+  <div class="kicker">01 인프라 · 비용</div>
+  <h1>비용 절감</h1>
+  <div class="sub">목표 구조는 코드로 모두 구현 · 비용이 큰 항목만 변수로 낮춰 운영 · 트래픽이 늘면 변수 하나로 원복</div>
+  <style>
+    .cr{display:grid;grid-template-columns:210px 1fr 40px 1fr 230px;align-items:center;column-gap:14px;padding:14px 0;border-bottom:1px solid #eceef2}
+    .cr .nm{font-size:20px;font-weight:700}
+    .cr .bf{font-size:17px;color:var(--ink2);background:var(--tile);border-radius:6px;padding:9px 14px}
+    .cr .af{font-size:17px;font-weight:600;color:var(--acc);background:#fff;border:1.5px solid var(--acc);border-radius:6px;padding:8px 14px}
+    .cr .ar{color:var(--acc);font-size:20px;text-align:center}
+    .cr .sv{display:flex;align-items:center;gap:10px}
+    .cr .sv i{display:block;height:20px;background:var(--acc);border-radius:2px}
+    .cr .sv b{font-size:22px;white-space:nowrap}
+    .cr.h{padding:0 0 8px;border-bottom:1.5px solid var(--ink2)}
+    .cr.h div{font-size:15px;color:var(--mute);font-weight:500}
+  </style>
+  <div class="body" style="top:215px">
+    <div style="display:flex;align-items:center;gap:22px;margin-bottom:26px">
+      <div class="tile" style="padding:12px 24px;display:flex;align-items:baseline;gap:14px"><span style="font-size:16px;color:var(--ink2)">월 운영비</span><span style="font-size:26px;color:var(--mute);text-decoration:line-through">약 890달러</span><span class="acc" style="font-size:22px">→</span><span style="font-size:34px;font-weight:800" class="acc">약 240달러</span></div>
+      <div class="card on" style="padding:12px 24px;display:flex;align-items:baseline;gap:12px"><span style="font-size:16px;color:var(--ink2)">월 절감</span><span style="font-size:34px;font-weight:800" class="acc">약 650달러</span><span style="font-size:18px;font-weight:700">(-73%)</span></div>
+      <div class="note" style="margin-left:auto;text-align:right">계기: 전체 서비스 배포 후<br>하루 비용 약 2.9달러 → 약 10달러</div>
+    </div>
+    <div class="cr h"><div>항목</div><div>목표 구조 (기존 설계)</div><div></div><div>현재 운영 (변경)</div><div>월 절감 (달러, 추정)</div></div>
+    <div class="cr"><div class="nm">Fargate 용량</div><div class="bf">서비스마다 온디맨드 1대 + 증설분 Spot</div><div class="ar">→</div><div class="af">전부 Spot</div><div class="sv"><i style="width:150px"></i><b>160</b></div></div>
+    <div class="cr"><div class="nm">RDS</div><div class="bf">Multi-AZ (대기 인스턴스 포함)</div><div class="ar">→</div><div class="af">단일 AZ (db.t4g.large)</div><div class="sv"><i style="width:112px"></i><b>120</b></div></div>
+    <div class="cr"><div class="nm">Valkey</div><div class="bf">복제본 + 자동 장애 조치</div><div class="ar">→</div><div class="af">노드 1개</div><div class="sv"><i style="width:19px"></i><b>20</b></div></div>
+    <div class="cr"><div class="nm">NAT</div><div class="bf">AZ별 NAT Gateway</div><div class="ar">→</div><div class="af">AZ별 NAT 인스턴스 (fck-nat t4g.micro)</div><div class="sv"><i style="width:66px"></i><b>70 <small style="font-size:15px;font-weight:500;color:var(--mute)">+처리 요금</small></b></div></div>
+    <div class="cr"><div class="nm">VPC 엔드포인트</div><div class="bf">ECR·Logs·Secrets Manager·SSM 인터페이스형</div><div class="ar">→</div><div class="af">제거, NAT 경유 (S3는 무료 게이트웨이형 유지)</div><div class="sv"><i style="width:122px"></i><b>130</b></div></div>
+    <div class="cr"><div class="nm">Container Insights</div><div class="bf">켬 (태스크 단위 지표)</div><div class="ar">→</div><div class="af">끔, 무료 AWS/ECS 지표·이벤트 경보로 대체</div><div class="sv"><i style="width:70px"></i><b>75</b></div></div>
+    <div class="cr" style="border-bottom:none;grid-template-columns:210px 1fr 230px"><div class="nm">기타 5개</div>
+      <div style="display:flex;flex-wrap:wrap;gap:8px;font-size:15.5px;color:var(--ink2)">
+        <span class="bf" style="padding:6px 12px;font-size:15.5px">mock 2대 → 1대</span><span class="bf" style="padding:6px 12px;font-size:15.5px">preorder 2 vCPU → 1 vCPU</span><span class="bf" style="padding:6px 12px;font-size:15.5px">Atlantis 전용 ALB → 메인 ALB 공유</span><span class="bf" style="padding:6px 12px;font-size:15.5px">엣지 로그 내부 NLB → DNS 레코드</span><span class="bf" style="padding:6px 12px;font-size:15.5px">Flow Logs 끔</span>
+      </div>
+      <div class="sv"><i style="width:70px;background:var(--acc-mid)"></i><b>약 75</b></div></div>
+  </div>
+  <div class="foot"><div class="nav"><span class="on">1 인프라</span><span>2 부하 테스트</span></div><div class="brand">NOVA</div><div class="pg">27</div></div>
+</section>
+
+<!-- 22. 구분: 부하 테스트 -->
+<section class="slide divider">
+  <div class="no">02</div>
+  <div class="ti">부하 테스트</div>
+  <div class="ds">판매 오픈 시점 트래픽의 운영 환경 재현과 결과의 인프라 설정 반영</div>
+  <div class="ls">
+    <div><span>1</span>테스트 목표와 합격 기준</div>
+    <div><span>2</span>사전 시뮬레이션과 시나리오</div>
+    <div><span>3</span>테스트 환경과 판정 방식</div>
+    <div><span>4</span>판매 오픈 최종 결과</div>
+  </div>
+</section>
+
+<!-- 23. 테스트 목표 -->
+<section class="slide">
+  <div class="kicker">02 부하 테스트 · 목표</div>
+  <h1>테스트 목표와 합격 기준</h1>
+  <div class="sub">로컬 측정값만으로는 운영 환경의 CloudFront, WAF, ALB, 오토스케일링, RDS 동작 확인 불가 → 운영 경로로 실제 부하 전송</div>
+  <div class="body" style="top:245px;display:flex;gap:40px">
+    <div style="flex:1.1">
+      <div class="lab" style="margin-bottom:12px">확인 항목</div>
+      <div class="side-list">
+        <div class="it" style="display:flex;gap:18px"><div style="font-size:30px;font-weight:200;color:var(--acc);width:44px">1</div><div><div class="h">오픈 직후 10초 동안 5,000명 접속</div><div class="d">오류 없는 처리 여부</div></div></div>
+        <div class="it" style="display:flex;gap:18px"><div style="font-size:30px;font-weight:200;color:var(--acc);width:44px">2</div><div><div class="h">태스크 1대의 처리 한계</div><div class="d">버틸 수 있는 부하와 증설이 필요한 시점</div></div></div>
+        <div class="it" style="display:flex;gap:18px"><div style="font-size:30px;font-weight:200;color:var(--acc);width:44px">3</div><div><div class="h">증설 속도</div><div class="d">태스크 증가 속도가 트래픽 증가를 따라가는지 여부</div></div></div>
+      </div>
+      <div style="display:flex;gap:16px;margin-top:22px">
+        <div class="tile" style="flex:1;padding:18px 22px"><div class="lab">테스트 기간</div><div style="font-size:30px;font-weight:700;margin-top:4px">10/19 ~ 10/23</div></div>
+        <div class="tile" style="flex:1;padding:18px 22px"><div class="lab">실행 횟수</div><div style="font-size:30px;font-weight:700;margin-top:4px">28회</div></div>
+      </div>
+    </div>
+    <div style="flex:1" class="col">
+      <div class="lab" style="margin-bottom:12px">합격 기준 (운영 SLO와 동일)</div>
+      <div class="card on" style="flex:1;display:flex;flex-direction:column;justify-content:center;padding:30px 36px">
+        <div class="lab">응답 시간</div>
+        <div style="font-size:72px;font-weight:700;letter-spacing:-0.03em" class="acc">p95 ≤ 0.5<small style="font-size:34px">초</small></div>
+        <div style="height:1px;background:var(--line);margin:26px 0"></div>
+        <div class="lab">서버 오류 비율</div>
+        <div style="font-size:72px;font-weight:700;letter-spacing:-0.03em" class="acc">5xx ≤ 0.1<small style="font-size:34px">%</small></div>
+        <div class="t" style="margin-top:24px">전체 기준과 흐름별 기준 <b>모두</b> 충족 시 합격</div>
+      </div>
+    </div>
+  </div>
+  <div class="foot"><div class="nav"><span>1 인프라</span><span class="on">2 부하 테스트</span></div><div class="brand">NOVA</div><div class="pg">29</div></div>
+</section>
+
+<!-- 24. breakscale -->
+<section class="slide">
+  <div class="kicker">02 부하 테스트 · 시뮬레이션</div>
+  <h1>사전 시뮬레이션</h1>
+  <div class="sub">운영 부하 전송 전, be·인프라·mock의 실제 설정값을 넣은 이산 사건 시뮬레이터(breakscale)로 병목 지점 예측 · 노드 41개, 시나리오 12개, 각 300초</div>
+  <div class="body" style="top:245px">
+    <img class="shot" src="assets/ext/images-03-breakscale.png" style="width:100%;height:320px;object-fit:cover;object-position:center 62%">
+    <div style="display:grid;grid-template-columns:1.25fr 1fr 1fr;gap:18px;margin-top:20px">
+      <div class="card on" style="padding:20px 24px">
+        <div class="lab">첫 번째 병목: 외부 예약 등록</div>
+        <div style="margin-top:14px">
+          <div style="display:flex;align-items:center;gap:12px;margin-bottom:8px"><span style="width:120px;font-size:16px">입장 속도</span><div style="flex:1"><div style="height:22px;width:100%;background:var(--ink2);border-radius:3px"></div></div><span style="width:80px;font-weight:700;font-size:18px">150/초</span></div>
+          <div style="display:flex;align-items:center;gap:12px"><span style="width:120px;font-size:16px">worker 4대</span><div style="flex:1"><div style="height:22px;width:85.3%;background:var(--acc);border-radius:3px"></div></div><span style="width:80px;font-weight:700;font-size:18px">128/초</span></div>
+        </div>
+        <div class="note" style="margin-top:10px;color:var(--ink2)">트래픽이 이어지면 등록 큐 적체 → worker를 큐 적체량 기준으로 증설하는 근거</div>
+      </div>
+      <div class="tile" style="padding:20px 24px">
+        <div class="lab">10초 동안 5,000건 유입 시</div>
+        <div style="display:flex;gap:20px;margin-top:8px"><div><div style="font-size:36px;font-weight:700">33<small style="font-size:18px">초</small></div><div class="note">대기열의 분산 입장</div></div><div><div style="font-size:36px;font-weight:700">약 90<small style="font-size:18px">초</small></div><div class="note">등록 큐 소진</div></div></div>
+      </div>
+      <div class="tile" style="padding:20px 24px">
+        <div class="lab">입장 속도를 초당 300명으로 상향 시</div>
+        <div style="font-size:36px;font-weight:700;margin-top:8px">180~199<small style="font-size:18px">건/초</small></div>
+        <div class="note" style="color:var(--ink2)">preorder를 늘려도 접수량 정체 → 회차 행 잠금이 병목이라는 가설</div>
+      </div>
+    </div>
+  </div>
+  <div class="foot"><div class="nav"><span>1 인프라</span><span class="on">2 부하 테스트</span></div><div class="brand">NOVA</div><div class="pg">30</div></div>
+</section>
+
+<!-- 25. 시나리오 -->
+<section class="slide">
+  <div class="kicker">02 부하 테스트 · 시나리오</div>
+  <h1>테스트 시나리오</h1>
+  <div class="body" style="top:170px">
+    <div style="display:flex;align-items:center;gap:20px;margin-bottom:20px">
+      <div class="lab" style="width:170px">평시 요청 비율<br><span style="font-size:14px">시뮬레이션과 동일</span></div>
+      <div style="flex:1;display:flex;height:40px;border-radius:6px;overflow:hidden;font-size:15px;font-weight:600">
+        <div style="flex:80;background:var(--acc);color:#fff;display:flex;align-items:center;padding-left:14px">상품 조회 80</div>
+        <div style="flex:10;background:#6b75a9;color:#fff;display:flex;align-items:center;justify-content:center">예약 조회 10</div>
+        <div style="flex:5;background:var(--acc-mid);display:flex;align-items:center;justify-content:center">5</div>
+        <div style="flex:5;background:#d6d9ea;display:flex;align-items:center;justify-content:center">5</div>
+        <div style="flex:1;background:#eceef6"></div>
+      </div>
+    </div>
+    <div class="note" style="margin:-12px 0 14px 190px;text-align:right">진입과 접수 5, 주문과 결제 5, 취소 1</div>
+    <table class="tb">
+      <tr><th style="width:120px">시나리오</th><th style="width:170px">부하 형태</th><th style="width:420px">확인 내용</th><th>기본 설정</th></tr>
+      <tr><td class="strong">smoke</td><td><svg width="150" height="34"><polyline points="2,30 2,27 148,27 148,30" fill="#e9ebf5" stroke="#3e4a8b" stroke-width="2"/></svg></td><td>테스트 도구와 경로의 정상 동작</td><td>초당 2.2흐름, 2분</td></tr>
+      <tr><td class="strong">load</td><td><svg width="150" height="34"><polyline points="2,32 2,18 148,18 148,32" fill="#e9ebf5" stroke="#3e4a8b" stroke-width="2"/></svg></td><td>평시 대비 처리 여유</td><td>평시의 2배, 30분</td></tr>
+      <tr><td class="strong">spike</td><td><svg width="150" height="34"><polyline points="2,32 60,32 60,3 80,3 80,32 148,32" fill="#e9ebf5" stroke="#3e4a8b" stroke-width="2"/></svg></td><td>판매 오픈 순간의 처리</td><td>오픈 1초 후부터 10초간 초당 500건 (5,000명)</td></tr>
+      <tr><td class="strong">rush</td><td><svg width="150" height="34"><polyline points="2,32 40,32 40,3 60,3 60,20 120,20 120,32 148,32" fill="#e9ebf5" stroke="#3e4a8b" stroke-width="2"/></svg></td><td>동시 접속 회원의 결제 진행</td><td>spike와 같은 부하, 접수 회원의 50%가 결제 시도</td></tr>
+      <tr><td class="strong">queue</td><td><svg width="150" height="34"><polyline points="2,32 30,32 30,3 50,3 50,26 148,26" fill="#e9ebf5" stroke="#3e4a8b" stroke-width="2"/></svg></td><td>입력 인원 전원의 대기열 통과와 접수</td><td>5,000명, 초당 500명 진입</td></tr>
+      <tr><td class="strong">stress</td><td><svg width="150" height="34"><polyline points="2,32 2,29 30,29 30,26 58,26 58,20 86,20 86,13 114,13 114,4 146,4 146,32" fill="#e9ebf5" stroke="#3e4a8b" stroke-width="2"/></svg></td><td>가장 먼저 한계에 도달하는 지점</td><td>평시의 1, 2, 4, 6, 8배를 각 5분</td></tr>
+      <tr><td class="strong">soak</td><td><svg width="150" height="34"><polyline points="2,32 2,24 148,24" fill="#e9ebf5" stroke="#3e4a8b" stroke-width="2"/><text x="120" y="18" font-size="11" fill="#7a808c">4h</text></svg></td><td>장시간 실행 시 자원 누수</td><td>평시 수준, 4시간</td></tr>
+    </table>
+  </div>
+  <div class="foot"><div class="nav"><span>1 인프라</span><span class="on">2 부하 테스트</span></div><div class="brand">NOVA</div><div class="pg">31</div></div>
+</section>
+
+<!-- 26. 시험 환경 -->
+<section class="slide">
+  <div class="kicker">02 부하 테스트 · 환경</div>
+  <h1>테스트 환경 구성</h1>
+  <div class="sub">테스트 리소스는 전용 클러스터에 분리, 평소에는 0대 유지 · 실제 사용자와 같은 경로(CloudFront → WAF → ALB)로 부하 전송</div>
+  <div class="body" style="top:235px">
+    <img class="fig" src="assets/ext/images-01-run-architecture.png" style="width:100%;max-height:410px;margin:0 auto">
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:16px">
+      <div class="tile" style="padding:16px 20px"><div class="num">승인 후 실행</div><div class="t" style="font-size:16.5px;margin-top:4px">GitHub Actions에서 시나리오와 인원 입력 후 승인 시 실행<br>상시 서버 없음, 실행 기록 보존</div></div>
+      <div class="tile" style="padding:16px 20px"><div class="num">동시 시작</div><div class="t" style="font-size:16.5px;margin-top:4px">컨트롤러가 토큰 발급기와 k6 태스크 N대를 띄워 같은 시각에 시작<br>서버가 느려져도 전송량 유지</div></div>
+      <div class="tile" style="padding:16px 20px"><div class="num">NAT 미경유</div><div class="t" style="font-size:16.5px;margin-top:4px">k6만 public 서브넷에서 공인 IP로 전송<br>NAT 경유 시 NAT가 먼저 병목이 되어 서비스 한계 측정 불가</div></div>
+      <div class="tile" style="padding:16px 20px"><div class="num">온디맨드 사용</div><div class="t" style="font-size:16.5px;margin-top:4px">테스트 도중 Spot이 회수되면 결과 사용 불가 → Spot 미사용</div></div>
+    </div>
+  </div>
+  <div class="foot"><div class="nav"><span>1 인프라</span><span class="on">2 부하 테스트</span></div><div class="brand">NOVA</div><div class="pg">32</div></div>
+</section>
+
+<!-- 27. 운영 보호 -->
+<section class="slide">
+  <div class="kicker">02 부하 테스트 · 환경</div>
+  <h1>운영 환경 보호 장치</h1>
+  <div class="sub">운영 경로로 부하를 보내도 운영 데이터와 경보에는 영향이 없도록 분리</div>
+  <div class="body" style="top:225px">
+    <table class="tb">
+      <tr><th>구분</th><th style="width:560px">조치</th><th>이유</th></tr>
+      <tr><td class="k"><div>WAF</div></td><td class="strong">비밀 헤더가 일치하는 요청만 IP당 요청 수 제한에서 제외</td><td>관리형 보안 규칙은 그대로 적용<br>User-Agent는 위조가 쉬워 조건에서 제외</td></tr>
+      <tr><td class="k"><div>엣지 로그</div></td><td class="strong">User-Agent가 <code>nova-loadtest/&lt;테스트ID&gt;</code>인 로그는 Lambda가 Loki로 미전송</td><td>테스트 몇 번으로 로그 저장 한도를 소진하는 상황 방지</td></tr>
+      <tr><td class="k"><div>지표</div></td><td class="strong">k6 지표에 <code>service.namespace=loadtest</code> 지정</td><td>운영 SLO 계산에서 제외<br>테스트 1회의 시계열 예산 2만 개</td></tr>
+      <tr><td class="k"><div>권한</div></td><td class="strong">승인 환경 <code>loadtest</code>와 main 브랜치에서만 실행 역할 부여</td><td>RunTask 권한은 테스트 클러스터로 한정</td></tr>
+      <tr><td class="k"><div>동시 실행</div></td><td class="strong">한 번에 테스트 하나, 최대 6시간</td><td>테스트 간 결과 혼선 방지</td></tr>
+      <tr><td class="k"><div>이미지</div></td><td class="strong">시작 전 k6 이미지 digest 비교</td><td>서로 다른 이미지가 섞이면 부하 전송 전에 취소</td></tr>
+    </table>
+  </div>
+  <div class="foot"><div class="nav"><span>1 인프라</span><span class="on">2 부하 테스트</span></div><div class="brand">NOVA</div><div class="pg">33</div></div>
+</section>
+
+<!-- 28. 판정 -->
+<section class="slide">
+  <div class="kicker">02 부하 테스트 · 판정</div>
+  <h1>결과 판정 방식</h1>
+  <div class="body" style="top:170px">
+    <img class="fig" src="assets/ext/images-02-judge.png" style="width:1240px;margin:0 auto">
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:22px">
+      <div class="card"><div class="h3" style="font-size:21px">히스토그램 합산</div><div class="t" style="font-size:17.5px;margin-top:8px">k6 태스크별 p95의 평균은 부정확<br>히스토그램을 Mimir에서 합친 뒤 계산</div></div>
+      <div class="card"><div class="h3" style="font-size:21px">비율로 판정하는 p95</div><div class="t" style="font-size:17.5px;margin-top:8px">"0.5초 이내 요청 비율 ≥ 95%" 기준으로 판정<br>500ms가 히스토그램 구간 경계라 근사 없이 정확</div></div>
+      <div class="card on"><div class="h3" style="font-size:21px">판정 불가</div><div class="t" style="font-size:17.5px;margin-top:8px">지표 1분 이상 단절, VU 부족으로 계획 요청 미전송, 결과 라벨 누락 시 합격 여부 판정 보류</div></div>
+    </div>
+  </div>
+  <div class="foot"><div class="nav"><span>1 인프라</span><span class="on">2 부하 테스트</span></div><div class="brand">NOVA</div><div class="pg">34</div></div>
+</section>
+
+<!-- 29. 503 추적 -->
+<section class="slide">
+  <style>
+    .lr{display:grid;grid-template-columns:1fr 1fr 1fr;gap:20px}
+    .lr .card{padding:40px 34px}
+    .lr .lb{font-size:16px;color:var(--mute);font-weight:500}
+    .lr .v{font-size:66px;font-weight:800;letter-spacing:-0.03em;margin-top:8px;line-height:1.1}
+    .lr .v s{font-size:30px;font-weight:600;color:var(--mute);margin-right:10px}
+    .lr .v small{font-size:24px;font-weight:600;margin-left:3px}
+    .lr .d{font-size:17px;color:var(--ink2);margin-top:8px}
+    .bn{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:22px}
+    .bn .tile{display:grid;grid-template-columns:1fr 44px 1fr;align-items:center;padding:40px 30px}
+    .bn .k{font-size:15px;font-weight:700;color:var(--bad)}
+    .bn .h{font-size:23px;font-weight:700;margin-top:4px}
+    .bn .d{font-size:16.5px;color:var(--ink2);margin-top:4px;line-height:1.45}
+    .bn .ok .k{color:var(--acc)}
+    .fx2{display:grid;grid-template-columns:1fr 1fr;gap:40px;margin-top:40px}
+    .clx .rw{display:flex;justify-content:space-between;align-items:baseline;gap:12px;padding:11px 0;border-bottom:1px solid var(--line);font-size:18.5px}
+    .clx .rw span{font-size:16px;color:var(--mute);white-space:nowrap}
+    table.tb.sm td,table.tb.sm th{padding:12px 14px;font-size:18px}
+  </style>
+  <div class="kicker">02 부하 테스트 · 결과</div>
+  <h1>고친 뒤 판매 오픈 첫 1분 합격</h1>
+  <div class="sub">오픈 10초에 5,000명 · 대기열부터 결제 시도까지 · 합격 기준 p95 0.5초 이하, 5xx 0.1% 이하</div>
+  <div class="body" style="top:215px">
+    <div class="lr">
+      <div class="card on"><div class="lb">판매 오픈 첫 1분 p95</div><div class="v acc"><s>4.67초</s>30<small>ms</small></div><div class="d">첫 시험은 불합격</div></div>
+      <div class="card"><div class="lb">첫 1분 5xx</div><div class="v">0<small>%</small></div><div class="d">기준 0.1% 이하</div></div>
+      <div class="card"><div class="lb">첫 1분 처리량</div><div class="v">약 2,090<small>건/초</small></div><div class="d">k6 9대가 같은 시각에 시작</div></div>
+    </div>
+    <div class="fx2">
+      <div>
+        <div class="lab" style="margin-bottom:10px">바꾼 인프라 설정</div>
+        <div class="clx">
+          <div class="rw"><b>대기열 1 vCPU → 2 vCPU</b><span>첫 몰림의 JIT 부담 흡수</span></div>
+          <div class="rw"><b>회차 오픈 15분 전 사전 증설</b><span>대기열 · 사전예약 최소 대수 상향</span></div>
+          <div class="rw"><b>단계 조정 증설 3분 이상 → 1~2분</b><span>1분 지표 1~2회에 반응</span></div>
+          <div class="rw"><b>헬스체크 약 30초 → 약 10초</b><span>새 태스크 투입 단축</span></div>
+          <div class="rw"><b>상품 조회 최소 2대 · 최대 8대</b><span>Spot 회수에도 유지</span></div>
+        </div>
+      </div>
+      <div>
+        <div class="lab" style="margin-bottom:10px">측정값으로 정한 증설 기준 · 태스크 1대의 분당 요청</div>
+        <table class="tb sm">
+          <tr><th>서비스</th><th>포화 (측정)</th><th>증설 기준</th></tr>
+          <tr><td class="strong">대기열</td><td>6,000 · CPU 100%</td><td class="strong acc">3,500</td></tr>
+          <tr><td class="strong">사전예약</td><td>약 2,100 · CPU 84%</td><td class="strong acc">1,500</td></tr>
+          <tr><td class="strong">상품 조회</td><td>1 vCPU 1.5만~2.5만</td><td class="strong acc">2 vCPU · 20,000</td></tr>
+        </table>
+        <div class="note" style="margin-top:12px">서비스 쪽 원인 분석과 코드 개선은 백엔드 발표 자료 4부</div>
+      </div>
+    </div>
+  </div>
+  <div class="foot"><div class="nav"><span>1 인프라</span><span class="on">2 부하 테스트</span></div><div class="brand">NOVA</div><div class="pg">35</div></div>
+</section>
+
+<!-- 31. 증설 기준 -->
+<section class="slide tall">
+  <div class="kicker">향후 개선 과제</div>
+  <h1>향후 개선 과제</h1>
+  <div class="body" style="top:190px;display:flex;gap:36px">
+    <div style="flex:1">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px"><span class="pill a" style="margin:0;font-size:16px">인프라</span></div>
+      <div class="side-list">
+        <div class="it"><div class="h">RDS 경보 활성화</div><div class="d">CPU, 메모리, 스토리지 경보 코드는 있으나 인스턴스 ID 미입력으로 아직 비활성 상태</div></div>
+        <div class="it"><div class="h">Spot 회수 대비</div><div class="d">대부분의 서비스가 최소 1대·Spot 구성이라 회수 순간 서비스 공백 발생<br>사용자 요청을 받는 서비스의 온디맨드 1대 유지(<code>spot_on_demand_base = 1</code>) 검토</div></div>
+        <div class="it"><div class="h">WAF 로그 수집</div><div class="d">WAF 로그 미수집으로 차단 원인을 샘플 요청으로만 확인 중</div></div>
+      </div>
+    </div>
+    <div style="width:1px;background:var(--line)"></div>
+    <div style="flex:1">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px"><span class="pill a" style="margin:0;font-size:16px">부하 테스트</span></div>
+      <div class="side-list">
+        <div class="it"><div class="h">변경 후 재측정</div><div class="d">증설 기준과 태스크 사양 변경 후의 수치를 같은 시나리오로 재측정해 비교 예정</div></div>
+        <div class="it"><div class="h">queue 시나리오 재실행</div><div class="d">라벨과 VU 계산 수정 후 재실행해 입력 인원 전원의 접수 여부 확인 예정</div></div>
+        <div class="it"><div class="h">k6 태스크 수 제한</div><div class="d">운영 서비스와 Fargate vCPU 할당량을 공유해 k6는 최대 12대로 제한<br>더 큰 부하는 할당량 상향 후 테스트 예정</div></div>
+      </div>
+    </div>
+  </div>
+  <div class="foot"><div class="nav"><span class="on">1 인프라</span><span class="on">2 부하 테스트</span></div><div class="brand">NOVA</div><div class="pg">36</div></div>
+</section>
+
+</body>
+</html>
