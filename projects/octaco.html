@@ -54,7 +54,7 @@
             <div>
               <ul class="case-meta"><li>실무</li><li>2025.07 – 2025.12</li><li>신규 SSO 구축 TF 백엔드 3명</li></ul>
               <h1 class="case-title">(주)옥타코 멀티테넌트 SSO 인증 서비스</h1>
-              <p class="case-desc">고객사 여러 곳이 함께 쓰는 SSO 인증 서비스입니다. 회사 계정 하나로 Notion과 Slack 같은 업무 앱에 모두 로그인합니다.</p>
+              <p class="case-desc">온프레미스 SSO 시스템을 AWS EKS 기반 멀티테넌트 SaaS로 옮기는 신규 구축 프로젝트입니다. 고객사 여러 곳이 함께 쓰고 직원은 회사 계정 하나로 Notion과 Slack 같은 업무 앱에 모두 로그인합니다. 초기 TF에서 백엔드 개발과 클라우드 인프라 구축에 참여해 고객사 판별과 세션, 접근 제어를 개발하고 배포, 운영 환경을 설계했습니다.</p>
           <p class="ov-h">주요 성과</p>
           <ul class="hl" aria-label="주요 결과">
             <li><a href="#s-onboard"><span class="hl-label">고객사 추가 실패</span><span class="hl-big">자동 복구</span><span class="hl-from">이전 사람이 찾아 삭제</span></a></li>
@@ -66,8 +66,8 @@
                 <p class="role-h">맡은 일</p>
                 <dl>
                   <div><dt>설계</dt><dd><ul class="role-list"><li>서비스 구조</li><li>고객사 데이터 격리 방식</li><li>권한 관리 도메인과 접근 제어</li><li>의사결정 문서로 설계 근거 공유</li></ul></dd></div>
-                  <div><dt>개발</dt><dd><ul class="role-list"><li>고객사 판별과 세션 관리 서버</li><li>업무 앱 로그아웃 전파</li><li>고객사 온보딩 서비스</li><li>사용자 도메인</li><li>권한 검사 어노테이션 라이브러리</li><li>인증 정책 캐시</li><li>감사 로그와 접근 로그 비동기 저장</li></ul></dd></div>
-                  <div><dt>인프라</dt><dd><ul class="role-list"><li>EKS 전환</li><li>GitOps 배포 파이프라인</li><li>EKS 운영과 트러블슈팅</li><li>서비스별 IAM Role 분리</li><li>배포 기준 Admission 정책</li></ul></dd></div>
+                  <div><dt>개발</dt><dd><ul class="role-list"><li>고객사 판별과 세션 관리 서버</li><li>업무 앱 로그아웃 전파</li><li>고객사 온보딩 서비스</li><li>사용자 도메인</li><li>권한 검사 어노테이션 라이브러리</li><li>인증 정책 캐시</li><li>Redis 장애 때 DB 우회</li><li>감사 로그와 접근 로그 비동기 저장</li></ul></dd></div>
+                  <div><dt>인프라</dt><dd><ul class="role-list"><li>EKS 전환</li><li>GitOps 배포 파이프라인</li><li>Pod 재시작 문제 해결</li><li>HPA와 Cluster Autoscaler 자동 확장</li><li>서비스별 IAM Role 분리</li><li>배포 기준 Admission 정책</li></ul></dd></div>
                   <div class="role-tech"><dt>기술</dt><dd><ul class="tags"><li>Java</li><li>Spring Boot</li><li>Spring Security</li><li>Hibernate Multi-Tenancy</li><li>PostgreSQL</li><li>Redis</li><li>SpiceDB</li><li>Resilience4j</li><li>Flyway</li><li>AWS EKS</li><li>Helm</li><li>Argo CD</li><li>IRSA</li><li>Trivy</li></ul></dd></div>
                 </dl>
                 <p class="role-note">로그인 화면과 OIDC/SAML 처리는 팀원 담당</p>
@@ -76,8 +76,8 @@
           </div>
 
           <figure class="diagram arch">
-            <img src="../images/diagrams/sso-arch.png" alt="옥타코 SSO 아키텍처: Route 53과 ALB를 거쳐 EKS의 Resolve Server, 온보딩 서비스, 인증 서비스, SpiceDB로 요청이 들어가고 ElastiCache Redis와 RDS PostgreSQL을 쓰며 서비스마다 IAM Role을 둔다" loading="lazy">
-            <figcaption>옥타코 SSO의 AWS 아키텍처 (업무를 바탕으로 재구성). 점선 상자는 팀원 담당입니다.</figcaption>
+            <img src="../images/diagrams/sso-arch.png" alt="옥타코 SSO 아키텍처: 직원 요청이 Route 53과 ALB를 거쳐 EKS의 Gateway, Resolve Server, 인증 서비스로 이어지고, Control Plane의 Admission Policy와 HPA, 플랫폼 Namespace의 Argo CD, Cluster Autoscaler, metrics-server, Prometheus와 Grafana, 애플리케이션 Namespace의 SpiceDB, 온보딩 서비스, 로그 Consumer, ElastiCache Redis와 장애 때 우회하는 RDS PostgreSQL, 서비스별 IAM Role과 Secrets Manager, SQS, GitHub Actions와 ECR로 이어지는 배포를 한 장에 담은 구성" loading="lazy">
+            <figcaption>옥타코의 요청 경로, 배포, 자동 확장, 데이터 구성 (업무를 바탕으로 재구성). 인증 서비스는 팀원 담당입니다.</figcaption>
           </figure>
 
           <p class="page-sub">항목을 펼치면 찾은 문제와 해결 과정과 결과를 차례로 볼 수 있습니다. 그림은 누르면 크게 보입니다.</p>
