@@ -59,7 +59,7 @@
                 <li><a href="../assets/docs/nova-infra.pdf" target="_blank" rel="noopener"><span class="deck-thumb"><img src="../images/docs/nova-infra.jpg" alt="인프라 구축과 부하 테스트 발표 자료 표지" width="720" height="405" loading="lazy"></span><span class="deck-k">인프라 발표 자료 · PDF 36쪽</span><span class="deck-t">인프라 구축과 부하 테스트</span></a></li>
                 <li><a href="https://youtu.be/pQZanjpM1-o" target="_blank" rel="noopener"><span class="deck-thumb deck-video"><img src="https://i.ytimg.com/vi/pQZanjpM1-o/hqdefault.jpg" alt="NOVA 시연 영상 미리보기" width="480" height="360" loading="lazy"></span><span class="deck-k">시연 영상 · YouTube</span><span class="deck-t">사전예약 서비스 NOVA 시연</span></a></li>
               </ul>
-              <p class="case-desc">판매가 열리면 10초 안에 5,000명이 몰리는 사전예약 서비스입니다. 사용자는 대기열에서 차례를 기다려 예약을 접수하고 요청이 몰리면 느려지는 외부 예약 시스템 등록은 SQS를 거쳐 worker가 따로 처리합니다.</p>
+              <p class="case-desc">판매가 열리면 10초 안에 5,000명이 몰리는 사전예약 서비스입니다. 사용자는 대기열에서 차례를 기다려 예약을 접수하고 요청이 몰리면 느려지는 외부 예약 시스템 등록은 SQS를 거쳐 worker가 따로 처리합니다. 7인 팀에서 AWS 인프라 설계, 구축, 운영을 혼자 맡아 VPC부터 ECS, RDS, SQS, CloudFront까지 모든 자원을 Terraform으로 만들고 Atlantis를 거쳐서만 바뀌게 했습니다. 백엔드에서는 사전예약 접수 서버, 대기열, 외부 연동 worker를 개발했습니다.</p>
           <p class="ov-h">주요 성과</p>
           <ul class="hl" aria-label="주요 결과">
             <li><a href="#s-lock"><span class="hl-label">선착순 접수 p50</span><span class="hl-big">48ms</span><span class="hl-from">이전 521ms</span></a></li>
@@ -70,7 +70,7 @@
               <div class="role">
                 <p class="role-h">맡은 일</p>
                 <dl>
-                  <div><dt>인프라</dt><dd><ul class="role-list"><li>AWS 인프라 설계와 구축</li><li>Terraform 구조와 Atlantis 변경 절차</li><li>ECS 오토스케일링</li><li>부하 시험 환경</li><li>IAM과 비밀 값 관리</li><li>비용 관리</li><li>모니터링</li></ul></dd></div>
+                  <div><dt>인프라</dt><dd><ul class="role-list"><li>AWS 인프라 설계와 구축</li><li>CloudFront와 WAF 뒤 API 진입 구조</li><li>Terraform 코드화와 Atlantis 변경 절차</li><li>ECS 자동 확장과 오픈 전 사전 증설</li><li>부하 시험 환경</li><li>IAM Role, KMS, Secrets Manager 기반 비밀 값 관리</li><li>비용 관리</li><li>OpenTelemetry, Grafana, Faro RUM 모니터링</li></ul></dd></div>
                   <div><dt>백엔드</dt><dd><ul class="role-list"><li>사전예약 접수 서버</li><li>대기열</li><li>외부 예약 시스템 등록과 취소 worker</li></ul></dd></div>
                   <div class="role-tech"><dt>기술</dt><dd><ul class="tags"><li>Spring Boot</li><li>MySQL</li><li>Valkey</li><li>Resilience4j</li><li>SQS</li><li>ECS Fargate</li><li>CloudFront</li><li>WAF</li><li>Terraform</li><li>Atlantis</li><li>SOPS</li><li>k6</li><li>OpenTelemetry</li><li>Grafana</li></ul></dd></div>
                   <div class="role-repo"><dt>저장소</dt><dd><a href="https://github.com/Nova-Grandis/be" target="_blank" rel="noopener">nova-be ↗</a><a href="https://github.com/Nova-Grandis/nova-infra" target="_blank" rel="noopener">nova-infra ↗</a><a href="https://github.com/Nova-Grandis/atlantis-deploy" target="_blank" rel="noopener">atlantis-deploy ↗</a><a href="https://github.com/Nova-Grandis/nova-loadtest" target="_blank" rel="noopener">nova-loadtest ↗</a></dd></div>
@@ -381,7 +381,7 @@
                 </ul>
                 <h4>구조</h4>
                 <ul>
-                  <li>HTTP 서비스는 CPU 기준 확장에 여러 대를 한 번에 늘리는 Step Scaling 정책을 더하고 축소는 5분 간격</li>
+                  <li>HTTP 서비스는 CPU와 태스크당 요청 수로 확장하고 1분 지표 1~2번에 바로 여러 대를 늘리는 Step Scaling을 더하고 축소는 5분 간격</li>
                   <li>worker는 큐 3개에 쌓인 메시지 합을 실행 태스크 수로 나눈 값을 지표로 써서 <strong>태스크당 50건 기준</strong>으로 조정</li>
                   <li>사전예약 앱이 회차 일정을 보고 <strong>오픈 15분 전부터</strong> 예상 방문자 수만큼 대기열과 접수 서버의 최소 대수 상향</li>
                   <li>상품 조회는 1대로는 몰리는 트래픽에 CPU가 포화돼 최소 2대로 늘리고 4대 상한에도 바로 닿아 최대 8대로 상향</li>
@@ -508,7 +508,7 @@
                 <h4>모니터링으로 개선한 것</h4>
                 <ul>
                   <li>서비스별 CPU 사용량을 같은 시각으로 비교해 포화된 서비스를 찾고 태스크 사양과 최소 대수 상향</li>
-                  <li>CloudWatch 1분 표준 지표가 <strong>약 3분 늦게</strong> 들어와 급증이 지나간 뒤에야 증설이 붙는 것을 찾아 오픈 전 사전 증설</li>
+                  <li>대상 추적 경보가 <strong>1분 지표 3번 연속</strong>을 기다려 급증이 지나간 뒤에야 증설이 붙는 것을 찾아 오픈 전 사전 증설</li>
                   <li>새 태스크가 CPU 부족으로 기동을 반복하다 deployment circuit breaker로 롤백되던 것을 찾아 CPU 할당 조정</li>
                   <li>트레이스로 순번 행 Lock 대기를 찾아 Lock 시점을 커밋 직전으로 옮겨 <strong>응답 p50 521ms에서 48ms로 단축</strong></li>
                 </ul>
