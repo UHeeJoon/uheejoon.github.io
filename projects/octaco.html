@@ -343,6 +343,14 @@
                   <li>원인을 따라가 보니 CPU limit이 낮아 기동 중 <strong>CPU throttling</strong>이 생기는 상황</li>
                   <li>CPU limit을 2 core로 올리고 requests는 평상시 사용량에 맞춰 노드에 예약하는 자원은 늘리지 않음</li>
                 </ul>
+                <h4>설정 판단</h4>
+                <table class="cmp"><thead><tr><th>설정</th><th>정한 값</th><th>근거</th></tr></thead><tbody>
+                  <tr><td>startupProbe initialDelaySeconds</td><td>가장 짧은 기동 시간</td><td>로컬에서 20번가량 잰 기동 시간 중 최솟값</td></tr>
+                  <tr><td>startupProbe 최대 허용 시간</td><td>평균 기동 시간의 2배</td><td>같은 실측의 평균 기동 시간</td></tr>
+                  <tr><td>periodSeconds, failureThreshold</td><td>5초, 여유 있게</td><td>짧은 주기만큼 실패 허용 횟수를 늘려 최대 허용 시간 유지</td></tr>
+                  <tr><td>CPU limit</td><td>2 core</td><td>기동 중 CPU throttling 해소</td></tr>
+                  <tr><td>CPU requests</td><td>평상시 사용량 그대로</td><td>노드에 예약하는 자원은 늘리지 않음</td></tr>
+                </tbody></table>
                 <h4>후속 조치</h4>
                 <ul class="res">
                   <li>Probe와 리소스 기준을 Helm 공통 values 기본값에 넣어 새 서비스도 같은 기준으로 배포</li>
