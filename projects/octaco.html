@@ -281,6 +281,7 @@
                   <li>CI가 <strong>values의 이미지 태그를 새 Commit SHA로 자동 커밋</strong>해 배포 이력을 Git 커밋으로 관리</li>
                   <li>Argo CD가 5분 주기로 배포 저장소의 변경을 감지해 Auto Sync로 반영</li>
                   <li>Self-Heal을 켜 두어 클러스터를 직접 고쳐도 Git 상태로 복구</li>
+                  <li>Argo Rollouts의 RollingUpdate로 새 Pod가 준비된 뒤 이전 Pod를 줄여 <strong>배포 중에도 서비스 유지</strong></li>
                   <li>롤백은 배포 저장소 커밋의 Git Revert만으로 Argo CD가 이전 이미지 태그로 복구</li>
                 </ul>
                 <h4>결과</h4>
