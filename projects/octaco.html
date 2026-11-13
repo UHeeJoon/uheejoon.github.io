@@ -317,29 +317,36 @@
                 </ul>
               </div>
             </details>
-            <details id="s-probe" data-toc="Probe와 리소스 기준">
-              <summary><span class="s-title">기동이 느린 앱의 Pod 재시작 반복을 멈춘 Probe와 리소스 기준</span><span class="s-res"><b>Pod 재시작 반복 해소</b><small>준비된 Pod만 트래픽 수신</small></span></summary>
+            <details id="s-probe" data-toc="Pod 재시작 원인 추적">
+              <summary><span class="s-title">Probe와 CPU throttling을 차례로 찾아 멈춘 Pod 재시작 반복</span><span class="s-res"><b>Pod 재시작 반복 해소</b><small>두 원인을 차례로 해결</small></span></summary>
               <div class="story">
-                <figure class="diagram"><img src="../images/diagrams/oc-probe.png" alt="Helm values의 Probe와 리소스 기준으로 기동이 끝난 Pod에만 트래픽을 보내는 흐름" loading="lazy"></figure>
+                <figure class="diagram"><img src="../images/diagrams/oc-probe-timeline.png" alt="기동 시간 축 위에서 처음에는 liveness가 기동 중에 검사해 재시작되고, 1차로 startupProbe 구간을 두어 기동이 완료되지만, CPU throttling으로 기동이 허용 시간을 넘겨 가끔 재시작되다가, 2차로 CPU limit을 올려 다시 허용 구간 안에서 기동이 끝나는 과정을 비교한 그림" loading="lazy"><figcaption>기동 시간 축으로 본 재시작 원인과 1차, 2차 조치 (막대 길이는 비율)</figcaption></figure>
                 <h4>찾은 문제</h4>
                 <ul>
                   <li>대시보드에서 주말 동안 Pod가 수백 번 재시작한 것을 발견</li>
-                  <li>로그를 보니 1분가량 걸리는 기동 중에 liveness Probe가 검사해 정상 Pod를 종료하고 다시 띄우고 있었음</li>
-                  <li>기동 중 CPU 사용량을 보니 1 core로 낮게 잡은 limit에 막혀 기동이 더 느려지고 Probe 실패가 잦아지는 구조</li>
+                  <li>로그를 먼저 확인하니 기동 시간을 고려한 Probe 설정이 없어 liveness Probe가 기동 중인 정상 Pod를 재시작</li>
                 </ul>
                 <h4>해결 과정</h4>
+                <p class="step"><strong>1차: 기동 시간을 직접 재서 Probe 설정</strong></p>
                 <ul>
-                  <li>Spring Boot 기동 로그로 평상시와 가장 느린 경우의 기동 시간을 측정</li>
-                  <li>startupProbe의 failureThreshold × periodSeconds를 <strong>가장 느린 기동의 약 2배</strong>로 설정</li>
-                  <li>liveness는 startupProbe가 끝난 뒤 짧은 간격으로 검사해 실제로 멈춘 Pod만 빠르게 재시작</li>
-                  <li>Actuator health groups로 liveness와 readiness를 나누고 외부 의존성은 제외</li>
-                  <li>CPU limit을 1 core에서 2 core로 올려 <strong>기동 중 CPU throttling 해소</strong></li>
-                  <li>requests는 평상시 사용량대로 두어 노드 예약 자원은 늘리지 않고 메모리 limit은 JVM 힙보다 여유 있게 조정</li>
+                  <li>로컬에서 기동을 20번가량 반복해 기동 시간을 실측</li>
+                  <li>startupProbe의 initialDelaySeconds는 가장 짧은 기동 시간, 최대 허용 시간은 <strong>평균 기동 시간의 2배</strong>로 설정</li>
+                  <li>periodSeconds는 5초로 짧게 두고 그만큼 failureThreshold는 여유 있게 설정</li>
                 </ul>
-                <h4>결과</h4>
+                <p class="step"><strong>재발: 간헐적인 재시작</strong></p>
+                <ul>
+                  <li>1차 적용 뒤에도 재시작 횟수를 지켜보다 가끔 생기는 재시작과 Probe 타임아웃을 발견</li>
+                  <li>앱 로그에서 로컬 실측보다 훨씬 느린 기동 시간 확인</li>
+                </ul>
+                <p class="step"><strong>2차: CPU throttling을 찾아 limit 조정</strong></p>
+                <ul>
+                  <li>원인을 따라가 보니 CPU limit이 낮아 기동 중 <strong>CPU throttling</strong>이 생기는 상황</li>
+                  <li>CPU limit을 2 core로 올리고 requests는 평상시 사용량에 맞춰 노드에 예약하는 자원은 늘리지 않음</li>
+                </ul>
+                <h4>후속 조치</h4>
                 <ul class="res">
-                  <li><strong>수백 번 반복되던 재시작이 멈추고</strong> 기동에 1분가량 걸리는 앱도 준비가 끝난 뒤에만 트래픽 수신</li>
-                  <li>새 서비스도 같은 Probe와 리소스 기준을 쓰도록 Helm values 기본값에 반영</li>
+                  <li>Probe와 리소스 기준을 Helm 공통 values 기본값에 넣어 새 서비스도 같은 기준으로 배포</li>
+                  <li>리소스 기준이 빠진 배포는 <a href="#s-admission">Admission Policy</a>로 클러스터에서 거절해 같은 문제가 다시 생기지 않게 함</li>
                 </ul>
               </div>
             </details>
@@ -368,26 +375,26 @@
               </div>
             </details>
             <details id="s-admission" data-toc="Admission 정책">
-              <summary><span class="s-title">기본 설정은 자동으로 넣고 기준이 빠진 배포는 API 서버에서 거절하는 Admission 정책</span><span class="s-res"><b>기준 누락 배포는 생성 전에 거절</b><small>시간대, JVM, 보안 설정은 자동 삽입</small></span></summary>
+              <summary><span class="s-title">Admission 정책으로 기본 설정은 자동으로 넣고 기준이 빠진 배포는 차단</span><span class="s-res"><b>기준 누락 배포는 생성 전에 거절</b><small>시간대, JVM, 보안 설정은 자동 삽입</small></span></summary>
               <div class="story">
                 <figure class="diagram"><img src="../images/diagrams/oc-admission.png" alt="Argo CD나 kubectl의 배포 요청이 API 서버에서 Mutating 정책으로 기본값을 받고 Validating 정책의 검사를 통과하면 Pod로 생성되고 위반하면 빠진 항목을 안내하며 거절되는 흐름" loading="lazy"></figure>
-                <h4>찾은 문제</h4>
+                <h4>설계 배경</h4>
                 <ul>
-                  <li>Probe와 리소스 기준을 values에 정해 두었지만 <strong>빠뜨려도 배포를 막을 장치가 없음</strong></li>
-                  <li>시간대, JVM 메모리 옵션, 보안 설정을 서비스마다 직접 넣어 빠뜨리거나 서비스끼리 값이 달라짐</li>
+                  <li>기본값을 Helm 공통 템플릿에만 두어 <strong>values로 덮어쓰거나 kubectl로 직접 적용한 배포에는 기준이 빠지는 구조</strong></li>
+                  <li>배포 경로와 상관없이 클러스터 입구에서 리소스와 보안 기준을 지킬 방법 필요</li>
                 </ul>
                 <h4>검토한 방식</h4>
                 <table class="cmp opt"><thead><tr><th>방식</th><th>장점</th><th>감수할 점</th></tr></thead><tbody>
                   <tr><td>Kyverno, OPA Gatekeeper</td><td>정책 표현이 풍부하고 예제가 많음</td><td>정책 컨트롤러를 따로 운영</td></tr>
                   <tr><td>Admission Webhook 직접 개발</td><td>원하는 검사와 삽입을 자유롭게 작성</td><td>검사 서버 개발과 운영 부담</td></tr>
-                  <tr class="pick"><td>Admission Policy (선택)</td><td>API 서버가 직접 처리해 별도 서버가 없음</td><td>Kubernetes 버전에 따라 쓸 수 있는 기능이 다름</td></tr>
+                  <tr class="pick"><td>Admission Policy (선택)</td><td>API 서버가 직접 처리해 별도 서버가 없음</td><td>MutatingAdmissionPolicy는 1.34부터 베타라 아직 정식 기능이 아님</td></tr>
                 </tbody></table>
                 <ul>
                   <li>백엔드 3명이 정책 서버까지 운영하기는 부담이라 <strong>API 서버 안에서 끝나는 Admission Policy</strong> 선택</li>
-                  <li>기준은 Pod Security Standards 같은 공식 권장 항목에 회사 항목을 더해 정함</li>
                 </ul>
                 <h4>해결 과정</h4>
                 <ul>
+                  <li>Pod Security Standards 권장 항목은 그대로 두고 시간대, JVM 메모리, 리소스 기준 같은 회사 항목만 더해 기준 정리</li>
                   <li>MutatingAdmissionPolicy로 TZ=Asia/Seoul, JVM 메모리 옵션, 환경과 서비스 이름 환경 변수를 <strong>생성 단계에서 자동 삽입</strong></li>
                   <li>같은 방식으로 runAsNonRoot, allowPrivilegeEscalation: false 같은 보안 설정도 기본 적용</li>
                   <li>ValidatingAdmissionPolicy로 requests와 limits가 없는 Pod와 default Namespace에 만들려는 리소스는 <strong>거절</strong></li>
@@ -396,9 +403,9 @@
                 </ul>
                 <h4>결과</h4>
                 <table class="cmp"><thead><tr><th>항목</th><th>이전</th><th>이후</th></tr></thead><tbody>
-                  <tr><td>기본 환경 변수</td><td>서비스마다 직접 입력</td><td>빠뜨려도 생성 단계에서 삽입</td></tr>
-                  <tr><td>보안 설정</td><td>빠뜨리면 root로 실행</td><td>root 실행 금지, 권한 상승 차단이 기본</td></tr>
-                  <tr><td>리소스, Namespace</td><td>values 관례로만 유지</td><td>누락과 default 배포는 거절</td></tr>
+                  <tr><td>기본 환경 변수</td><td>Helm 기본값이라 덮어쓰면 빠짐</td><td>빠뜨려도 생성 단계에서 삽입</td></tr>
+                  <tr><td>보안 설정</td><td>Helm 기본값이라 덮어쓰면 빠짐</td><td>root 실행 금지, 권한 상승 차단이 기본</td></tr>
+                  <tr><td>리소스, Namespace</td><td>차트 밖이나 덮어쓴 배포는 그대로 생성</td><td>누락과 default 배포는 거절</td></tr>
                 </tbody></table>
                 <ul class="res">
                   <li>Argo CD로 배포하든 kubectl로 직접 적용하든 <strong>같은 기준을 API 서버에서 확인</strong></li>
