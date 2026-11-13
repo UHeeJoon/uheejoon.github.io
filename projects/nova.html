@@ -315,31 +315,36 @@
 
             <p class="group">인프라</p>
             <details id="s-tf" data-toc="Terraform 구조">
-              <summary><span class="s-title">service.yml 하나로 서비스 배포 인프라가 준비되는 Terraform 폴더 구조</span><span class="s-res"><b>인프라 담당 없이 서비스 추가</b><small>Terraform 코드 수정 없이 service.yml PR 하나</small></span></summary>
+              <summary><span class="s-title">Terraform 수정 없이 설정 파일만으로 새 서비스의 AWS 인프라 자동화</span><span class="s-res"><b>인프라 담당 병목 해소</b><small>팀원이 service.yml만으로 직접 배포</small></span></summary>
               <div class="story">
                 <figure class="diagram"><img src="../images/diagrams/nv-tf.png" alt="서비스 폴더의 service.yml을 자원별 스택이 읽어 AWS 자원을 만드는 구조" loading="lazy"></figure>
-                <h4>설계 목표</h4>
+                <h4>설계 배경</h4>
                 <ul>
-                  <li>새 서비스를 배포할 때 <strong>Terraform 코드 수정 없이 서비스 폴더 추가만으로</strong> 인프라 준비</li>
-                  <li>모든 스택이 함께 쓰는 provider와 공통 값은 원본 한 곳 수정으로 전체 반영</li>
-                  <li>서비스마다 실제로 쓰는 권한과 네트워크만 허용</li>
+                  <li>서비스마다 Terraform을 따로 쓰면 서비스 추가와 설정 변경이 모두 인프라 담당 한 명을 거치는 구조</li>
+                  <li>백엔드 팀원은 Terraform과 AWS를 몰라 서비스 추가나 설정 변경을 직접 하기 어려운 상황</li>
                 </ul>
-                <h4>구조</h4>
+                <h4>자동 생성 방식</h4>
+                <table class="cmp"><thead><tr><th>service.yml</th><th>만들어지는 자원</th></tr></thead><tbody>
+                  <tr><td>scaling, deployment</td><td>ECS 서비스와 오토스케일링, Blue/Green 배포</td></tr>
+                  <tr><td>routes</td><td>ALB 리스너 규칙</td></tr>
+                  <tr><td>calls, db, redis</td><td>호출 대상과 DB, 캐시만 열린 보안 그룹</td></tr>
+                  <tr><td>queues</td><td>선언한 큐만 쓰는 IAM 역할</td></tr>
+                  <tr><td>…</td><td>…</td></tr>
+                </tbody></table>
                 <ul>
-                  <li>폴더를 서비스 선언, 공통 값, 자원별 스택으로 분리</li>
-                  <li>서비스마다 인프라는 service.yml, 앱은 application.yml, 비밀 값은 secrets.sops.yml로 application/ 아래에 선언</li>
-                  <li>스택마다 backend와 state를 따로 두어 한 스택의 변경이 다른 스택에 영향을 주지 않고 역할이 분명하게 나뉨</li>
-                  <li>provider와 공통 값은 원본 하나를 링크로 공유하고 모든 자원에 제품, 환경, 관리 주체 태그를 자동 부여</li>
-                  <li>각 스택이 application/*/service.yml을 자동으로 찾아 <strong>새 서비스의 service.yml만 추가하면 ECR, IAM, 보안 그룹, ECS가 함께 생성</strong></li>
-                  <li>service.yml의 URL 경로와 태스크 수는 ALB와 ECS 설정으로, 호출 대상과 DB, 캐시는 보안 그룹 규칙으로, 큐는 IAM 권한으로 변환</li>
-                  <li>비밀 값은 apply 중에만 풀어 Secrets Manager에 넣고 state에는 남기지 않음</li>
-                  <li>오타 난 필드나 없는 서비스를 호출 대상으로 적은 선언은 서비스 이름과 원인을 보여 주고 plan에서 멈춤</li>
+                  <li>locals_services.tf가 Terraform 기본 함수 fileset과 yamldecode로 모든 service.yml을 서비스 목록으로 변환</li>
+                  <li>ECR, IAM, 보안 그룹, ECS 스택은 이 파일을 심볼릭 링크로 가져와 목록을 for_each로 돌며 서비스마다 자원 생성</li>
+                </ul>
+                <h4>Terraform 로컬 테스트</h4>
+                <ul>
+                  <li>실제 AWS에 올리기 전 로컬 AWS 에뮬레이터 floci에 가짜 자격 증명으로만 연결해 요금 없이 apply 시험</li>
+                  <li>스택마다 상태를 로컬 파일로 두고 앞 스택 출력을 이어 받으며 VPC, 보안 그룹, ECR, IAM, ECS 순서로 apply</li>
+                  <li>AWS API가 거부하는 리소스 인자, apply 때 정해지는 값을 for_each에 쓴 실수처럼 validate로는 안 잡히는 오류 확인</li>
                 </ul>
                 <h4>결과</h4>
                 <ul class="res">
-                  <li>새 서비스 배포와 설정 변경이 인프라 담당을 거치지 않고 Terraform 코드 수정 없이 <strong>서비스 폴더 PR 하나로 끝남</strong></li>
-                  <li>공통 값과 provider를 바꿀 때 스택마다 고치다 하나를 빠뜨리는 일이 없음</li>
-                  <li>권한과 보안 그룹은 service.yml에 선언한 의존성만큼만 열리고 비밀 값은 Git과 state에 평문으로 남지 않음</li>
+                  <li>서비스 추가와 설정 변경이 Terraform 코드 수정 없이 PR 하나로 끝나 <strong>인프라 담당 한 명에게 몰리던 병목 해소</strong></li>
+                  <li>README로 사용법을 공유한 뒤 <strong>백엔드 팀원이 service.yml만으로 새 서비스를 직접 배포</strong>하고 변경 사항도 쉽게 수정</li>
                 </ul>
               </div>
             </details>
