@@ -703,6 +703,16 @@ $ for i in 1 2 3 4 5 6; do jstack $PID &gt; js-$i.txt; sleep 2; done
               </div>
               <div class="pm-lesson"><p class="pm-k">배운 점</p><ul><li><b>스토리지는 쓸 디스크를 직접 지정해야 합니다</b><p>Longhorn은 데이터 경로가 있는 파일시스템만 보고 다른 디스크를 알아서 찾지 않았습니다. 재설치가 잦은 볼륨은 Retain 대신 Delete로 두고 애플리케이션이 직접 복제하는 데이터는 스토리지 복제를 겹쳐 두지 않습니다.</p></li></ul></div>
             </article>
+            <article class="pm-case">
+              <h4><span class="pm-no">05</span>로컬에만 있어 잃어버리면 다시 조회해야 하던 비밀 값 관리 문제</h4>
+              <figure class="diagram pm-fig"><img src="images/diagrams/hl-vault.png" alt="이전에는 kubectl로 만든 Secret의 원본이 로컬에만 있어 잃어버리면 다시 조회해야 했고, 이후에는 Git에 ExternalSecret 참조만 두고 External Secrets가 Kubernetes 인증으로 Vault에서 값을 읽어 Secret을 만드는 구조" loading="lazy"><figcaption>비밀 값은 Vault에만 두고 Git에는 어디서 가져올지만 적었습니다.</figcaption></figure>
+              <div class="pm-flow">
+                <div><p class="pm-k">문제</p><p>비밀 값은 Git에 올리지 않고 kubectl create secret으로 클러스터에 바로 넣었기 때문에 원본이 제 로컬 파일에만 있었습니다. 로컬 파일을 잃어버리면 클러스터에서 Secret을 다시 조회해 base64를 풀어야 했고, 클러스터를 다시 만들면 값을 되찾을 곳이 없었습니다.</p></div>
+                <div><p class="pm-k">한 일</p><p>직접 만든 Secret과 로컬 파일을 모두 정리하고 비밀 값은 Vault KV v2에만 두었습니다. Git에는 Vault 경로와 키 이름만 적은 ExternalSecret을 커밋하고 Argo CD가 이를 동기화합니다.</p><p>External Secrets는 ClusterSecretStore 하나로 Vault의 Kubernetes 인증을 거쳐 값을 읽고 Secret을 만듭니다. Argo CD Secret처럼 차트가 이미 만드는 Secret은 덮어쓰지 않고 키만 합쳐 넣었습니다.</p></div>
+                <div class="pm-res"><p class="pm-k">결과</p><p class="pm-big">Git에 평문 없음</p><p>데이터 저장소와 모니터링, Argo CD, Keycloak의 비밀 값을 모두 ExternalSecret으로 받아 씁니다. 로컬 파일을 따로 챙길 필요가 없어졌고 클러스터를 다시 만들어도 Vault에서 값을 그대로 가져옵니다.</p></div>
+              </div>
+              <div class="pm-lesson"><p class="pm-k">배운 점</p><ul><li><b>Git 밖에서 따로 챙겨야 하는 값은 구조가 틀렸다는 신호였습니다</b><p>GitOps는 Git이 원본이어야 하는데 비밀 값만 예외였습니다. 로컬에서 따로 챙기는 대신 원본을 Vault로 옮겨 예외 자체를 없앴습니다. 대신 Vault가 재시작되면 봉인된 상태로 떠서 직접 unseal해야 하는 운영 부담이 생겼습니다.</p></li></ul></div>
+            </article>
             </section>
             </article>
       </div>
