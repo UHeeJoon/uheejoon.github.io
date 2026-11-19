@@ -290,7 +290,9 @@
 
     /* ---------- PDF 출력 ---------- */
     @page { size: A4; margin: 14mm 15mm 16mm; }
+    .print-only { display: none; }
     @media print {
+      .print-only { display: block !important; }
       html:root:root, html:root:root[data-theme] {
         --bg: #ffffff; --bg-sunk: #f4f4f2; --bg-panel: #fafaf8;
         --ink: #14110f; --ink-2: #3d3733; --ink-3: #6f665e; --line: #dedbd6;
@@ -463,14 +465,14 @@
       <div class="proj-head">
         <p class="sec-label">Project 01 · 실무</p>
         <h2>(주)옥타코 멀티테넌트 SSO 인증 서비스</h2>
-        <p class="sub">온프레미스 SSO를 AWS EKS 기반 멀티테넌트 SaaS로 옮기는 신규 구축 프로젝트</p>
+        <p class="sub">온프레미스 SSO를 AWS EKS 기반 멀티테넌트 SaaS로 전환하는 프로젝트</p>
       </div>
 
       <div id="oc-overview" data-title="옥타코 · 개요">
         <dl class="facts">
-          <dt>기간</dt><dd>2025.04 ~ 2026.02 (11개월) · 정규직</dd>
-          <dt>소속 · 역할</dt><dd>신규 SSO 구축 TF (백엔드 3명) · DevOps와 Backend 엔지니어</dd>
-          <dt>담당</dt><dd>AWS EKS 기반 인프라 구축 전반(권한 분리, 배포, 운영 기준), Java/Spring 기반 사용자 · 세션 인증 도메인 개발</dd>
+          <dt>기간</dt><dd>2025.04 ~ 2026.02, 11개월, 정규직</dd>
+          <dt>소속과 역할</dt><dd>백엔드 3명으로 구성된 초기 TF, DevOps와 Backend 엔지니어</dd>
+          <dt>담당</dt><dd>AWS EKS 기반 인프라 구축, Java/Spring 기반 사용자와 세션 인증 도메인 개발</dd>
           <dt>기술</dt>
           <dd>
             <ul class="tags">
@@ -482,28 +484,22 @@
 
         <h3>서비스 개요</h3>
         <p class="lede" style="margin-top:14px">
-          여러 고객사가 함께 쓰는 SaaS형 SSO 인증 서비스입니다. 고객사의 직원은 회사 계정으로 한 번만 로그인하면
-          연결된 업무 앱을 따로 로그인하지 않고 사용합니다. 기존에는 온프레미스로 운영하던 SSO를
-          AWS EKS 위에서 여러 고객사가 함께 쓰는 멀티테넌트 구조로 새로 만드는 프로젝트였고 저는 출시 전 단계의 초기 TF에서 합류했습니다.
-        </p>
-        <p>
-          요청은 ALB를 지나 Gateway(JWT 검증) → Resolve Server(서브도메인으로 고객사 판별) → 인증 서비스(로그인, 세션) 순서로 흐르고
-          고객사 생성은 온보딩 서비스가, 감사 · 접근 로그는 SQS를 거쳐 로그 Consumer가 처리합니다.
-          세션은 ElastiCache Redis에, 고객사 데이터는 RDS PostgreSQL에 고객사별 Schema로 나눠 저장합니다.
+          여러 고객사가 함께 쓰는 SSO 인증 서비스입니다. 고객사 직원은 회사 계정으로 한 번 로그인하면 연결된 업무 앱을 다시 로그인하지 않고 씁니다.
+          온프레미스로 운영하던 SSO를 AWS EKS 위의 멀티테넌트 구조로 새로 만드는 프로젝트였고 출시 전 단계의 초기 TF에 합류했습니다.
         </p>
 
         <figure class="wide">
           <button class="frame" type="button" data-zoom><img src="../images/devops/oc_ov2.png" width="1915" height="1126" loading="lazy" alt="옥타코 전체 아키텍처: GitHub Actions와 ECR, Helm 배포 저장소를 Argo CD가 감지해 EKS에 배포하고, ALB에서 Gateway, Resolve Server, 인증 서비스로 요청이 흐르며 ElastiCache Redis와 RDS PostgreSQL, Secrets Manager, IAM Role, SQS를 사용하는 구성"></button>
-          <figcaption>업무를 바탕으로 재구성한 옥타코의 요청 경로, 배포, 자동 확장(HPA CPU 60%, 축소 30분 유예 · Cluster Autoscaler), 데이터 구성</figcaption>
+          <figcaption>업무를 바탕으로 재구성한 옥타코의 요청 경로와 배포, 플랫폼 구성 요소, 데이터 구성</figcaption>
         </figure>
 
-        <h4>주요 사례</h4>
-        <ol class="case-index">
-          <li><a href="#oc-1"><span class="n">01</span><span>서비스별 AWS 권한 분리로 탈취 피해를 한 서비스 안으로 제한</span><span class="r">Security</span></a></li>
-          <li><a href="#oc-2"><span class="n">02</span><span>Probe와 CPU limit 조정으로 수백 번 반복되던 Pod 재시작을 0번으로</span><span class="r">K8s 운영</span></a></li>
-          <li><a href="#oc-3"><span class="n">03</span><span>Admission Webhook으로 배포 경로와 관계없이 같은 배포 기준 적용</span><span class="r">Policy</span></a></li>
-          <li><a href="#oc-4"><span class="n">04</span><span>GitOps 전환으로 배포 덮어쓰기를 없애고 무중단 배포 검증</span><span class="r">Deployment</span></a></li>
-          <li><a href="#oc-5"><span class="n">05</span><span>장애 주입으로 찾은 Redis SPOF를 Circuit Breaker와 DB 우회로 해결</span><span class="r">Resilience</span></a></li>
+        <h4 class="print-only">주요 사례</h4>
+        <ol class="case-index print-only">
+          <li><a href="#oc-1"><span class="n">01</span><span>서비스별 AWS 권한 분리로 탈취 피해를 한 서비스 안으로 제한</span></a></li>
+          <li><a href="#oc-2"><span class="n">02</span><span>Probe와 CPU limit 조정으로 수백 번 반복되던 Pod 재시작을 0번으로</span></a></li>
+          <li><a href="#oc-3"><span class="n">03</span><span>Admission Webhook 개발로 배포 경로와 관계없이 같은 배포 기준 적용</span></a></li>
+          <li><a href="#oc-4"><span class="n">04</span><span>GitOps 전환으로 배포 덮어쓰기를 없애고 무중단 배포 검증</span></a></li>
+          <li><a href="#oc-5"><span class="n">05</span><span>장애 주입 시험으로 미리 찾은 Redis SPOF를 Circuit Breaker와 DB 우회로 해결</span></a></li>
         </ol>
       </div>
 
@@ -900,14 +896,14 @@
         <p>6주 예산은 40만 원이었습니다. 목표 구조는 코드로 모두 구현하고 비용이 큰 항목만 변수로 낮춰
           월 운영비를 <strong>약 890달러에서 약 240달러</strong>로 73% 줄였습니다. 줄인 항목은 대부분 변수 하나로 목표 구조로 되돌릴 수 있습니다. (<a href="#nv-6">06 사례</a>)</p>
 
-        <h4>주요 사례</h4>
-        <ol class="case-index">
-          <li><a href="#nv-1"><span class="n">01</span><span>담당자 한 명을 거치던 인프라 변경을 설정 파일 하나로 팀원이 직접 처리</span><span class="r">IaC</span></a></li>
-          <li><a href="#nv-2"><span class="n">02</span><span>팀원 각자의 로컬 apply를 Atlantis PR 절차로 바꿔 main과 인프라를 일치</span><span class="r">Change Mgmt</span></a></li>
-          <li><a href="#nv-3"><span class="n">03</span><span>IAM Role과 OIDC로 장기 액세스 키를 없애고 권한 밖 접근을 차단</span><span class="r">Security</span></a></li>
-          <li><a href="#nv-4"><span class="n">04</span><span>모니터링을 한 화면에 모아 원인 분석을 수십 분에서 수 분으로</span><span class="r">Observability</span></a></li>
-          <li><a href="#nv-5"><span class="n">05</span><span>판매 오픈의 급증 트래픽과 큐에 쌓인 메시지에 맞춰 늘어나는 ECS 확장 구조</span><span class="r">Scalability</span></a></li>
-          <li><a href="#nv-6"><span class="n">06</span><span>목표 구조는 코드에 남기고 비용이 큰 항목만 변수로 낮춰 월 운영비 73% 절감</span><span class="r">Cost</span></a></li>
+        <h4 class="print-only">주요 사례</h4>
+        <ol class="case-index print-only">
+          <li><a href="#nv-1"><span class="n">01</span><span>담당자 한 명을 거치던 인프라 변경을 설정 파일 하나로 팀원이 직접 처리</span></a></li>
+          <li><a href="#nv-2"><span class="n">02</span><span>팀원 각자의 로컬 apply를 Atlantis PR 절차로 바꿔 main과 인프라를 일치</span></a></li>
+          <li><a href="#nv-3"><span class="n">03</span><span>IAM Role과 OIDC로 장기 액세스 키를 없애고 권한 밖 접근을 차단</span></a></li>
+          <li><a href="#nv-4"><span class="n">04</span><span>모니터링을 한 화면에 모아 원인 분석을 수십 분에서 수 분으로</span></a></li>
+          <li><a href="#nv-5"><span class="n">05</span><span>판매 오픈의 급증 트래픽과 큐에 쌓인 메시지에 맞춰 늘어나는 ECS 확장 구조</span></a></li>
+          <li><a href="#nv-6"><span class="n">06</span><span>목표 구조는 코드에 남기고 비용이 큰 항목만 변수로 낮춰 월 운영비 73% 절감</span></a></li>
         </ol>
       </div>
 
