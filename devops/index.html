@@ -514,36 +514,36 @@
         <ol class="steps">
           <li class="step problem">
             <div class="step-label">문제</div>
-            <p>클러스터를 점검해 보니 서비스 하나가 탈취됐을 때 피해가 그 서비스에서 멈추지 않는 경로가 네 군데 있었습니다.</p>
+            <p>클러스터를 점검해 보니 서비스 하나가 탈취됐을 때 피해가 그 서비스에서 멈추지 않는 경로가 세 군데 있었습니다.</p>
             <ul class="dot">
-              <li>모든 Pod가 노드의 IAM Role을 공유해 한 서비스가 탈취되면 다른 서비스의 AWS 권한까지 쓸 수 있었습니다.</li>
+              <li>모든 Pod가 노드의 IAM Role을 공유해 한 서비스가 탈취되면 다른 서비스의 AWS 권한과 비밀 값까지 쓸 수 있었습니다.</li>
               <li>Pod 사이 통신이 Kubernetes 기본값대로 모두 열려 있어 한 Pod에서 다른 서비스를 바로 호출할 수 있었습니다.</li>
               <li>RDS와 ElastiCache 접속 허용 규칙이 CIDR 기준이라 같은 대역의 어떤 리소스든 DB와 캐시에 접근할 수 있었습니다.</li>
-              <li>비밀 값을 각자 로컬에서 ConfigMap과 Secret으로 직접 만들어 누가 무엇을 만들었는지 추적할 수 없었습니다.</li>
             </ul>
+            <p>비밀 값을 만드는 방식에도 문제가 있었습니다. 각자 로컬에서 ConfigMap과 Secret으로 직접 만들어 누가 무엇을 만들었는지 추적할 수 없었습니다.</p>
           </li>
 
           <li class="step solve">
             <div class="step-label">해결 과정</div>
             <figure>
               <button class="frame" type="button" data-zoom><img src="../images/devops/irsa2.png" width="2641" height="1351" loading="lazy" alt="서비스마다 IRSA로 IAM Role을 받고, NetworkPolicy로 Pod 통신과 노드 메타데이터를 차단하며, Security Groups for Pods로 DB와 캐시 접근을 제한하고, Secrets Store CSI Driver로 비밀 값을 주입하는 구조"></button>
-              <figcaption>서비스마다 IAM Role을 받는 IRSA 흐름과 Pod 통신, 노드 메타데이터, DB · 캐시, 비밀 값 접근 제한</figcaption>
+              <figcaption>서비스마다 IAM Role을 받는 IRSA 흐름과 Pod 통신, 노드 메타데이터, DB와 캐시, 비밀 값 접근 제한</figcaption>
             </figure>
 
-            <h4>① AWS 권한: 서비스마다 IAM Role 분리</h4>
+            <h4>① 서비스마다 IAM Role 분리</h4>
             <ul class="dot">
               <li>IRSA로 서비스마다 Role을 나누고 자기 비밀 값 조회처럼 그 서비스가 실제로 쓰는 AWS API만 허용했습니다.</li>
               <li>Worker Node Role에는 노드 운영에 필요한 권한만 남겼습니다.</li>
             </ul>
 
-            <h4>② 네트워크: Pod 통신과 DB 접속 제한</h4>
+            <h4>② Pod 통신과 DB 접속 제한</h4>
             <ul class="dot">
               <li>VPC CNI NetworkPolicy로 Pod의 Ingress와 Egress를 Default Deny로 두고 필요한 경로만 열었습니다.</li>
               <li>Egress가 기본 차단이 되면서 Pod가 노드 메타데이터에 접근해 Worker Node Role 권한을 받아 가는 우회 경로도 함께 막혔습니다.</li>
               <li>Security Groups for Pods로 서비스마다 Security Group을 붙이고 RDS와 ElastiCache는 그 그룹을 가진 Pod에만 접속을 허용했습니다.</li>
             </ul>
 
-            <h4>③ 비밀 값: 로컬 생성 대신 중앙 저장소에서 주입</h4>
+            <h4>③ 비밀 값은 중앙 저장소에서 주입</h4>
             <ul class="dot">
               <li>JWT 서명키, DB 접속 정보, 설정 값은 Secrets Manager와 Parameter Store에 두고 Secrets Store CSI Driver로 Pod에 주입했습니다.</li>
               <li>비밀 값을 읽는 권한 자체도 서비스별 IRSA Role로 제한해 자기 비밀 값만 읽게 했습니다.</li>
@@ -563,7 +563,6 @@
               </tbody>
             </table></div>
             <ul class="dot">
-              <li>한 서비스가 탈취돼도 다른 서비스의 AWS 권한과 비밀 값으로 피해가 번지지 않는 구조가 됐습니다.</li>
               <li>비밀 값은 Secrets Manager와 Parameter Store에서만 관리해 로컬에서 Secret을 만들지 않고 배포합니다.</li>
             </ul>
           </li>
