@@ -222,13 +222,6 @@
 
     .result-box { background: var(--bg-panel); border: 1px solid var(--line); border-radius: 12px; padding: 18px 22px 8px; margin: 4px 0 12px; }
 
-    /* 기술, 자격 */
-    .skills { display: grid; grid-template-columns: 150px minmax(0, 1fr); gap: 12px 20px; margin: 0 0 32px; font-size: 15.5px; }
-    .skills dt { color: var(--ink); font-weight: 650; }
-    .skills dd { margin: 0; }
-    .certs { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--line); }
-    .certs li { display: grid; grid-template-columns: 96px minmax(0, 1fr); gap: 16px; padding: 12px 2px; border-bottom: 1px solid var(--line); font-size: 15px; }
-    .certs .d { font-family: var(--mono); font-size: 13px; color: var(--ink-3); padding-top: 2px; }
 
     .to-top { display: inline-block; margin-top: 64px; font-size: 14px; color: var(--ink-3); text-decoration: none; }
     .to-top:hover { color: var(--ink); }
@@ -273,8 +266,6 @@
       .stats { grid-template-columns: minmax(0, 1fr); }
       .facts { grid-template-columns: minmax(0, 1fr); gap: 2px; padding: 18px; }
       .facts dd { margin-bottom: 10px; }
-      .skills { grid-template-columns: minmax(0, 1fr); gap: 2px; }
-      .skills dd { margin-bottom: 12px; }
       .case-index a { grid-template-columns: 30px minmax(0, 1fr); }
       .case-index .r { display: none; }
       .step { padding-left: 26px; }
@@ -391,7 +382,6 @@
             <li><a href="#nv-6"><span class="n">06</span><span>월 운영비 73% 절감</span></a></li>
           </ol>
         </li>
-        <li class="lv1"><a href="#skills">기술 · 자격</a></li>
       </ol>
     </nav>
     <div class="sm-foot">
@@ -1164,8 +1154,8 @@
 
             <h4>② 대시보드는 사용자 영향에서 원인 순서로 배치</h4>
             <figure class="wide">
-              <button class="frame dark" type="button" data-zoom><img src="../images/devops/obs_dashboard.png" width="1920" height="878" loading="lazy" alt="Grafana 판매 오픈 상황판: 상단에 요청 수, 5xx, 0.5초 넘은 요청 비율, 지금 5xx를 내는 서비스 수, 아래에 서비스 현황 표와 서비스별 5xx, CPU, 인스턴스 수 그래프"></button>
-              <figcaption>판매 오픈 상황판. 맨 위에서 사용자 영향을 보고 그 아래 같은 시간축에서 오류 · 포화 · 대수를 비교</figcaption>
+              <button class="frame dark" type="button" data-zoom><img src="../images/devops/obs_service.png" width="3780" height="1772" loading="lazy" alt="Grafana 서비스 상세 대시보드: 상단에 요청 수, 5xx 건수와 비율, 0.5초 초과 비율, p95, CPU 최대, 인스턴스 수, DB 풀 최대 사용률, 아래에 5xx 업무 오류 코드, 태스크별 CPU, 인스턴스 수, Redis 명령, DB 커넥션을 기다리는 요청, 나가는 호출 오류율 그래프"></button>
+              <figcaption>실제 서비스 상세 대시보드에 예시 데이터를 넣은 화면으로 CPU는 여유가 있지만 DB 풀이 가득 차 커넥션 대기가 쌓이는 상황</figcaption>
             </figure>
             <ul class="dot">
               <li>첫 화면 맨 위에 요청 수, 5xx, 0.5초 넘은 요청, <strong>지금 5xx를 내는 서비스</strong>를 두어 사용자 영향부터 확인합니다.</li>
@@ -1343,25 +1333,7 @@
       </article>
     </section>
 
-    <!-- ================= 기술 · 자격 ================= -->
-    <section class="block" id="skills" data-title="기술 · 자격">
-      <p class="sec-label">Skills &amp; Certifications</p>
-      <h2>기술 · 자격</h2>
-      <dl class="skills">
-        <dt>Cloud</dt><dd>AWS EKS, ECS Fargate, IAM, VPC, RDS, ElastiCache, SQS, CloudFront, WAF</dd>
-        <dt>Container</dt><dd>Docker, Kubernetes, Helm</dd>
-        <dt>IaC · CI/CD</dt><dd>Terraform, Atlantis, GitHub Actions, Argo CD, Argo Rollouts</dd>
-        <dt>Monitoring · Test</dt><dd>OpenTelemetry, Grafana, Mimir, Loki, Tempo, Pyroscope, k6, Chaos Monkey</dd>
-        <dt>Backend</dt><dd>Java, Spring Boot, Resilience4j</dd>
-      </dl>
-      <ul class="certs">
-        <li><span class="d">2026.09</span><span>CKA (Certified Kubernetes Administrator)</span></li>
-        <li><span class="d">2026.09</span><span>정보처리기사</span></li>
-        <li><span class="d">2026.07</span><span>AWS Certified Solutions Architect – Associate</span></li>
-        <li><span class="d">2026.06</span><span>SQLD</span></li>
-      </ul>
-      <a class="to-top" href="#top">↑ 맨 위로</a>
-    </section>
+    <a class="to-top" href="#top">↑ 맨 위로</a>
   </main>
 </div>
 
