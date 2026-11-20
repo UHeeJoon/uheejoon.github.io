@@ -228,6 +228,7 @@
     td:first-child { color: var(--ink); font-weight: 600; }
     td.pick { color: var(--accent-ink); }
     tr.chosen td { background: var(--accent-soft); }
+    th.chosen-col { color: var(--accent-ink); font-weight: 700; box-shadow: inset 0 -3px 0 var(--accent); }
     .muted { color: var(--ink-3); }
 
     .result-box { background: var(--bg-panel); border: 1px solid var(--line); border-radius: 12px; padding: 18px 22px 8px; margin: 4px 0 12px; }
@@ -807,61 +808,64 @@
         <div class="case-head">
           <div class="num">OCTACO · 05</div>
           <h3>장애 주입 시험으로 미리 찾은 Redis SPOF를 Circuit Breaker와 DB 우회로 해결</h3>
-          <ul class="outcome"><li>Redis 장애 중에도 인증 유지</li><li>감지 → 우회 → 복귀 자동 전환</li><li>복제가 못 막는 지연 · 단절 대응</li></ul>
+          <ul class="outcome"><li>Redis 장애 중에도 로그인과 인증 처리</li><li>복제가 못 막는 지연과 연결 끊김 대응</li><li>감지부터 복귀까지 자동 전환</li></ul>
         </div>
 
         <ol class="steps">
           <li class="step problem">
             <div class="step-label">문제 발견</div>
-            <p>출시 전 k6로 부하를 건 상태에서 Chaos Monkey로 Redis에 timeout을 주입했습니다. 그 결과 <strong class="key">모든 고객사의 세션 인증이 실패</strong>했습니다.</p>
-            <p>세션을 Redis에만 두고 있어 Redis 하나가 모든 고객사 인증의 <strong class="key">단일 장애 지점(SPOF)</strong>이 되는 구조였습니다.</p>
+            <ul class="dot">
+              <li>출시 전 k6 부하 중 Chaos Monkey for Spring Boot로 Redis 호출에 timeout을 주입하자 <strong class="key">모든 고객사의 세션 인증이 실패</strong>했습니다.</li>
+              <li>세션을 Redis에만 두고 있어 Redis 하나가 모든 고객사 인증의 <strong class="key">SPOF가 되는 구조</strong>였습니다.</li>
+            </ul>
           </li>
 
           <li class="step trace">
-            <div class="step-label">원인 분석</div>
-            <p>장애 유형별로 나눠 보니 ElastiCache 복제는 노드 장애만 막고 서버와 Redis 사이 <strong class="key">지연이나 연결 끊김에는 그대로 멈췄습니다</strong>.</p>
+            <div class="step-label">설계 판단</div>
+            <p>장애 유형별로 나눠 보니 ElastiCache 복제는 노드 장애만 막고 서버와 Redis 사이 <strong class="key">지연이나 연결 끊김에는 대응하지 못했습니다</strong>.</p>
             <div class="tbl"><table>
-              <thead><tr><th>장애 유형</th><th>ElastiCache 복제</th><th>Circuit Breaker + DB 우회</th></tr></thead>
+              <thead><tr><th>장애 유형</th><th>ElastiCache 복제</th><th class="chosen-col">Circuit Breaker와 DB 우회</th></tr></thead>
               <tbody>
-                <tr><td>Redis 노드 장애</td><td>복제본으로 전환해 버팀</td><td class="pick">DB로 우회</td></tr>
-                <tr><td>서버와 Redis 사이 지연</td><td class="muted">대응 불가, 그대로 멈춤</td><td class="pick">느린 호출로 집계해 DB로 우회</td></tr>
-                <tr><td>서버와 Redis 사이 연결 끊김</td><td class="muted">대응 불가, 그대로 멈춤</td><td class="pick">실패한 호출로 집계해 DB로 우회</td></tr>
+                <tr><td>Redis 노드 장애</td><td>복제본으로 전환</td><td class="pick">DB로 우회</td></tr>
+                <tr><td>서버와 Redis 사이 지연</td><td class="muted">대응 불가</td><td class="pick">느린 호출로 집계해 DB로 우회</td></tr>
+                <tr><td>서버와 Redis 사이 연결 끊김</td><td class="muted">대응 불가</td><td class="pick">실패한 호출로 집계해 DB로 우회</td></tr>
               </tbody>
             </table></div>
-            <p class="point">그래서 장애의 원인과 상관없이 호출 결과로 판단하는 Circuit Breaker를 애플리케이션에 두기로 했습니다.</p>
+            <p class="point">장애의 원인과 상관없이 호출 결과로 판단하는 Circuit Breaker를 애플리케이션에 두기로 했습니다.</p>
+            <p>우회할 저장소는 서비스가 이미 쓰고 있고 여러 Pod가 함께 조회할 수 있는 PostgreSQL로 정했습니다.</p>
           </li>
 
           <li class="step solve">
-            <div class="step-label">해결 과정</div>
+            <div class="step-label">구현</div>
             <figure class="wide">
               <button class="frame" type="button" data-zoom><img src="../images/devops/redis2.png" width="2781" height="801" loading="lazy" alt="k6 부하와 Chaos Monkey 장애 주입, Redis 장애 때 Circuit Breaker가 세션을 DB로 우회하고 일정 시간 뒤 일부 요청으로 Redis를 시험해 복귀하는 상태 전환 흐름"></button>
               <figcaption>장애 주입 시험과 Redis 장애 때 Circuit Breaker가 DB로 우회하는 흐름과 상태 전환</figcaption>
             </figure>
 
-            <h4>차단 기준과 복귀 방식을 수치로 정함</h4>
+            <h4>차단 기준과 복귀 방식</h4>
+            <p>Resilience4j Circuit Breaker로 Redis 호출을 감싸고 상태마다 세션을 처리하는 저장소와 전환 기준을 아래처럼 설정했습니다.</p>
+            <div class="tbl"><table>
+              <thead><tr><th style="white-space:nowrap">상태</th><th>세션 처리</th><th>다음 상태로 넘어가는 기준</th></tr></thead>
+              <tbody>
+                <tr><td style="white-space:nowrap">Closed</td><td>Redis</td><td>최근 100건 중 300ms를 넘긴 느린 호출과 실패가 30% 이상이면 Open</td></tr>
+                <tr><td style="white-space:nowrap">Open</td><td>PostgreSQL</td><td>30초 뒤 Half-Open</td></tr>
+                <tr><td style="white-space:nowrap">Half-Open</td><td>PostgreSQL로 응답하고 요청 10건은 Redis에도 전송</td><td>실패율이 30% 미만이면 Closed, 이상이면 다시 Open</td></tr>
+              </tbody>
+            </table></div>
             <ul class="dot">
-              <li>300ms를 넘긴 느린 호출과 실패가 <strong class="key">최근 100건 중 30% 이상</strong>이면 Redis 호출을 차단합니다.</li>
-              <li>차단되면 <strong class="key">세션을 PostgreSQL에서 읽고 쓰고</strong> <strong class="key">30초 뒤</strong> 일부 요청만 Redis로 보내 정상이면 복귀합니다.</li>
+              <li>Redis 호출 timeout은 500ms로 두고 그보다 짧은 300ms를 느린 호출 기준으로 잡아 timeout 전의 지연도 집계하게 했습니다.</li>
+              <li>Redis에 보낸 요청이 실패해도 <strong class="key">응답은 PostgreSQL이 맡아</strong> 복귀를 확인하는 동안 사용자 요청에는 영향이 없도록 했습니다.</li>
             </ul>
 
-            <h4>세션 이전 없이 재로그인으로 처리</h4>
-            <ul class="dot">
-              <li>기존 세션은 Redis에만 있어 우회가 시작되면 사용자가 다시 로그인해 DB에 세션을 만듭니다.</li>
-              <li>우회 중 DB에 만든 세션은 Redis로 옮기지 않아 두 저장소의 세션이 섞이지 않고 복귀 때도 재로그인합니다.</li>
-            </ul>
-
-            <h4>장애 주입을 반복해 검증</h4>
-            <ul class="dot">
-              <li>k6 부하 중 Redis timeout 주입과 해제를 반복하며 <strong class="key">차단 → DB 우회 → 복귀가 의도대로 일어나는지</strong> 상태 전환 기록으로 확인했습니다.</li>
-            </ul>
+            <h4>세션은 옮기지 않고 재로그인으로 처리</h4>
+            <p>Redis와 DB 사이에 세션을 옮기다 다시 장애가 나면 처리가 복잡해지고 두 저장소의 세션이 섞일 수 있어 <strong class="key">세션은 옮기지 않고</strong> 기존 사용자가 장애 시작과 복구 때 한 번씩 다시 로그인하게 했습니다.</p>
           </li>
 
           <li class="step result">
-            <div class="step-label">결과</div>
+            <div class="step-label">검증과 결과</div>
             <ul class="dot">
-              <li>Redis 장애 중에도 DB로 우회해 <strong class="key">로그인과 인증이 계속 처리됩니다</strong>. 기존 사용자는 장애 시작과 복구 때 한 번씩만 재로그인합니다.</li>
-              <li>k6 요청은 Circuit Breaker가 차단하기 전 잠깐만 실패하고 우회 뒤로는 정상 처리됐습니다.</li>
-              <li>장애 감지부터 DB 우회, Redis 복귀까지 <strong class="key">자동으로 전환</strong>됩니다.</li>
+              <li>k6 부하 중 Redis timeout 주입과 해제를 반복해 차단, DB 우회, 복귀를 상태 전환 기록으로 확인했고 k6 요청은 차단 전 잠깐만 실패한 뒤 정상 처리됐습니다.</li>
+              <li>Redis 장애 중에도 <strong class="key">로그인과 인증이 계속 처리</strong>되고 감지부터 복귀까지 사람이 개입하지 않습니다.</li>
             </ul>
           </li>
         </ol>
