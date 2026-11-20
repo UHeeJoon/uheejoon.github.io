@@ -74,6 +74,7 @@
     pre.code .k { color: var(--accent-ink); font-weight: 600; }
     pre.code .v { color: var(--warn); }
     pre.code .d { color: var(--ink-3); }
+    .point { margin: 18px 0 20px; padding: 14px 18px; background: var(--bg-sunk); border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0; color: var(--ink); font-weight: 650; }
     strong { color: var(--ink); font-weight: 650; }
     .key { color: var(--ink); font-weight: 650; background: linear-gradient(transparent 86%, color-mix(in srgb, var(--accent) 55%, transparent) 86%); padding: 0 2px; -webkit-box-decoration-break: clone; box-decoration-break: clone; }
     code { font-family: var(--mono); font-size: .86em; background: var(--bg-sunk); padding: .08em .38em; border-radius: 5px; color: var(--ink); }
@@ -678,7 +679,7 @@
                 <tr class="chosen"><td>Admission Webhook 직접 개발</td><td>삽입과 검사를 코드로 자유롭게 작성</td><td>Webhook 서버를 직접 개발하고 운영</td></tr>
               </tbody>
             </table></div>
-            <p>필요한 규칙이 몇 개뿐이라 정책 문법을 새로 익히고 컨트롤러와 CRD를 더 운영하는 대신 참고할 예제 코드를 바탕으로 <strong class="key">Admission Webhook을 직접 개발</strong>하는 쪽을 택했습니다.</p>
+            <p class="point">필요한 규칙이 몇 개뿐이라 정책 문법을 새로 익히고 컨트롤러와 CRD를 더 운영하는 대신 참고할 예제 코드를 바탕으로 Admission Webhook을 직접 개발하는 쪽을 택했습니다.</p>
           </li>
 
           <li class="step solve">
@@ -772,7 +773,7 @@
                 <tr class="chosen"><td style="white-space:nowrap">Rolling Update</td><td style="white-space:nowrap">Pod를 하나씩 새 버전으로 교체</td><td>따로 정할 값이 적어 바로 적용 가능</td></tr>
               </tbody>
             </table></div>
-            <p>출시 전에는 빨리 적용하는 것이 중요해 <strong class="key">가장 단순한 Rolling Update를 우선 선택</strong>했습니다.</p>
+            <p class="point">출시 전에는 빨리 적용하는 것이 중요해 가장 단순한 Rolling Update를 우선 선택했습니다.</p>
             <p>Argo Rollouts의 Canary 전략에 steps를 두지 않아 지금은 Rolling Update로 동작하고 <strong class="key">출시 뒤 steps만 더하면 Canary로 바뀌도록</strong> 설정했습니다.</p>
             <figure class="codefig">
 <pre class="code"><code><span class="c"># Rollout</span>
@@ -827,7 +828,7 @@
                 <tr><td>서버와 Redis 사이 연결 끊김</td><td class="muted">대응 불가, 그대로 멈춤</td><td class="pick">실패한 호출로 집계해 DB로 우회</td></tr>
               </tbody>
             </table></div>
-            <p>그래서 장애의 원인과 상관없이 <strong class="key">호출 결과로 판단하는 Circuit Breaker</strong>를 애플리케이션에 두기로 했습니다.</p>
+            <p class="point">그래서 장애의 원인과 상관없이 호출 결과로 판단하는 Circuit Breaker를 애플리케이션에 두기로 했습니다.</p>
           </li>
 
           <li class="step solve">
@@ -1020,7 +1021,8 @@
               <li>콘솔과 로컬에서 바꾼 것은 코드에 남지 않아 누가 바꿨는지 모르고 잊힌 자원은 비용으로 남습니다.</li>
               <li>순서가 있는 스택(VPC → 보안 그룹 → DB → ECS)을 거꾸로 적용하면 실패합니다.</li>
             </ul>
-            <p>그래서 <strong class="key">apply를 한곳에서만 실행</strong>하고 적용 여부와 순서를 PR에서 확인할 수 있는 절차가 필요했습니다. PR 댓글로 plan과 apply를 실행하고 스택 잠금까지 기본 제공하는 Atlantis를 택했습니다.</p>
+            <p>그래서 <strong class="key">apply를 한곳에서만 실행</strong>하고 적용 여부와 순서를 PR에서 확인할 수 있는 절차가 필요했습니다.</p>
+            <p class="point">PR 댓글로 plan과 apply를 실행하고 스택 잠금까지 기본 제공하는 Atlantis를 택했습니다.</p>
           </li>
 
           <li class="step solve">
@@ -1287,8 +1289,9 @@
             <div class="step-label">원인 분석</div>
             <ul class="dot">
               <li>Cost Explorer로 비용을 항목별로 나눠 보니 서비스를 모두 띄운 뒤 <strong class="key">Container Insights 지표 요금이 Fargate 다음으로 큰 비중</strong>을 차지하고 있었습니다.</li>
-              <li>그렇다고 설계 자체를 낮추면 트래픽이 늘거나 예산이 생겼을 때 다시 만들어야 합니다. 목표 구조를 버리지 않고 비용만 줄이는 방법이 필요했습니다.</li>
+              <li>그렇다고 설계 자체를 낮추면 트래픽이 늘거나 예산이 생겼을 때 다시 만들어야 합니다.</li>
             </ul>
+            <p class="point">목표 구조를 버리지 않고 비용만 줄이는 방법이 필요했습니다.</p>
           </li>
 
           <li class="step solve">
