@@ -65,6 +65,7 @@
     }
     a { color: var(--accent-ink); text-underline-offset: 3px; text-decoration-thickness: 1px; }
     strong { color: var(--ink); font-weight: 650; }
+    .key { color: var(--ink); font-weight: 650; background: linear-gradient(transparent 86%, color-mix(in srgb, var(--accent) 55%, transparent) 86%); padding: 0 2px; -webkit-box-decoration-break: clone; box-decoration-break: clone; }
     code { font-family: var(--mono); font-size: .86em; background: var(--bg-sunk); padding: .08em .38em; border-radius: 5px; color: var(--ink); }
     img { max-width: 100%; height: auto; display: block; }
     .skip { position: absolute; left: -9999px; }
@@ -196,7 +197,7 @@
     .step { position: relative; padding: 0 0 8px 34px; }
     .step::before { content: ""; position: absolute; left: 7px; top: 30px; bottom: -4px; width: 1px; background: var(--line); }
     .step:last-child::before { display: none; }
-    .step-label { position: relative; display: flex; align-items: center; gap: 10px; margin: 30px 0 12px; font-size: 13px; font-weight: 700; letter-spacing: .02em; color: var(--ink-3); }
+    .step-label { position: relative; display: flex; align-items: center; gap: 10px; margin: 30px 0 12px; font-size: 15px; font-weight: 700; letter-spacing: .02em; color: var(--ink-3); }
     .step:first-child .step-label { margin-top: 8px; }
     .step-label::before { content: ""; position: absolute; left: -34px; top: 50%; transform: translateY(-50%); width: 15px; height: 15px; border-radius: 50%; background: var(--bg); border: 2px solid var(--ink-3); }
     .step.problem .step-label { color: var(--warn); }
@@ -496,7 +497,7 @@
         <h4 class="print-only">주요 사례</h4>
         <ol class="case-index print-only">
           <li><a href="#oc-1"><span class="n">01</span><span>서비스별 AWS 권한 분리로 탈취 피해를 한 서비스 안으로 제한</span></a></li>
-          <li><a href="#oc-2"><span class="n">02</span><span>Probe와 CPU limit 조정으로 수백 번 반복되던 Pod 재시작을 0번으로</span></a></li>
+          <li><a href="#oc-2"><span class="n">02</span><span>Probe와 CPU limit 조정으로 수백 번 반복되던 Pod 재시작을 0번으로 해소</span></a></li>
           <li><a href="#oc-3"><span class="n">03</span><span>Admission Webhook 개발로 배포 경로와 관계없이 같은 배포 기준 적용</span></a></li>
           <li><a href="#oc-4"><span class="n">04</span><span>GitOps 전환으로 배포 덮어쓰기를 없애고 무중단 배포 검증</span></a></li>
           <li><a href="#oc-5"><span class="n">05</span><span>장애 주입 시험으로 미리 찾은 Redis SPOF를 Circuit Breaker와 DB 우회로 해결</span></a></li>
@@ -513,14 +514,14 @@
 
         <ol class="steps">
           <li class="step problem">
-            <div class="step-label">문제</div>
+            <div class="step-label">문제 발견</div>
             <p>클러스터를 점검해 보니 서비스 하나가 탈취됐을 때 피해가 그 서비스에서 멈추지 않는 경로가 세 군데 있었습니다.</p>
             <ul class="dot">
-              <li>모든 Pod가 노드의 IAM Role을 공유해 한 서비스가 탈취되면 다른 서비스의 AWS 권한과 비밀 값까지 쓸 수 있었습니다.</li>
+              <li>모든 Pod가 노드의 IAM Role을 공유해 한 서비스가 탈취되면 <strong class="key">다른 서비스의 AWS 권한과 비밀 값까지 쓸 수 있었습니다</strong>.</li>
               <li>Pod 사이 통신이 Kubernetes 기본값대로 모두 열려 있어 한 Pod에서 다른 서비스를 바로 호출할 수 있었습니다.</li>
               <li>RDS와 ElastiCache 접속 허용 규칙이 CIDR 기준이라 같은 대역의 어떤 리소스든 DB와 캐시에 접근할 수 있었습니다.</li>
             </ul>
-            <p>비밀 값을 만드는 방식에도 문제가 있었습니다. 각자 로컬에서 ConfigMap과 Secret으로 직접 만들어 누가 무엇을 만들었는지 추적할 수 없었습니다.</p>
+            <p>비밀 값도 각자 로컬에서 ConfigMap과 Secret으로 직접 만들어 <strong class="key">누가 무엇을 만들었는지 추적할 수 없었습니다</strong>.</p>
           </li>
 
           <li class="step solve">
@@ -532,21 +533,20 @@
 
             <h4>① 서비스마다 IAM Role 분리</h4>
             <ul class="dot">
-              <li>IRSA로 서비스마다 Role을 나누고 자기 비밀 값 조회처럼 그 서비스가 실제로 쓰는 AWS API만 허용했습니다.</li>
+              <li><strong class="key">IRSA로 서비스마다 Role을 나누고</strong> 자기 비밀 값 조회처럼 그 서비스가 실제로 쓰는 AWS API만 허용했습니다.</li>
               <li>Worker Node Role에는 노드 운영에 필요한 권한만 남겼습니다.</li>
             </ul>
 
             <h4>② Pod 통신과 DB 접속 제한</h4>
             <ul class="dot">
-              <li>VPC CNI NetworkPolicy로 Pod의 Ingress와 Egress를 Default Deny로 두고 필요한 경로만 열었습니다.</li>
-              <li>Egress가 기본 차단이 되면서 Pod가 노드 메타데이터에 접근해 Worker Node Role 권한을 받아 가는 우회 경로도 함께 막혔습니다.</li>
-              <li>Security Groups for Pods로 서비스마다 Security Group을 붙이고 RDS와 ElastiCache는 그 그룹을 가진 Pod에만 접속을 허용했습니다.</li>
+              <li>VPC CNI NetworkPolicy로 Pod의 <strong class="key">Ingress와 Egress를 Default Deny</strong>로 두고 필요한 경로만 열었습니다.</li>
+              <li>Egress가 기본 차단이 되면서 Pod가 노드 메타데이터에 접근해 Worker Node Role 권한을 받아 가는 <strong class="key">우회 경로도 함께 막혔습니다</strong>.</li>
+              <li>Security Groups for Pods로 서비스마다 Security Group을 붙이고 RDS와 ElastiCache는 <strong class="key">그 그룹을 가진 Pod에만 접속을 허용</strong>했습니다.</li>
             </ul>
 
             <h4>③ 비밀 값은 중앙 저장소에서 주입</h4>
             <ul class="dot">
-              <li>JWT 서명키, DB 접속 정보, 설정 값은 Secrets Manager와 Parameter Store에 두고 Secrets Store CSI Driver로 Pod에 주입했습니다.</li>
-              <li>비밀 값을 읽는 권한 자체도 서비스별 IRSA Role로 제한해 자기 비밀 값만 읽게 했습니다.</li>
+              <li>JWT 서명키, DB 접속 정보, 설정 값은 Secrets Manager와 Parameter Store에 두고 <strong class="key">Secrets Store CSI Driver로 Pod에 주입</strong>했습니다.</li>
             </ul>
           </li>
 
@@ -562,9 +562,7 @@
                 <tr><td>Security Group이 없는 Pod의 DB 접속</td><td class="pick">차단</td></tr>
               </tbody>
             </table></div>
-            <ul class="dot">
-              <li>비밀 값은 Secrets Manager와 Parameter Store에서만 관리해 로컬에서 Secret을 만들지 않고 배포합니다.</li>
-            </ul>
+            <p>비밀 값은 Secrets Manager와 Parameter Store에서만 관리해 <strong class="key">로컬에서 Secret을 만들지 않고 배포</strong>합니다.</p>
           </li>
         </ol>
       </article>
@@ -573,68 +571,74 @@
       <article class="case" id="oc-2" data-title="옥타코 02 · Pod 재시작">
         <div class="case-head">
           <div class="num">OCTACO · 02 · KUBERNETES OPERATIONS</div>
-          <h3>Probe와 CPU limit 조정으로 수백 번 반복되던 Pod 재시작을 0번으로</h3>
-          <ul class="outcome"><li>Pod 재시작 수백 번 → 0번</li><li>20회 이상 재생성 테스트 Probe 실패 0건</li><li>공통 기본값 · 배포 정책으로 재발 방지</li></ul>
+          <h3>Probe와 CPU limit 조정으로 수백 번 반복되던 Pod 재시작을 0번으로 해소</h3>
+          <ul class="outcome"><li>Pod 재시작 수백 번 → 0번</li><li>20번 이상 재생성 테스트에서 Probe 실패 0건</li><li>공통 기본값과 배포 기준으로 재발 방지</li></ul>
         </div>
 
         <ol class="steps">
           <li class="step problem">
             <div class="step-label">문제 발견</div>
-            <p>대시보드에서 주말 동안 Pod가 수백 번 재시작한 것을 발견했습니다.</p>
+            <p>주말 동안 <strong class="key">Pod가 수백 번 재시작</strong>한 것을 발견했습니다.</p>
           </li>
 
           <li class="step trace">
-            <div class="step-label">1차 원인</div>
-            <p>로그를 먼저 확인하니 기동 시간을 고려한 Probe 설정이 없어 애플리케이션 기동이 끝나기 전에 liveness Probe가 실패하고
-              기동 중인 정상 Pod가 재시작되고 있었습니다.</p>
-            <h4>조치: 기동 시간을 직접 재서 startupProbe 설정</h4>
+            <div class="step-label">원인 분석</div>
             <ul class="dot">
-              <li>로컬에서 기동을 20번가량 반복해 기동 시간을 실측했습니다.</li>
-              <li>startupProbe의 <code>initialDelaySeconds</code>는 가장 짧은 기동 시간으로, 최대 허용 시간은 평균 기동 시간의 2배로 설정했습니다.</li>
-              <li><code>periodSeconds</code>는 5초로 짧게 두고 그만큼 <code>failureThreshold</code>는 여유 있게 설정했습니다. liveness Probe는 기존 설정을 유지했습니다.</li>
+              <li>로그를 확인하니 애플리케이션 <strong class="key">기동이 끝나기 전에 liveness Probe가 실패</strong>해 기동 중인 정상 Pod가 재시작되고 있었습니다.</li>
+              <li>Pod spec을 보니 기동이 끝날 때까지 liveness 검사를 미루는 <strong class="key">startupProbe가 없었습니다</strong>.</li>
             </ul>
           </li>
 
-          <li class="step trace">
-            <div class="step-label">재발과 2차 원인</div>
-            <p>1차 적용 뒤에도 재시작 횟수를 지켜보다 가끔 생기는 재시작과 Probe 타임아웃을 발견했습니다. CPU 부하가 높을 때 startupProbe가 실패하고 있었고
-              앱 로그에는 로컬에서 잰 것보다 훨씬 느린 기동 시간이 찍혀 있었습니다.</p>
-            <p>Grafana에서 해당 시점의 CPU 지표를 보니 기동 중 CPU 사용량이 <strong>limit 1 core에 닿으면서 throttling이 급증</strong>하고 있었습니다.</p>
-            <figure>
-              <button class="frame" type="button" data-zoom><img src="../images/devops/probe_tl.png" width="1616" height="869" loading="lazy" alt="기동 시간 축 위에서 처음 liveness가 너무 일찍 검사해 재시작, 1차 startupProbe 설정으로 기동 완료, CPU throttling으로 기동이 느려져 재발, 2차 CPU limit 2 core 상향으로 재시작 없음을 비교한 그림"></button>
-              <figcaption>기동 시간 축으로 본 재시작 원인과 1차, 2차 조치 (막대 길이는 실측값이 아닌 비율)</figcaption>
-            </figure>
-            <h4>조치: CPU limit을 1 core에서 2 core로</h4>
+          <li class="step solve">
+            <div class="step-label">1차 조치</div>
             <ul class="dot">
-              <li>CPU limit을 2 core로 올려 기동 중 throttling이 생기지 않게 했습니다.</li>
-              <li>requests는 평상시 사용량에 맞춰 그대로 두어 노드에 예약하는 자원은 늘리지 않았고 limit은 없애지 않아 과도한 CPU 사용은 계속 막았습니다.</li>
+              <li>로컬에서 잰 기동 시간을 기준으로 <strong class="key">startupProbe를 설정</strong>했습니다.</li>
+              <li>liveness Probe는 기존 설정을 유지했습니다.</li>
             </ul>
-            <h4>설정 판단</h4>
             <div class="tbl"><table>
               <thead><tr><th>설정</th><th>정한 값</th><th>근거</th></tr></thead>
               <tbody>
                 <tr><td>startupProbe <code>initialDelaySeconds</code></td><td>가장 짧은 기동 시간</td><td>로컬에서 20번가량 잰 기동 시간 중 최솟값</td></tr>
-                <tr><td>startupProbe 최대 허용 시간</td><td>평균 기동 시간의 2배</td><td>같은 실측의 평균 기동 시간</td></tr>
-                <tr><td><code>periodSeconds</code>, <code>failureThreshold</code></td><td>5초, 여유 있게</td><td>짧은 주기만큼 실패 허용 횟수를 늘려 최대 허용 시간 유지</td></tr>
-                <tr><td>CPU limit</td><td>2 core</td><td>기동 중 CPU throttling 해소</td></tr>
+                <tr><td><code>periodSeconds</code>와 <code>failureThreshold</code></td><td>5초 주기로 평균 기동 시간의 2배까지 대기</td><td>같은 실측의 평균 기동 시간</td></tr>
+              </tbody>
+            </table></div>
+          </li>
+
+          <li class="step trace">
+            <div class="step-label">재발과 원인 분석</div>
+            <p>적용 뒤에도 CPU 부하가 높을 때 startupProbe가 실패해 재시작되는 현상을 발견했습니다. 앱 로그에는 로컬에서 잰 것보다 훨씬 느린 기동 시간이 찍혀 있었습니다.</p>
+            <p>Grafana에서 그 시점의 CPU 지표를 보니 기동 중 CPU 사용량이 <strong class="key">limit 1 core에 닿으면서 throttling이 급증</strong>하고 있었습니다.</p>
+          </li>
+
+          <li class="step solve">
+            <div class="step-label">2차 조치</div>
+            <p><strong class="key">CPU limit을 1 core에서 2 core로</strong> 올려 기동 중 throttling이 생기지 않게 했습니다.</p>
+            <div class="tbl"><table>
+              <thead><tr><th>설정</th><th>정한 값</th><th>근거</th></tr></thead>
+              <tbody>
+                <tr><td>CPU limit</td><td>2 core</td><td>기동 중 throttling 해소, limit은 없애지 않아 과도한 CPU 사용 방지</td></tr>
                 <tr><td>CPU requests</td><td>평상시 사용량 그대로</td><td>노드에 예약하는 자원은 늘리지 않음</td></tr>
               </tbody>
             </table></div>
+            <figure>
+              <button class="frame" type="button" data-zoom><img src="../images/devops/probe_tl.png" width="1616" height="869" loading="lazy" alt="기동 시간 축 위에서 처음 liveness가 너무 일찍 검사해 재시작, 1차 startupProbe 설정으로 기동 완료, CPU throttling으로 기동이 느려져 재발, 2차 CPU limit 2 core 상향으로 재시작 없음을 비교한 그림"></button>
+              <figcaption>기동 시간 축으로 본 재시작 원인과 1차, 2차 조치. 막대 길이는 실측값이 아닌 비율입니다.</figcaption>
+            </figure>
           </li>
 
           <li class="step result">
             <div class="step-label">검증과 결과</div>
             <ul class="dot">
-              <li>조치 뒤 평시와 CPU 작업이 몰릴 때 모두 Probe 실패와 Pod 재시작이 발생하지 않았습니다.</li>
-              <li>Pod를 20회 이상 다시 만드는 테스트에서도 Probe 실패는 <strong>0건</strong>이었습니다.</li>
+              <li>조치 뒤 평시와 CPU 작업이 몰릴 때 모두 <strong class="key">Probe 실패와 Pod 재시작이 발생하지 않았습니다</strong>.</li>
+              <li>Pod를 20번 이상 다시 만드는 테스트에서도 <strong class="key">Probe 실패는 0건</strong>이었습니다.</li>
             </ul>
           </li>
 
           <li class="step next">
             <div class="step-label">후속 조치</div>
             <ul class="dot">
-              <li>검증한 Probe와 리소스 설정을 Helm 공통 values 기본값으로 넣어 새 서비스도 같은 기준으로 배포되게 했습니다.</li>
-              <li>requests와 limits가 빠진 배포는 Admission Webhook에서 거절하도록 해 같은 문제가 다른 서비스에서 반복되지 않게 막았습니다. (<a href="#oc-3">03 사례</a>)</li>
+              <li>검증한 Probe와 리소스 설정을 <strong class="key">Helm 공통 values 기본값</strong>으로 넣어 새 서비스도 같은 기준으로 배포되게 했습니다.</li>
+              <li>requests와 limits가 빠진 배포는 <strong class="key">Admission Webhook에서 거절</strong>하도록 해 같은 문제가 다른 서비스에서 반복되지 않게 막았습니다. 이 Webhook은 <a href="#oc-3">03 사례</a>에서 다룹니다.</li>
             </ul>
           </li>
         </ol>
@@ -656,7 +660,7 @@
               <li>values에서 그 값을 덮어쓰거나</li>
               <li>차트를 거치지 않고 kubectl로 직접 적용한 배포에는</li>
             </ul>
-            <p>기준이 그대로 빠졌습니다. 02 사례의 CPU limit 문제처럼 리소스 기준이 빠지면 운영 장애로 이어질 수 있어 배포 경로와 상관없이 클러스터 입구에서 리소스와 보안 기준을 지킬 방법이 필요했습니다.</p>
+            <p>기준이 그대로 빠졌습니다. 02 사례의 CPU limit 문제처럼 리소스 기준이 빠지면 운영 장애로 이어질 수 있어 <strong class="key">배포 경로와 상관없이 클러스터 입구에서 리소스와 보안 기준을 지킬 방법</strong>이 필요했습니다.</p>
           </li>
 
           <li class="step solve">
@@ -668,7 +672,7 @@
                 <tr class="chosen"><td>Admission Webhook 직접 개발 <span class="muted">(선택)</span></td><td>삽입과 검사를 코드로 자유롭게 작성</td><td>Webhook 서버를 직접 개발하고 운영</td></tr>
               </tbody>
             </table></div>
-            <p>참고할 예제 코드가 있어 별도 정책 엔진을 도입하지 않고 Admission Webhook을 직접 개발하는 쪽을 택했습니다.</p>
+            <p>참고할 예제 코드가 있어 별도 정책 엔진을 도입하지 않고 <strong class="key">Admission Webhook을 직접 개발</strong>하는 쪽을 택했습니다.</p>
 
             <figure>
               <button class="frame" type="button" data-zoom><img src="../images/devops/vap2.png" width="1641" height="474" loading="lazy" alt="배포 요청이 EKS API 서버에서 Admission Webhook 서버의 Mutating 단계로 기본값을 삽입받고 Validating 단계에서 기준을 검사받아 Pod로 생성되거나 거절되는 흐름"></button>
@@ -681,18 +685,18 @@
             <h4>Mutating Webhook: 기본값 자동 삽입</h4>
             <ul class="dot">
               <li>Pod 생성 시 <code>TZ=Asia/Seoul</code>, JVM 메모리 옵션, 환경 이름과 서비스 이름 환경 변수를 자동 삽입</li>
-              <li><code>runAsNonRoot</code>, <code>allowPrivilegeEscalation: false</code> 같은 보안 설정을 자동 삽입</li>
+              <li><code>runAsNonRoot</code>, <code>allowPrivilegeEscalation: false</code> 같은 <strong class="key">보안 설정을 자동 삽입</strong></li>
             </ul>
 
             <h4>Validating Webhook: 기준이 빠진 배포 거절</h4>
             <ul class="dot">
-              <li>requests와 limits가 없는 Pod, default Namespace 배포는 빠진 항목을 메시지로 알려 주며 거절</li>
+              <li>requests와 limits가 없는 Pod, default Namespace 배포는 <strong class="key">빠진 항목을 메시지로 알려 주며 거절</strong></li>
               <li>CPU limit 때문에 Pod가 재시작한 적이 있어 리소스 값은 자동으로 넣지 않고 서비스에서 직접 지정하도록 거절합니다.</li>
             </ul>
 
             <h4>Webhook 장애 대비</h4>
             <ul class="dot">
-              <li>Webhook이 멈춰도 기본값이 사라지지 않도록 Helm Chart에도 같은 기본값을 유지했습니다.</li>
+              <li>Webhook이 멈춰도 기본값이 사라지지 않도록 <strong class="key">Helm Chart에도 같은 기본값을 유지</strong>했습니다.</li>
               <li>Webhook 서버는 Pod 여러 개로 띄워 Pod 하나에 장애가 나도 요청 처리가 이어지게 했습니다.</li>
             </ul>
           </li>
@@ -706,7 +710,7 @@
                 <tr><td>리소스, Namespace</td><td>차트 밖이나 덮어쓴 배포는 그대로 생성</td><td class="pick">requests · limits 누락과 default Namespace 배포 거절</td></tr>
               </tbody>
             </table></div>
-            <p>requests와 limits가 없는 Pod를 kubectl로 직접 적용하고 default Namespace에 배포를 시도해 두 경우 모두 거절되는 것을 확인했습니다.</p>
+            <p>requests와 limits가 없는 Pod를 kubectl로 직접 적용하고 default Namespace에 배포를 시도해 <strong class="key">두 경우 모두 거절되는 것을 확인</strong>했습니다.</p>
           </li>
         </ol>
       </article>
@@ -724,7 +728,7 @@
             <div class="step-label">문제 발견</div>
             <ul class="dot">
               <li>개발자마다 자기 PC의 코드로 Shell 스크립트를 돌려 dev VM에 직접 배포하고 있어 올라가는 코드가 PC마다 달랐습니다.</li>
-              <li>여러 명이 배포하면 서로의 배포를 덮어써 지금 서버에 어떤 버전이 올라가 있는지 아무도 확신할 수 없었습니다.</li>
+              <li>여러 명이 배포하면 <strong class="key">서로의 배포를 덮어써</strong> 지금 서버에 어떤 버전이 올라가 있는지 아무도 확신할 수 없었습니다.</li>
             </ul>
           </li>
 
@@ -737,22 +741,22 @@
 
             <h4>① CI: 검사를 통과한 이미지만 ECR로</h4>
             <ul class="dot">
-              <li>main에 push하면 GitHub Actions가 이미지를 빌드하고 Trivy 취약점 검사에 실패하면 배포를 중단합니다.</li>
+              <li>main에 push하면 GitHub Actions가 이미지를 빌드하고 <strong class="key">Trivy 취약점 검사에 실패하면 배포를 중단</strong>합니다.</li>
               <li>이미지는 Commit SHA 태그로 ECR에 올려 배포된 이미지가 어느 커밋에서 나왔는지 추적할 수 있게 했습니다.</li>
             </ul>
 
             <h4>② 배포 설정은 앱과 분리한 Helm 배포 저장소 한 곳에</h4>
             <ul class="dot">
               <li>Helm 공통 Template 하나로 Rollout, Service, HPA를 만들고 서비스별 차이는 values 파일에만 두었습니다. 새 서비스는 values 파일과 Application 등록만으로 배포됩니다.</li>
-              <li>CI가 배포 저장소의 이미지 태그를 새 Commit SHA로 자동 커밋해 배포 이력을 Git 커밋으로 관리했습니다.</li>
+              <li>CI가 배포 저장소의 이미지 태그를 새 Commit SHA로 자동 커밋해 <strong class="key">배포 이력을 Git 커밋으로 관리</strong>했습니다.</li>
               <li>인증, 온보딩, 로그 Consumer를 서비스별 values로 나눠 서로 독립적으로 배포합니다.</li>
             </ul>
 
             <h4>③ CD: Argo CD 자동 동기화</h4>
             <ul class="dot">
               <li>Argo CD가 배포 저장소의 변경을 감지해 Auto Sync로 반영합니다.</li>
-              <li>Self-Heal로 누군가 클러스터를 직접 수정해도 Git 상태로 자동 복구됩니다.</li>
-              <li>롤백은 배포 저장소 커밋을 Git Revert하면 Argo CD가 이전 이미지 태그로 되돌립니다.</li>
+              <li>Self-Heal로 누군가 클러스터를 직접 수정해도 <strong class="key">Git 상태로 자동 복구</strong>됩니다.</li>
+              <li>롤백은 <strong class="key">배포 저장소 커밋을 Git Revert</strong>하면 Argo CD가 이전 이미지 태그로 되돌립니다.</li>
             </ul>
 
             <h4>④ Argo Rollouts로 무중단 Pod 교체</h4>
@@ -763,14 +767,14 @@
                 <tr class="chosen"><td>Rolling Update <span class="muted">(선택)</span></td><td>새 Pod가 준비된 뒤 이전 Pod를 하나씩 줄여 배포 중에도 서비스 유지</td></tr>
               </tbody>
             </table></div>
-            <p>Canary 전략을 단계 없이 두어 지금은 Rolling Update로 동작하게 했습니다. 출시 뒤에는 단계만 더하면 Canary로 전환할 수 있습니다.</p>
+            <p>Canary 전략을 단계 없이 두어 <strong class="key">지금은 Rolling Update로 동작</strong>하게 했습니다. 출시 뒤에는 단계만 더하면 Canary로 전환할 수 있습니다.</p>
           </li>
 
           <li class="step result">
             <div class="step-label">검증과 결과</div>
             <ul class="dot">
-              <li>배포 경로가 하나로 모여 서로의 배포를 덮어쓰는 일이 없어졌고 배포된 버전은 Git 이력과 이미지 태그로 즉시 확인합니다.</li>
-              <li>배포 중 k6로 부하를 걸어 무중단 배포를 검증했습니다.</li>
+              <li>배포 경로가 하나로 모여 <strong class="key">서로의 배포를 덮어쓰는 일이 없어졌고</strong> 배포된 버전은 Git 이력과 이미지 태그로 즉시 확인합니다.</li>
+              <li>배포 중 k6로 부하를 걸어 <strong class="key">무중단 배포를 검증</strong>했습니다.</li>
               <li>배포와 롤백 절차를 문서로 남겨 다른 개발자도 혼자 배포하고 되돌릴 수 있게 했습니다.</li>
             </ul>
           </li>
@@ -788,13 +792,13 @@
         <ol class="steps">
           <li class="step problem">
             <div class="step-label">문제 발견</div>
-            <p>출시 전 k6로 부하를 건 상태에서 Chaos Monkey로 Redis에 timeout을 주입했습니다. 그 결과 모든 고객사의 세션 인증이 실패했습니다.</p>
-            <p>세션을 Redis에만 두고 있어 Redis 하나가 모든 고객사 인증의 단일 장애 지점(SPOF)이 되는 구조였습니다.</p>
+            <p>출시 전 k6로 부하를 건 상태에서 Chaos Monkey로 Redis에 timeout을 주입했습니다. 그 결과 <strong class="key">모든 고객사의 세션 인증이 실패</strong>했습니다.</p>
+            <p>세션을 Redis에만 두고 있어 Redis 하나가 모든 고객사 인증의 <strong class="key">단일 장애 지점(SPOF)</strong>이 되는 구조였습니다.</p>
           </li>
 
           <li class="step trace">
             <div class="step-label">원인 분석</div>
-            <p>장애 유형별로 나눠 보니 ElastiCache 복제는 노드 장애만 막고 서버와 Redis 사이 지연이나 연결 끊김에는 그대로 멈췄습니다.</p>
+            <p>장애 유형별로 나눠 보니 ElastiCache 복제는 노드 장애만 막고 서버와 Redis 사이 <strong class="key">지연이나 연결 끊김에는 그대로 멈췄습니다</strong>.</p>
             <div class="tbl"><table>
               <thead><tr><th>장애 유형</th><th>ElastiCache 복제</th><th>Circuit Breaker + DB 우회</th></tr></thead>
               <tbody>
@@ -803,7 +807,7 @@
                 <tr><td>서버와 Redis 사이 연결 끊김</td><td class="muted">대응 불가, 그대로 멈춤</td><td class="pick">실패한 호출로 집계해 DB로 우회</td></tr>
               </tbody>
             </table></div>
-            <p>그래서 장애의 원인과 상관없이 호출 결과로 판단하는 Circuit Breaker를 애플리케이션에 두기로 했습니다.</p>
+            <p>그래서 장애의 원인과 상관없이 <strong class="key">호출 결과로 판단하는 Circuit Breaker</strong>를 애플리케이션에 두기로 했습니다.</p>
           </li>
 
           <li class="step solve">
@@ -815,8 +819,8 @@
 
             <h4>차단 기준과 복귀 방식을 수치로 정함</h4>
             <ul class="dot">
-              <li>300ms를 넘긴 느린 호출과 실패가 <strong>최근 100건 중 30% 이상</strong>이면 Redis 호출을 차단합니다.</li>
-              <li>차단되면 세션을 PostgreSQL에서 읽고 쓰고 <strong>30초 뒤</strong> 일부 요청만 Redis로 보내 정상이면 복귀합니다.</li>
+              <li>300ms를 넘긴 느린 호출과 실패가 <strong class="key">최근 100건 중 30% 이상</strong>이면 Redis 호출을 차단합니다.</li>
+              <li>차단되면 <strong class="key">세션을 PostgreSQL에서 읽고 쓰고</strong> <strong class="key">30초 뒤</strong> 일부 요청만 Redis로 보내 정상이면 복귀합니다.</li>
             </ul>
 
             <h4>세션 이전 없이 재로그인으로 처리</h4>
@@ -827,16 +831,16 @@
 
             <h4>장애 주입을 반복해 검증</h4>
             <ul class="dot">
-              <li>k6 부하 중 Redis timeout 주입과 해제를 반복하며 차단 → DB 우회 → 복귀가 의도대로 일어나는지 상태 전환 기록으로 확인했습니다.</li>
+              <li>k6 부하 중 Redis timeout 주입과 해제를 반복하며 <strong class="key">차단 → DB 우회 → 복귀가 의도대로 일어나는지</strong> 상태 전환 기록으로 확인했습니다.</li>
             </ul>
           </li>
 
           <li class="step result">
             <div class="step-label">결과</div>
             <ul class="dot">
-              <li>Redis 장애 중에도 DB로 우회해 로그인과 인증이 계속 처리됩니다. 기존 사용자는 장애 시작과 복구 때 한 번씩만 재로그인합니다.</li>
+              <li>Redis 장애 중에도 DB로 우회해 <strong class="key">로그인과 인증이 계속 처리됩니다</strong>. 기존 사용자는 장애 시작과 복구 때 한 번씩만 재로그인합니다.</li>
               <li>k6 요청은 Circuit Breaker가 차단하기 전 잠깐만 실패하고 우회 뒤로는 정상 처리됐습니다.</li>
-              <li>장애 감지부터 DB 우회, Redis 복귀까지 자동으로 전환됩니다.</li>
+              <li>장애 감지부터 DB 우회, Redis 복귀까지 <strong class="key">자동으로 전환</strong>됩니다.</li>
             </ul>
           </li>
         </ol>
@@ -918,7 +922,7 @@
           <li class="step problem">
             <div class="step-label">설계 배경</div>
             <ul class="dot">
-              <li>서비스의 경로, 보안 그룹, 확장 설정을 바꿀 때마다 인프라 담당인 저에게 요청해야 하는 구조였습니다.</li>
+              <li>서비스의 경로, 보안 그룹, 확장 설정을 바꿀 때마다 <strong class="key">인프라 담당인 저에게 요청해야 하는 구조</strong>였습니다.</li>
               <li>백엔드 팀원은 Terraform과 AWS를 몰라 직접 고치기 어려웠고 고치더라도 잘못된 값이 그대로 적용될 위험이 있었습니다.</li>
               <li>필요한 것은 팀원이 이미 아는 방식으로 입력하고 잘못된 값은 적용 전에 막는 구조였습니다.</li>
             </ul>
@@ -933,7 +937,7 @@
 
             <h4>① 입력은 YAML 파일 하나로</h4>
             <ul class="dot">
-              <li>팀원이 <code>application.yml</code>로 매일 쓰던 YAML을 골라 서비스마다 <code>service.yml</code> 하나만 작성하게 했습니다.</li>
+              <li>팀원이 <code>application.yml</code>로 매일 쓰던 YAML을 골라 서비스마다 <strong class="key"><code>service.yml</code> 하나만 작성</strong>하게 했습니다.</li>
               <li>항목 이름은 보안 그룹, ALB 규칙 같은 AWS 용어 대신 <code>routes</code>, <code>calls</code>, <code>queues</code>, <code>scaling</code>처럼 서비스가 하는 일로 정의했습니다.</li>
             </ul>
             <div class="tbl"><table>
@@ -948,20 +952,20 @@
             </table></div>
             <ul class="dot">
               <li><code>locals_services.tf</code>가 Terraform 기본 함수 <code>fileset</code>과 <code>yamldecode</code>로 모든 service.yml을 서비스 목록으로 바꾸고
-                ECR, IAM, 보안 그룹, ECS 스택은 이 파일을 심볼릭 링크로 가져와 <code>for_each</code>로 서비스마다 자원을 만듭니다.</li>
+                ECR, IAM, 보안 그룹, ECS 스택은 이 파일을 심볼릭 링크로 가져와 <strong class="key"><code>for_each</code>로 서비스마다 자원을 만듭니다</strong>.</li>
               <li>팀원이 묻지 않고도 작성할 수 있게 README에 필수 항목, 기본값, 항목마다 만들어지는 자원을 예시와 함께 정리했습니다.</li>
             </ul>
 
             <h4>② 잘못 적은 값은 apply 전에 plan에서 차단</h4>
             <ul class="dot">
-              <li><code>precondition</code>으로 service.yml 값을 검사하고 틀리면 무엇을 고쳐야 하는지 오류 메시지로 안내합니다.</li>
+              <li><code>precondition</code>으로 service.yml 값을 검사하고 틀리면 <strong class="key">무엇을 고쳐야 하는지 오류 메시지로 안내</strong>합니다.</li>
               <li>RDS 연결 한도를 넘는 최대 대수, 다른 규칙과 겹치는 ALB 우선순위, 비밀 값과 이름이 겹치는 환경변수 같은 실수를 검사합니다.</li>
             </ul>
 
             <h4>③ 자원을 만드는 코드는 로컬 에뮬레이터에서 먼저 검증</h4>
             <p>이 코드가 틀리면 모든 서비스의 자원이 잘못 만들어져 실제 AWS에 적용하기 전에 로컬에서 먼저 검증했습니다.</p>
             <ul class="dot">
-              <li>로컬 AWS 에뮬레이터 floci에 가짜 자격 증명으로만 연결해 요금 없이 apply를 시험했습니다.</li>
+              <li>로컬 AWS 에뮬레이터 floci에 가짜 자격 증명으로만 연결해 <strong class="key">요금 없이 apply를 시험</strong>했습니다.</li>
               <li>스택마다 state를 로컬 파일로 두고 앞 스택의 출력을 이어 받으며 실제와 같은 순서(VPC → 보안 그룹 → ECR → IAM → ECS)로 전체 스택을 적용했습니다.</li>
               <li>AWS API가 거부하는 리소스 인자, apply 때 정해지는 값을 <code>for_each</code>에 쓴 실수처럼 <code>terraform validate</code>로는 잡히지 않는 오류를 여기서 찾아 고쳤고
                 <code>calls</code>와 <code>routes</code>대로 보안 그룹과 ALB 규칙이 생기는지 확인했습니다.</li>
@@ -971,9 +975,9 @@
           <li class="step result">
             <div class="step-label">결과</div>
             <ul class="dot">
-              <li>백엔드 팀원이 인프라 담당자를 거치지 않고 service.yml과 PR만으로 자기 서비스의 인프라를 직접 변경했습니다.</li>
+              <li>백엔드 팀원이 인프라 담당자를 거치지 않고 <strong class="key">service.yml과 PR만으로 자기 서비스의 인프라를 직접 변경</strong>했습니다.</li>
               <li>Terraform과 AWS를 모르는 팀원도 ALB 경로 추가, 서비스 간 호출 허용, 큐 권한, 최소 대수를 YAML 몇 줄로 처리했습니다.</li>
-              <li>잘못 적은 값은 plan에서 오류로 걸려 적용 전에 수정됩니다.</li>
+              <li>잘못 적은 값은 <strong class="key">plan에서 오류로 걸려 적용 전에 수정</strong>됩니다.</li>
             </ul>
           </li>
         </ol>
@@ -992,11 +996,11 @@
             <div class="step-label">설계 배경</div>
             <ul class="dot">
               <li>service.yml 자동화로 백엔드 팀원들이 각자 PR로 인프라를 바꾸게 되면서 여러 변경이 동시에 올라오기 시작했습니다.</li>
-              <li>각자 로컬에서 apply하면 서로의 변경을 모른 채 같은 state를 바꾸고 어떤 PR이 실제로 적용됐는지 확인할 수 없습니다.</li>
+              <li>각자 로컬에서 apply하면 <strong class="key">서로의 변경을 모른 채 같은 state를 바꾸고</strong> 어떤 PR이 실제로 적용됐는지 확인할 수 없습니다.</li>
               <li>콘솔과 로컬에서 바꾼 것은 코드에 남지 않아 누가 바꿨는지 모르고 잊힌 자원은 비용으로 남습니다.</li>
               <li>순서가 있는 스택(VPC → 보안 그룹 → DB → ECS)을 거꾸로 적용하면 실패합니다.</li>
             </ul>
-            <p>그래서 apply를 한곳에서만 실행하고 적용 여부와 순서를 PR에서 확인할 수 있는 절차가 필요했습니다. PR 댓글로 plan과 apply를 실행하고 스택 잠금까지 기본 제공하는 Atlantis를 택했습니다.</p>
+            <p>그래서 <strong class="key">apply를 한곳에서만 실행</strong>하고 적용 여부와 순서를 PR에서 확인할 수 있는 절차가 필요했습니다. PR 댓글로 plan과 apply를 실행하고 스택 잠금까지 기본 제공하는 Atlantis를 택했습니다.</p>
           </li>
 
           <li class="step solve">
@@ -1008,7 +1012,7 @@
 
             <h4>① 변경은 반드시 PR로</h4>
             <ul class="dot">
-              <li>관리자가 아닌 팀원에게는 AWS 읽기 권한만 주고(콘솔과 로컬 모두 조회와 plan까지), 인프라 변경은 반드시 PR로 올리도록 규칙을 정했습니다. 비밀 값 스택의 복호화 권한은 제외했습니다.</li>
+              <li>관리자가 아닌 팀원에게는 <strong class="key">AWS 읽기 권한만 주고</strong>(콘솔과 로컬 모두 조회와 plan까지), 인프라 변경은 반드시 PR로 올리도록 규칙을 정했습니다. 비밀 값 스택의 복호화 권한은 제외했습니다.</li>
               <li>Atlantis는 개인 토큰 없이 GitHub App으로 인증하고 webhook은 서명을 확인한 뒤 처리합니다.</li>
             </ul>
 
@@ -1016,19 +1020,19 @@
             <ul class="dot">
               <li>service.yml이나 tf 파일이 바뀌면 해당 스택만 plan해 실제로 바뀔 자원을 PR 댓글로 보여 줍니다.</li>
               <li>공용 변수와 모듈이 바뀌면 그 파일을 읽는 스택까지 함께 plan해 일부 스택에만 반영되는 일을 막았습니다.</li>
-              <li>plan한 스택은 PR이 병합될 때까지 잠가 다른 PR의 apply 때문에 앞선 plan 결과가 달라지지 않게 했습니다.</li>
+              <li>plan한 스택은 <strong class="key">PR이 병합될 때까지 잠가</strong> 다른 PR의 apply 때문에 앞선 plan 결과가 달라지지 않게 했습니다.</li>
             </ul>
 
             <h4>③ plan을 통과한 PR만 순서대로 apply</h4>
             <ul class="dot">
               <li>plan이 실패했거나 main과 충돌해 병합할 수 없는 PR은 apply할 수 없게 조건을 걸었습니다.</li>
-              <li>VPC, 보안 그룹, DB, ECS처럼 state를 나눈 스택은 <code>atlantis.yaml</code>에 0~7단계로 순서를 적어 의존하는 순서대로 적용됩니다.</li>
+              <li>VPC, 보안 그룹, DB, ECS처럼 state를 나눈 스택은 <code>atlantis.yaml</code>에 0~7단계로 순서를 적어 <strong class="key">의존하는 순서대로 적용</strong>됩니다.</li>
               <li>앞 스택의 apply가 실패하면 뒤 스택은 실행하지 않아 절반만 적용된 상태로 진행되지 않습니다.</li>
             </ul>
 
             <h4>④ apply가 모두 성공한 뒤에만 병합</h4>
             <ul class="dot">
-              <li>병합을 먼저 하면 apply가 실패해도 main에는 적용되지 않은 변경이 남습니다. 그래서 순서를 apply → 병합으로 고정했습니다.</li>
+              <li>병합을 먼저 하면 apply가 실패해도 main에는 적용되지 않은 변경이 남습니다. 그래서 <strong class="key">순서를 apply → 병합으로 고정</strong>했습니다.</li>
               <li>PR이 바꾼 스택의 apply가 모두 성공하면 Atlantis가 자동 병합하고 하나라도 실패하면 PR을 열어 둔 채 다시 적용합니다.</li>
               <li>main 브랜치 보호 규칙에 apply 성공 체크를 넣어 apply하지 않은 PR은 사람이 직접 병합할 수 없게 했습니다.</li>
             </ul>
@@ -1037,9 +1041,9 @@
           <li class="step result">
             <div class="step-label">결과</div>
             <ul class="dot">
-              <li>로컬 apply가 없어지고 여러 팀원의 PR이 동시에 올라와도 state 충돌 없이 Atlantis 한곳에서 순서대로 적용됩니다.</li>
+              <li>로컬 apply가 없어지고 여러 팀원의 PR이 동시에 올라와도 <strong class="key">state 충돌 없이 Atlantis 한곳에서 순서대로 적용</strong>됩니다.</li>
               <li>모든 인프라 변경이 PR을 거쳐 적용되어 누가 언제 무엇을 바꿨는지 PR 이력으로 추적됩니다.</li>
-              <li>main의 코드와 실제 인프라가 달라지는 경로를 막아 main 코드와 실제 AWS가 같은 상태로 유지됩니다.</li>
+              <li>main의 코드와 실제 인프라가 달라지는 경로를 막아 <strong class="key">main 코드와 실제 AWS가 같은 상태로 유지</strong>됩니다.</li>
             </ul>
           </li>
         </ol>
@@ -1058,7 +1062,7 @@
             <div class="step-label">설계 배경</div>
             <ul class="dot">
               <li>AWS 계정을 새로 만들면서 팀원, 서비스, CI가 각자 AWS에 접근해야 했습니다. 누구든 쓰기 권한이 있으면 실수 하나가 계정 전체에 영향을 줍니다.</li>
-              <li>액세스 키를 발급해 함께 쓰거나 비밀 값을 설정 파일에 평문으로 두면 한 번의 유출로 계정 전체가 노출됩니다.</li>
+              <li>액세스 키를 발급해 함께 쓰거나 비밀 값을 설정 파일에 평문으로 두면 <strong class="key">한 번의 유출로 계정 전체가 노출</strong>됩니다.</li>
               <li>서비스가 같은 권한을 나눠 쓰면 하나가 뚫렸을 때 다른 서비스의 큐와 데이터까지 접근할 수 있습니다.</li>
               <li>DB 비밀번호, JWT 키 같은 비밀 값이 Git, 이미지, 태스크 정의에 평문으로 남으면 유출 경로가 늘어납니다.</li>
             </ul>
@@ -1082,15 +1086,15 @@
               </tbody>
             </table></div>
             <ul class="dot">
-              <li>Role과 비밀 값 위치가 들어 있는 태스크 정의는 CI에 등록 권한을 주지 않고 Terraform에서만 바꾸게 했습니다. CI 권한으로는 Role이나 비밀 값 위치를 바꿀 수 없습니다.</li>
+              <li>Role과 비밀 값 위치가 들어 있는 태스크 정의는 CI에 등록 권한을 주지 않고 <strong class="key">Terraform에서만 바꾸게</strong> 했습니다. CI 권한으로는 Role이나 비밀 값 위치를 바꿀 수 없습니다.</li>
             </ul>
 
             <h4>② 비밀 값은 Secrets Manager에 두고 태스크를 띄울 때 주입</h4>
             <ul class="dot">
-              <li>외부에서 받은 비밀 값만 KMS 키로 SOPS 암호화해 Git에 두고 복호화는 Atlantis와 관리자 Role로 한정했습니다.</li>
+              <li>외부에서 받은 비밀 값만 <strong class="key">KMS 키로 SOPS 암호화해 Git에 두고</strong> 복호화는 Atlantis와 관리자 Role로 한정했습니다.</li>
               <li>JWT 키, 서비스 공용 비밀, 관리자 비밀번호는 apply 때 무작위로 생성해 사람이 값을 보거나 전달하지 않게 했습니다.</li>
-              <li>복호화하거나 생성한 값은 write-only 속성으로 Secrets Manager에 넣어 Terraform state에도 평문이 남지 않습니다.</li>
-              <li>태스크 정의에는 값 대신 비밀 값의 위치만 적고 ECS가 태스크를 띄울 때 execution role로 읽어 환경변수로 주입합니다.</li>
+              <li>복호화하거나 생성한 값은 write-only 속성으로 Secrets Manager에 넣어 <strong class="key">Terraform state에도 평문이 남지 않습니다</strong>.</li>
+              <li>태스크 정의에는 <strong class="key">값 대신 비밀 값의 위치만 적고</strong> ECS가 태스크를 띄울 때 execution role로 읽어 환경변수로 주입합니다.</li>
               <li>execution role은 앱과 서비스 DB 계정 비밀만 읽고 DB 관리자 · Grafana · Slack 같은 운영 비밀은 읽을 수 없게 막았습니다.</li>
             </ul>
           </li>
@@ -1098,10 +1102,10 @@
           <li class="step result">
             <div class="step-label">검증과 결과</div>
             <ul class="dot">
-              <li>CI와 서비스는 실행할 때마다 임시 자격 증명을 받아 장기 액세스 키 없이 운영합니다.</li>
-              <li>선언하지 않은 큐와 버킷 접근, 운영 비밀 읽기, 읽기 전용 Role로의 변경을 직접 시도해 모두 거부되는 것을 확인했습니다.</li>
+              <li>CI와 서비스는 실행할 때마다 임시 자격 증명을 받아 <strong class="key">장기 액세스 키 없이 운영</strong>합니다.</li>
+              <li>선언하지 않은 큐와 버킷 접근, 운영 비밀 읽기, 읽기 전용 Role로의 변경을 직접 시도해 <strong class="key">모두 거부되는 것을 확인</strong>했습니다.</li>
               <li>서비스 하나가 뚫려도 피해는 그 서비스가 선언한 큐, 버킷, 비밀 값 안으로 한정됩니다.</li>
-              <li>앱 비밀 값이 Git, state, 태스크 정의, 이미지 어디에도 평문으로 남지 않습니다.</li>
+              <li>앱 비밀 값이 Git, state, 태스크 정의, 이미지 <strong class="key">어디에도 평문으로 남지 않습니다</strong>.</li>
               <li>서비스를 새로 추가해도 service.yml에 적은 자원만 허용하는 Role이 함께 만들어져 권한 분리가 자동으로 유지됩니다.</li>
             </ul>
           </li>
@@ -1120,7 +1124,7 @@
           <li class="step problem">
             <div class="step-label">설계 배경</div>
             <ul class="dot">
-              <li>지표는 CloudWatch에, 로그는 서비스마다 흩어져 있어 503이 나면 CloudWatch와 로그 검색을 오가며 어느 서비스가 왜 실패했는지 직접 찾아야 했습니다. 원인을 찾는 데 수십 분이 걸렸습니다.</li>
+              <li>지표는 CloudWatch에, 로그는 서비스마다 흩어져 있어 503이 나면 CloudWatch와 로그 검색을 오가며 어느 서비스가 왜 실패했는지 직접 찾아야 했습니다. <strong class="key">원인을 찾는 데 수십 분이 걸렸습니다</strong>.</li>
               <li>한 요청이 여러 서비스를 거치는데 서비스별 로그만으로는 요청의 흐름을 이어 볼 수 없었습니다.</li>
               <li>사용자 영향이 생기면 알림을 받고 요청 시작부터 DB까지 한 화면에서 따라갈 수 있는 구조가 필요했습니다.</li>
             </ul>
@@ -1135,9 +1139,9 @@
 
             <h4>① 지표, 로그, 트레이스, 프로파일을 한곳에</h4>
             <ul class="dot">
-              <li>OpenTelemetry Java Agent와 Pyroscope 확장으로 앱 코드 수정 없이 지표, 로그, 트레이스, 프로파일을 수집했습니다. 브라우저 오류와 속도는 Faro RUM으로 모았습니다.</li>
+              <li>OpenTelemetry Java Agent와 Pyroscope 확장으로 <strong class="key">앱 코드 수정 없이</strong> 지표, 로그, 트레이스, 프로파일을 수집했습니다. 브라우저 오류와 속도는 Faro RUM으로 모았습니다.</li>
               <li>CloudWatch 대신 EC2 한 대에 Mimir(지표), Loki(로그), Tempo(트레이스), Pyroscope(프로파일)를 올리고 S3에 저장해 요금 부담을 줄였습니다.</li>
-              <li>트레이스는 오류와 느린 요청은 전부, 나머지는 일부만 저장해 서버 부담을 줄이고 지표는 모든 요청으로 계산해 정확도를 유지했습니다.</li>
+              <li>트레이스는 <strong class="key">오류와 느린 요청은 전부, 나머지는 일부만 저장</strong>해 서버 부담을 줄이고 지표는 모든 요청으로 계산해 정확도를 유지했습니다.</li>
               <li>수집 게이트웨이를 관측 서버와 분리해 관측 서버를 재배포하는 동안 들어온 데이터도 잃지 않게 했습니다.</li>
             </ul>
 
@@ -1147,15 +1151,15 @@
               <figcaption>실제 서비스 상세 대시보드에 예시 데이터를 넣은 화면으로 CPU는 여유가 있지만 DB 풀이 가득 차 커넥션 대기가 쌓이는 상황</figcaption>
             </figure>
             <ul class="dot">
-              <li>첫 화면 맨 위에 요청 수, 5xx, 0.5초 넘은 요청, <strong>지금 5xx를 내는 서비스</strong>를 두어 사용자 영향부터 확인합니다.</li>
+              <li>첫 화면 맨 위에 요청 수, 5xx, 0.5초 넘은 요청, <strong class="key">지금 5xx를 내는 서비스</strong>를 두어 사용자 영향부터 확인합니다.</li>
               <li>그 아래 서비스별 5xx, CPU, 태스크 수, p95를 같은 시간축에 놓아 오류와 포화가 겹치는 시점을 비교합니다.</li>
-              <li>서비스 상세 화면은 호출 대상별 오류율, 경로별 p99, 오류 로그, 느린 트레이스 순서이고 trace ID로 서로 이동합니다.</li>
+              <li>서비스 상세 화면은 호출 대상별 오류율, 경로별 p99, 오류 로그, 느린 트레이스 순서이고 <strong class="key">trace ID로 서로 이동</strong>합니다.</li>
             </ul>
 
             <h4>③ 사용자 영향이 있을 때만 critical 경보</h4>
             <ul class="dot">
-              <li>SLA와 SLO를 가상으로 정해 <strong>가용성 99.9%, 요청의 95%가 0.5초 안</strong>이라는 기준을 critical 경보에 적용했습니다. 서비스별 5xx와 SLO 예산 소진처럼 사용자가 겪는 증상만 기준으로 삼았습니다.</li>
-              <li>JVM 힙, DB 연결 사용률 같은 원인 지표는 warning으로 낮추고 수신처를 나눠 critical이 묻히지 않게 했습니다.</li>
+              <li>SLA와 SLO를 가상으로 정해 <strong class="key">가용성 99.9%, 요청의 95%가 0.5초 안</strong>이라는 기준을 critical 경보에 적용했습니다. 서비스별 5xx와 SLO 예산 소진처럼 사용자가 겪는 증상만 기준으로 삼았습니다.</li>
+              <li>JVM 힙, DB 연결 사용률 같은 <strong class="key">원인 지표는 warning으로 낮추고</strong> 수신처를 나눠 critical이 묻히지 않게 했습니다.</li>
             </ul>
           </li>
 
@@ -1165,8 +1169,8 @@
             <div class="tbl"><table>
               <thead><tr><th>찾은 문제</th><th>근거</th><th>조치</th></tr></thead>
               <tbody>
-                <tr><td>접수 응답 지연</td><td>경보 → 트레이스로 따라가 DB 행 잠금 대기(<code>SELECT … FOR UPDATE</code> 468ms) 확인</td><td class="pick">잠금 시점을 커밋 직전으로 옮겨 <strong>p50 521ms → 48ms</strong></td></tr>
-                <tr><td>증설이 급증 뒤에야 붙음</td><td>서비스별 CPU와 경보 시각을 같은 시간축에서 비교. 대상 추적 경보가 1분 지표 3번 연속을 기다려 <strong>약 3분 지연</strong></td><td class="pick">오픈 전 사전 증설로 변경 (<a href="#nv-5">05 사례</a>)</td></tr>
+                <tr><td>접수 응답 지연</td><td>경보 → 트레이스로 따라가 DB 행 잠금 대기(<code>SELECT … FOR UPDATE</code> 468ms) 확인</td><td class="pick">잠금 시점을 커밋 직전으로 옮겨 <strong class="key">p50 521ms → 48ms</strong></td></tr>
+                <tr><td>증설이 급증 뒤에야 붙음</td><td>서비스별 CPU와 경보 시각을 같은 시간축에서 비교. 대상 추적 경보가 1분 지표 3번 연속을 기다려 <strong class="key">약 3분 지연</strong></td><td class="pick">오픈 전 사전 증설로 변경 (<a href="#nv-5">05 사례</a>)</td></tr>
                 <tr><td>특정 서비스 CPU 포화</td><td>서비스별 CPU 사용량을 같은 시각으로 비교해 포화된 서비스 특정</td><td class="pick">태스크 사양과 최소 대수 상향</td></tr>
                 <tr><td>배포가 자꾸 롤백됨</td><td>새 태스크가 CPU 부족으로 기동을 반복하다 deployment circuit breaker로 롤백</td><td class="pick">CPU 할당 조정</td></tr>
               </tbody>
@@ -1180,7 +1184,7 @@
           <li class="step result">
             <div class="step-label">결과</div>
             <ul class="dot">
-              <li>여러 도구를 오가며 수십 분 걸리던 원인 분석을 Grafana 한 화면에서 요청 시작부터 DB까지 따라가 수 분으로 줄였습니다.</li>
+              <li>여러 도구를 오가며 수십 분 걸리던 원인 분석을 Grafana 한 화면에서 요청 시작부터 DB까지 따라가 <strong class="key">수 분으로 줄였습니다</strong>.</li>
               <li>태스크 사양, 최소 대수, 증설 시점, DB 잠금 위치를 지표와 트레이스를 근거로 조정했습니다.</li>
             </ul>
           </li>
@@ -1199,8 +1203,8 @@
           <li class="step problem">
             <div class="step-label">설계 배경</div>
             <ul class="dot">
-              <li>판매가 열리는 순간 대기열, 접수, 상품 조회에 트래픽이 몰리는데 CPU 기준 확장은 부하가 오른 뒤에야 반응합니다. (04 사례에서 약 3분 지연 확인)</li>
-              <li>외부 등록을 맡는 worker는 큐에 일이 밀려도 CPU가 낮아 CPU 기준으로는 아예 늘어나지 않습니다.</li>
+              <li>판매가 열리는 순간 대기열, 접수, 상품 조회에 트래픽이 몰리는데 CPU 기준 확장은 <strong class="key">부하가 오른 뒤에야 반응</strong>합니다. (04 사례에서 약 3분 지연 확인)</li>
+              <li>외부 등록을 맡는 worker는 큐에 일이 밀려도 CPU가 낮아 <strong class="key">CPU 기준으로는 아예 늘어나지 않습니다</strong>.</li>
               <li>새 버전이 망가졌는데 배포가 그대로 진행되면 판매 중에 사용자 요청이 실패합니다.</li>
             </ul>
           </li>
@@ -1215,27 +1219,27 @@
             <h4>① HTTP 서비스는 CPU로, worker는 큐에 쌓인 메시지로</h4>
             <ul class="dot">
               <li>HTTP 서비스는 CPU와 태스크당 요청 수로 확장하고 1분 지표 1~2번에 바로 여러 대를 늘리는 Step Scaling을 더했습니다. 축소는 5분 간격으로 천천히 합니다.</li>
-              <li>worker는 큐 3개에 쌓인 메시지 합을 실행 중인 태스크 수로 나눈 값을 지표로 만들어 <strong>태스크당 50건</strong>을 기준으로 대수를 조정합니다.</li>
+              <li>worker는 큐 3개에 쌓인 메시지 합을 실행 중인 태스크 수로 나눈 값을 지표로 만들어 <strong class="key">태스크당 50건</strong>을 기준으로 대수를 조정합니다.</li>
             </ul>
 
             <h4>② 오픈 전에 미리 늘리고 부하 시험으로 대수 조정</h4>
             <ul class="dot">
-              <li>사전예약 앱이 회차 일정을 보고 <strong>오픈 15분 전부터</strong> 예상 방문자 수만큼 대기열과 접수 서버의 최소 대수를 올립니다.</li>
+              <li>사전예약 앱이 회차 일정을 보고 <strong class="key">오픈 15분 전부터</strong> 예상 방문자 수만큼 대기열과 접수 서버의 최소 대수를 올립니다.</li>
               <li>상품 조회는 1대일 때 급증 트래픽에 CPU가 포화되어 최소 2대로, 4대 상한에 바로 닿아 최대 8대로 올렸습니다.</li>
             </ul>
 
             <h4>③ 무중단 배포와 자동 롤백</h4>
             <ul class="dot">
               <li>ALB 뒤 서비스는 ECS Blue/Green으로 배포하고 5분 동안 이전 버전을 남겨 되돌릴 수 있게 했습니다.</li>
-              <li>모든 서비스에 deployment circuit breaker를 켜 새 태스크가 계속 실패하면 이전 버전으로 자동 롤백됩니다.</li>
+              <li>모든 서비스에 deployment circuit breaker를 켜 새 태스크가 계속 실패하면 <strong class="key">이전 버전으로 자동 롤백</strong>됩니다.</li>
             </ul>
           </li>
 
           <li class="step result">
             <div class="step-label">결과</div>
             <ul class="dot">
-              <li>판매 오픈의 첫 급증 트래픽은 증설을 기다리지 않고 미리 늘려 둔 대기열과 접수 서버가 처리합니다.</li>
-              <li>큐에 메시지가 처리량보다 많이 쌓이면 worker가 늘어나 외부 등록이 밀리지 않습니다.</li>
+              <li>판매 오픈의 첫 급증 트래픽은 증설을 기다리지 않고 <strong class="key">미리 늘려 둔 대기열과 접수 서버가 처리</strong>합니다.</li>
+              <li>큐에 메시지가 처리량보다 많이 쌓이면 <strong class="key">worker가 늘어나 외부 등록이 밀리지 않습니다</strong>.</li>
               <li>배포 중에도 사용자는 한 버전의 응답만 받고 망가진 이미지는 사람 개입 없이 이전 버전으로 돌아갑니다.</li>
             </ul>
           </li>
@@ -1254,15 +1258,15 @@
           <li class="step problem">
             <div class="step-label">문제 발견</div>
             <ul class="dot">
-              <li>6주 예산은 40만 원인데 Multi-AZ DB와 NAT Gateway, VPC 엔드포인트를 갖춘 목표 구조는 <strong>월 약 890달러</strong>로 추정되어 예산을 넘었습니다.</li>
-              <li>계기는 전체 서비스를 배포한 뒤의 청구액이었습니다. 하루 비용이 <strong>약 2.9달러에서 약 10달러</strong>로 뛰었습니다.</li>
+              <li>6주 예산은 40만 원인데 Multi-AZ DB와 NAT Gateway, VPC 엔드포인트를 갖춘 목표 구조는 <strong class="key">월 약 890달러</strong>로 추정되어 예산을 넘었습니다.</li>
+              <li>계기는 전체 서비스를 배포한 뒤의 청구액이었습니다. 하루 비용이 <strong class="key">약 2.9달러에서 약 10달러</strong>로 뛰었습니다.</li>
             </ul>
           </li>
 
           <li class="step trace">
             <div class="step-label">원인 분석</div>
             <ul class="dot">
-              <li>Cost Explorer로 비용을 항목별로 나눠 보니 서비스를 모두 띄운 뒤 Container Insights 지표 요금이 Fargate 다음으로 큰 비중을 차지하고 있었습니다.</li>
+              <li>Cost Explorer로 비용을 항목별로 나눠 보니 서비스를 모두 띄운 뒤 <strong class="key">Container Insights 지표 요금이 Fargate 다음으로 큰 비중</strong>을 차지하고 있었습니다.</li>
               <li>그렇다고 설계 자체를 낮추면 트래픽이 늘거나 예산이 생겼을 때 다시 만들어야 합니다. 목표 구조를 버리지 않고 비용만 줄이는 방법이 필요했습니다.</li>
             </ul>
           </li>
@@ -1272,7 +1276,7 @@
 
             <h4>① 비용이 큰 선택을 변수로 분리</h4>
             <ul class="dot">
-              <li>NAT 방식, Multi-AZ, VPC 엔드포인트 같은 선택을 Terraform 변수로 빼고 기본값만 싼 쪽으로 두어 목표 구조 코드는 그대로 유지했습니다.</li>
+              <li>NAT 방식, Multi-AZ, VPC 엔드포인트 같은 <strong class="key">선택을 Terraform 변수로 빼고</strong> 기본값만 싼 쪽으로 두어 목표 구조 코드는 그대로 유지했습니다.</li>
               <li>처음 2주는 설계와 기획에 쓰고 인프라는 실제로 필요해진 뒤에 띄웠습니다.</li>
             </ul>
 
@@ -1293,7 +1297,7 @@
 
             <h4>③ Container Insights를 끄기 전 경보와 확장 기준 이전</h4>
             <ul class="dot">
-              <li>Container Insights는 끄기 전에, 그 지표를 쓰던 경보와 worker 확장 기준부터 무료 지표로 옮겼습니다.</li>
+              <li>Container Insights는 끄기 전에, 그 지표를 쓰던 <strong class="key">경보와 worker 확장 기준부터 무료 지표로 옮겼습니다</strong>.</li>
               <li>대신 서비스별 태스크 0개 경보와 ECS 이벤트 경보(배포 실패, 비정상 종료)로 장애를 알리게 했습니다.</li>
             </ul>
 
@@ -1314,8 +1318,8 @@
           <li class="step result">
             <div class="step-label">결과</div>
             <ul class="dot">
-              <li>한 달 약 890달러로 추정된 목표 구조를 <strong>실제 청구액 약 240달러</strong>로 73% 줄여 예산 안에서 운영했습니다.</li>
-              <li>줄인 항목은 대부분 변수 하나로 목표 구조로 되돌릴 수 있어 트래픽이 늘면 복구할 수 있습니다.</li>
+              <li>한 달 약 890달러로 추정된 목표 구조를 <strong class="key">실제 청구액 약 240달러</strong>로 73% 줄여 예산 안에서 운영했습니다.</li>
+              <li>줄인 항목은 대부분 <strong class="key">변수 하나로 목표 구조로 되돌릴 수 있어</strong> 트래픽이 늘면 복구할 수 있습니다.</li>
             </ul>
           </li>
         </ol>
