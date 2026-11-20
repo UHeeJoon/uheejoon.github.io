@@ -64,6 +64,8 @@
       -webkit-font-smoothing: antialiased;
     }
     a { color: var(--accent-ink); text-underline-offset: 3px; text-decoration-thickness: 1px; }
+    a.ext { font-weight: 600; text-decoration-thickness: 1.5px; white-space: nowrap; }
+    a.ext::after { content: "↗"; display: inline-block; margin-left: 2px; font-size: .85em; text-decoration: none; }
     strong { color: var(--ink); font-weight: 650; }
     .key { color: var(--ink); font-weight: 650; background: linear-gradient(transparent 86%, color-mix(in srgb, var(--accent) 55%, transparent) 86%); padding: 0 2px; -webkit-box-decoration-break: clone; box-decoration-break: clone; }
     code { font-family: var(--mono); font-size: .86em; background: var(--bg-sunk); padding: .08em .38em; border-radius: 5px; color: var(--ink); }
@@ -507,7 +509,7 @@
       <!-- ---------- 옥타코 01 ---------- -->
       <article class="case" id="oc-1" data-title="옥타코 01 · 권한 분리">
         <div class="case-head">
-          <div class="num">OCTACO · 01 · SECURITY</div>
+          <div class="num">OCTACO · 01</div>
           <h3>서비스별 AWS 권한 분리로 탈취 피해를 한 서비스 안으로 제한</h3>
           <ul class="outcome"><li>다른 서비스 비밀 값 조회 AccessDenied</li><li>노드 메타데이터 접근 차단</li><li>로컬에서 Secret 직접 생성 제거</li></ul>
         </div>
@@ -570,7 +572,7 @@
       <!-- ---------- 옥타코 02 ---------- -->
       <article class="case" id="oc-2" data-title="옥타코 02 · Pod 재시작">
         <div class="case-head">
-          <div class="num">OCTACO · 02 · KUBERNETES OPERATIONS</div>
+          <div class="num">OCTACO · 02</div>
           <h3>Probe와 CPU limit 조정으로 수백 번 반복되던 Pod 재시작을 0번으로 해소</h3>
           <ul class="outcome"><li>Pod 재시작 수백 번 → 0번</li><li>20번 이상 재생성 테스트에서 Probe 실패 0건</li><li>공통 기본값과 배포 기준으로 재발 방지</li></ul>
         </div>
@@ -647,57 +649,54 @@
       <!-- ---------- 옥타코 03 ---------- -->
       <article class="case" id="oc-3" data-title="옥타코 03 · Admission Webhook">
         <div class="case-head">
-          <div class="num">OCTACO · 03 · DEPLOYMENT POLICY</div>
+          <div class="num">OCTACO · 03</div>
           <h3>Admission Webhook 개발로 배포 경로와 관계없이 같은 배포 기준 적용</h3>
-          <ul class="outcome"><li>기본 환경 변수 · 보안 설정 자동 삽입</li><li>requests · limits 누락 배포 거절</li><li>default Namespace 배포 거절</li></ul>
+          <ul class="outcome"><li>빠진 환경 변수와 보안 설정 자동 삽입</li><li>requests와 limits 누락 배포 거절</li><li>default Namespace 배포 거절</li></ul>
         </div>
 
         <ol class="steps">
           <li class="step problem">
             <div class="step-label">설계 배경</div>
-            <p>시간대, JVM 메모리, 보안 설정 같은 기본값은 Helm 공통 Template에만 들어 있었습니다. 그래서 차트를 거쳐 배포하면 지켜지지만,</p>
             <ul class="dot">
-              <li>values에서 그 값을 덮어쓰거나</li>
-              <li>차트를 거치지 않고 kubectl로 직접 적용한 배포에는</li>
+              <li>시간대, JVM 메모리, 보안 설정 같은 기본값이 Helm 공통 Template에만 들어 있어 차트를 거치지 않고 kubectl로 직접 적용한 배포에는 <strong class="key">기준이 빠질 수 있는 구조</strong>였습니다.</li>
+              <li>02 사례의 CPU limit 문제처럼 리소스 기준이 빠지면 운영 장애로 이어질 수 있었습니다.</li>
+              <li>그래서 <strong class="key">배포 경로와 상관없이 클러스터 입구에서 리소스와 보안 기준을 지킬 방법</strong>이 필요했습니다.</li>
             </ul>
-            <p>기준이 그대로 빠졌습니다. 02 사례의 CPU limit 문제처럼 리소스 기준이 빠지면 운영 장애로 이어질 수 있어 <strong class="key">배포 경로와 상관없이 클러스터 입구에서 리소스와 보안 기준을 지킬 방법</strong>이 필요했습니다.</p>
           </li>
 
-          <li class="step solve">
+          <li class="step trace">
             <div class="step-label">설계 판단</div>
             <div class="tbl"><table>
               <thead><tr><th>검토한 방식</th><th>장점</th><th>단점</th></tr></thead>
               <tbody>
                 <tr><td>Kyverno, OPA Gatekeeper</td><td>정책 표현이 풍부하고 예제가 많음</td><td>정책 문법을 새로 익히고 컨트롤러와 CRD를 추가로 운영</td></tr>
-                <tr class="chosen"><td>Admission Webhook 직접 개발 <span class="muted">(선택)</span></td><td>삽입과 검사를 코드로 자유롭게 작성</td><td>Webhook 서버를 직접 개발하고 운영</td></tr>
+                <tr class="chosen"><td>Admission Webhook 직접 개발</td><td>삽입과 검사를 코드로 자유롭게 작성</td><td>Webhook 서버를 직접 개발하고 운영</td></tr>
               </tbody>
             </table></div>
-            <p>참고할 예제 코드가 있어 별도 정책 엔진을 도입하지 않고 <strong class="key">Admission Webhook을 직접 개발</strong>하는 쪽을 택했습니다.</p>
+            <p>필요한 규칙이 몇 개뿐이라 정책 문법을 새로 익히고 컨트롤러와 CRD를 더 운영하는 대신 참고할 예제 코드를 바탕으로 <strong class="key">Admission Webhook을 직접 개발</strong>하는 쪽을 택했습니다.</p>
+          </li>
 
+          <li class="step solve">
+            <div class="step-label">구현</div>
+            <p>기준은 <a class="ext" href="https://kubernetes.io/docs/concepts/security/pod-security-standards/" target="_blank" rel="noopener">Pod Security Standards</a>를 참고해 보안 항목을 고르고 시간대와 JVM 메모리처럼 회사에서 필요한 항목을 더해 정했습니다.</p>
             <figure>
               <button class="frame" type="button" data-zoom><img src="../images/devops/vap2.png" width="1641" height="474" loading="lazy" alt="배포 요청이 EKS API 서버에서 Admission Webhook 서버의 Mutating 단계로 기본값을 삽입받고 Validating 단계에서 기준을 검사받아 Pod로 생성되거나 거절되는 흐름"></button>
               <figcaption>API 서버가 Admission Webhook을 호출해 기본값 자동 삽입과 기준 검사를 거쳐 생성하거나 거절하는 흐름</figcaption>
             </figure>
+            <p>Webhook 서버는 Pod 여러 개로 띄워 Pod 하나에 장애가 나도 요청 처리가 이어지게 했습니다.</p>
 
-            <h4>기준 정리</h4>
-            <p>Pod Security Standards를 참고해 보안 항목을 고르고 시간대와 JVM 메모리처럼 회사에서 필요한 항목을 더해 기준을 정했습니다.</p>
-
-            <h4>Mutating Webhook: 기본값 자동 삽입</h4>
+            <h4>Mutating Webhook으로 빠진 기본값만 삽입</h4>
             <ul class="dot">
-              <li>Pod 생성 시 <code>TZ=Asia/Seoul</code>, JVM 메모리 옵션, 환경 이름과 서비스 이름 환경 변수를 자동 삽입</li>
-              <li><code>runAsNonRoot</code>, <code>allowPrivilegeEscalation: false</code> 같은 <strong class="key">보안 설정을 자동 삽입</strong></li>
+              <li>Pod가 만들어질 때 <code>TZ=Asia/Seoul</code>, JVM 메모리 옵션, 환경 이름과 서비스 이름 환경 변수가 <strong class="key">Pod spec에 없으면 넣습니다</strong>.</li>
+              <li><code>runAsNonRoot</code>, <code>allowPrivilegeEscalation: false</code> 같은 보안 설정도 지정하지 않은 경우에만 넣고 서비스가 직접 지정한 값은 덮어쓰지 않습니다.</li>
+              <li>Helm Chart에도 같은 기본값을 그대로 두었습니다.</li>
             </ul>
 
-            <h4>Validating Webhook: 기준이 빠진 배포 거절</h4>
+            <h4>Validating Webhook으로 기준이 빠진 배포 거절</h4>
             <ul class="dot">
-              <li>requests와 limits가 없는 Pod, default Namespace 배포는 <strong class="key">빠진 항목을 메시지로 알려 주며 거절</strong></li>
-              <li>CPU limit 때문에 Pod가 재시작한 적이 있어 리소스 값은 자동으로 넣지 않고 서비스에서 직접 지정하도록 거절합니다.</li>
-            </ul>
-
-            <h4>Webhook 장애 대비</h4>
-            <ul class="dot">
-              <li>Webhook이 멈춰도 기본값이 사라지지 않도록 <strong class="key">Helm Chart에도 같은 기본값을 유지</strong>했습니다.</li>
-              <li>Webhook 서버는 Pod 여러 개로 띄워 Pod 하나에 장애가 나도 요청 처리가 이어지게 했습니다.</li>
+              <li>requests와 limits가 없는 Pod와 default Namespace 배포는 <strong class="key">빠진 항목을 메시지로 알려 주며 거절</strong>합니다.</li>
+              <li>CPU limit 때문에 Pod가 재시작한 적이 있어 <strong class="key">리소스 값은 자동으로 넣지 않고 서비스에서 직접 지정하도록 거절</strong>합니다.</li>
+              <li>default Namespace는 Namespace를 적지 않아 실수로 올라가는 배포를 막고 서비스와 환경을 Namespace로 구분하려고 거절 대상에 넣었습니다.</li>
             </ul>
           </li>
 
@@ -706,11 +705,14 @@
             <div class="tbl"><table>
               <thead><tr><th>항목</th><th>이전</th><th>이후</th></tr></thead>
               <tbody>
-                <tr><td>기본 환경 변수, 보안 설정</td><td>Helm 기본값이라 덮어쓰면 빠짐</td><td class="pick">빠뜨려도 Pod 생성 때 자동 삽입</td></tr>
-                <tr><td>리소스, Namespace</td><td>차트 밖이나 덮어쓴 배포는 그대로 생성</td><td class="pick">requests · limits 누락과 default Namespace 배포 거절</td></tr>
+                <tr><td>기본 환경 변수, 보안 설정</td><td>Helm 기본값이라 차트 밖 배포에는 빠질 수 있음</td><td class="pick">빠져 있으면 Pod 생성 때 자동 삽입</td></tr>
+                <tr><td>리소스, Namespace</td><td>차트 밖 배포는 기준이 없어도 그대로 생성</td><td class="pick">requests와 limits 누락, default Namespace 배포 거절</td></tr>
               </tbody>
             </table></div>
-            <p>requests와 limits가 없는 Pod를 kubectl로 직접 적용하고 default Namespace에 배포를 시도해 <strong class="key">두 경우 모두 거절되는 것을 확인</strong>했습니다.</p>
+            <ul class="dot">
+              <li>환경 변수와 보안 설정을 뺀 Pod를 적용해 생성된 Pod spec에 <strong class="key">빠진 값이 들어간 것을 확인</strong>했습니다.</li>
+              <li>requests와 limits가 없는 Pod를 kubectl로 직접 적용하고 default Namespace에 배포를 시도해 <strong class="key">두 경우 모두 거절되는 것을 확인</strong>했습니다.</li>
+            </ul>
           </li>
         </ol>
       </article>
@@ -718,7 +720,7 @@
       <!-- ---------- 옥타코 04 ---------- -->
       <article class="case" id="oc-4" data-title="옥타코 04 · GitOps">
         <div class="case-head">
-          <div class="num">OCTACO · 04 · GITOPS</div>
+          <div class="num">OCTACO · 04</div>
           <h3>GitOps 전환으로 배포 덮어쓰기를 없애고 무중단 배포 검증</h3>
           <ul class="outcome"><li>배포 덮어쓰기 해소</li><li>롤백은 Git Revert 한 번</li><li>배포 중 k6 부하로 무중단 검증</li></ul>
         </div>
@@ -784,7 +786,7 @@
       <!-- ---------- 옥타코 05 ---------- -->
       <article class="case" id="oc-5" data-title="옥타코 05 · Redis 장애 대응">
         <div class="case-head">
-          <div class="num">OCTACO · 05 · RESILIENCE</div>
+          <div class="num">OCTACO · 05</div>
           <h3>장애 주입 시험으로 미리 찾은 Redis SPOF를 Circuit Breaker와 DB 우회로 해결</h3>
           <ul class="outcome"><li>Redis 장애 중에도 인증 유지</li><li>감지 → 우회 → 복귀 자동 전환</li><li>복제가 못 막는 지연 · 단절 대응</li></ul>
         </div>
@@ -913,7 +915,7 @@
       <!-- ---------- NOVA 01 ---------- -->
       <article class="case" id="nv-1" data-title="NOVA 01 · service.yml">
         <div class="case-head">
-          <div class="num">NOVA · 01 · IAC</div>
+          <div class="num">NOVA · 01</div>
           <h3>담당자 한 명을 거치던 인프라 변경을 설정 파일 하나로 팀원이 직접 처리</h3>
           <ul class="outcome"><li>인프라 변경 병목 해소</li><li>Terraform 수정 없이 PR 하나로</li><li>잘못된 값은 plan에서 차단</li></ul>
         </div>
@@ -986,7 +988,7 @@
       <!-- ---------- NOVA 02 ---------- -->
       <article class="case" id="nv-2" data-title="NOVA 02 · Atlantis">
         <div class="case-head">
-          <div class="num">NOVA · 02 · CHANGE MANAGEMENT</div>
+          <div class="num">NOVA · 02</div>
           <h3>팀원 각자의 로컬 apply를 Atlantis PR 절차로 바꿔 main과 인프라를 같은 상태로 유지</h3>
           <ul class="outcome"><li>로컬 apply 제거</li><li>동시 PR도 state 충돌 없이 순서대로</li><li>main = 실제 AWS</li></ul>
         </div>
@@ -1052,7 +1054,7 @@
       <!-- ---------- NOVA 03 ---------- -->
       <article class="case" id="nv-3" data-title="NOVA 03 · IAM · 비밀 값">
         <div class="case-head">
-          <div class="num">NOVA · 03 · SECURITY</div>
+          <div class="num">NOVA · 03</div>
           <h3>IAM Role과 OIDC로 장기 액세스 키를 없애고 권한 밖 접근을 모두 차단</h3>
           <ul class="outcome"><li>장기 액세스 키 0개</li><li>Git · state · 이미지에 평문 비밀 값 없음</li><li>권한 밖 접근 직접 시도해 거부 확인</li></ul>
         </div>
@@ -1115,7 +1117,7 @@
       <!-- ---------- NOVA 04 ---------- -->
       <article class="case" id="nv-4" data-title="NOVA 04 · 모니터링">
         <div class="case-head">
-          <div class="num">NOVA · 04 · OBSERVABILITY</div>
+          <div class="num">NOVA · 04</div>
           <h3>모니터링을 한 화면에 모아 원인 분석을 수십 분에서 수 분으로 단축</h3>
           <ul class="outcome"><li>원인 분석 수십 분 → 수 분</li><li>접수 p50 521ms → 48ms</li><li>약 3분 증설 지연 발견 · 사전 증설</li></ul>
         </div>
@@ -1194,7 +1196,7 @@
       <!-- ---------- NOVA 05 ---------- -->
       <article class="case" id="nv-5" data-title="NOVA 05 · ECS 확장">
         <div class="case-head">
-          <div class="num">NOVA · 05 · SCALABILITY</div>
+          <div class="num">NOVA · 05</div>
           <h3>판매 오픈의 급증 트래픽과 큐에 쌓인 메시지에 맞춰 늘어나는 ECS Fargate 확장 구조</h3>
           <ul class="outcome"><li>오픈 15분 전 사전 증설</li><li>worker는 큐에 쌓인 메시지 기준 확장</li><li>망가진 배포 자동 롤백</li></ul>
         </div>
@@ -1249,7 +1251,7 @@
       <!-- ---------- NOVA 06 ---------- -->
       <article class="case" id="nv-6" data-title="NOVA 06 · 비용 절감">
         <div class="case-head">
-          <div class="num">NOVA · 06 · COST</div>
+          <div class="num">NOVA · 06</div>
           <h3>목표 구조는 코드에 남기고 비용이 큰 항목만 변수로 낮춰 월 운영비 73% 절감</h3>
           <ul class="outcome"><li>월 약 $890 → $240 (−73%)</li><li>월 약 650달러 절감</li><li>변수 하나로 목표 구조 원복</li></ul>
         </div>
