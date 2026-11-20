@@ -34,23 +34,25 @@
       --sans: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
       --mono: "JetBrains Mono", "Pretendard Variable", ui-monospace, SFMono-Regular, Menlo, monospace;
       --side: 248px;
-      --measure: 760px;
+      --measure: 940px;
+      --gap: 64px;
+      --pad: 32px;
       color-scheme: light;
     }
     @media (prefers-color-scheme: dark) {
       :root:not([data-theme="light"]) {
         --bg: #111110; --bg-sunk: #1b1b1a; --bg-panel: #171716;
         --ink: #ecebe8; --ink-2: #c2bfba; --ink-3: #8e8a84; --line: #2b2a28;
-        --accent: #9dbb99; --accent-ink: #b5cfb1; --accent-soft: #1c261b;
-        --warn: #f08a5d; --warn-soft: #2a1d17; --ok: #8cc296;
+        --accent: #d9969c; --accent-ink: #e3aeb3; --accent-soft: #2a1a1c;
+        --warn: #f08a5d; --warn-soft: #2a1d17; --ok: #d9969c;
         color-scheme: dark;
       }
     }
     :root[data-theme="dark"] {
       --bg: #111110; --bg-sunk: #1b1b1a; --bg-panel: #171716;
       --ink: #ecebe8; --ink-2: #c2bfba; --ink-3: #8e8a84; --line: #2b2a28;
-      --accent: #9dbb99; --accent-ink: #b5cfb1; --accent-soft: #1c261b;
-      --warn: #f08a5d; --warn-soft: #2a1d17; --ok: #8cc296;
+      --accent: #d9969c; --accent-ink: #e3aeb3; --accent-soft: #2a1a1c;
+      --warn: #f08a5d; --warn-soft: #2a1d17; --ok: #d9969c;
       color-scheme: dark;
     }
 
@@ -80,16 +82,14 @@
     .skip:focus { left: 16px; top: 16px; background: var(--ink); color: var(--bg); padding: 8px 12px; border-radius: 8px; z-index: 50; }
 
     /* ---------- 전체 배치 ---------- */
-    .shell {
-      max-width: calc(var(--side) + var(--measure) + 160px);
-      margin: 0 auto; padding: 0 32px;
-      display: grid; grid-template-columns: var(--side) minmax(0, 1fr); gap: 72px;
-    }
-    main { min-width: 0; max-width: var(--measure); padding: 72px 0 120px; }
+    /* 본문은 화면 가운데에 두고 사이드 메뉴는 본문 왼쪽에 붙인다. 화면이 좁으면 메뉴가 왼쪽 끝에 닿고 본문이 줄어든다. */
+    .shell { display: flex; align-items: flex-start; padding: 0 var(--pad); }
+    main { flex: 0 1 var(--measure); min-width: 0; padding: 72px 0 120px; margin-left: var(--gap); }
 
     /* ---------- 사이트 맵 ---------- */
     .sitemap {
-      position: sticky; top: 0; align-self: start; height: 100vh; overflow-y: auto;
+      position: sticky; top: 0; flex: none; width: var(--side); height: 100vh; overflow-y: auto;
+      margin-left: max(0px, calc((100% - var(--measure)) / 2 - var(--gap) - var(--side)));
       padding: 72px 0 40px; scrollbar-width: thin;
     }
     .sitemap .sm-title { font-family: var(--mono); font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-3); margin: 0 0 14px; }
@@ -244,13 +244,12 @@
 
     /* ---------- 반응형 ---------- */
     @media screen and (max-width: 1080px) {
-      .shell { grid-template-columns: 220px minmax(0, 1fr); gap: 48px; padding: 0 24px; }
-      :root { --side: 220px; }
+      :root { --side: 220px; --gap: 48px; --pad: 24px; }
     }
     @media screen and (max-width: 860px) {
       body { font-size: 16px; }
       .shell { display: block; padding: 0 16px; }
-      main { padding: 32px 0 96px; }
+      main { padding: 32px 0 96px; margin-left: 0; }
       .mbar {
         display: flex; align-items: center; justify-content: space-between; gap: 12px;
         position: sticky; top: 0; z-index: 20; background: color-mix(in srgb, var(--bg) 92%, transparent);
@@ -261,7 +260,7 @@
       .mbar button { flex: none; font: inherit; font-size: 13px; color: var(--ink); background: var(--bg-sunk); border: 1px solid var(--line); border-radius: 999px; padding: 5px 14px; cursor: pointer; }
       .mbar .progress { position: absolute; left: 0; right: 0; bottom: -1px; margin: 0; height: 2px; border-radius: 0; background: transparent; }
       .sitemap {
-        position: fixed; inset: 0 0 0 auto; width: min(320px, 86vw); height: 100vh; z-index: 40;
+        position: fixed; inset: 0 0 0 auto; margin-left: 0; width: min(320px, 86vw); height: 100vh; z-index: 40;
         background: var(--bg); border-left: 1px solid var(--line); padding: 24px 18px 40px;
         transform: translateX(100%); visibility: hidden; transition: transform .22s ease, visibility .22s; box-shadow: -20px 0 40px -20px rgb(0 0 0 / .3);
       }
@@ -313,8 +312,8 @@
       html { scroll-padding-top: 0; }
       body { font-size: 10pt; line-height: 1.7; background: #fff; }
       .sitemap, .mbar, .scrim, .to-top, .no-print, dialog, .sec-label, .case-head .num, .stat .p { display: none !important; }
-      .shell { display: block; max-width: none; padding: 0; }
-      main { max-width: none; padding: 0; }
+      .shell { display: block; padding: 0; }
+      main { max-width: none; padding: 0; margin: 0; }
       a { color: inherit; text-decoration: none; }
       .hero { padding-bottom: 18px; }
       .hero h1 { font-size: 26pt; }
