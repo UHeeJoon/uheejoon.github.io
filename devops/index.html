@@ -39,15 +39,6 @@
       --pad: 32px;
       color-scheme: light;
     }
-    @media (prefers-color-scheme: dark) {
-      :root:not([data-theme="light"]) {
-        --bg: #111110; --bg-sunk: #1b1b1a; --bg-panel: #171716;
-        --ink: #ecebe8; --ink-2: #c2bfba; --ink-3: #8e8a84; --line: #2b2a28;
-        --accent: #d9969c; --accent-ink: #e3aeb3; --accent-soft: #2a1a1c;
-        --warn: #f08a5d; --warn-soft: #2a1d17; --ok: #d9969c;
-        color-scheme: dark;
-      }
-    }
     :root[data-theme="dark"] {
       --bg: #111110; --bg-sunk: #1b1b1a; --bg-panel: #171716;
       --ink: #ecebe8; --ink-2: #c2bfba; --ink-3: #8e8a84; --line: #2b2a28;
@@ -1451,7 +1442,7 @@ Error from server: admission webhook <span class="d">"..."</span> denied the req
   // 테마
   document.getElementById('themeBtn').addEventListener('click', function () {
     var root = document.documentElement;
-    var cur = root.getAttribute('data-theme') || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+    var cur = root.getAttribute('data-theme') || 'light';
     var next = cur === 'dark' ? 'light' : 'dark';
     root.setAttribute('data-theme', next);
     try { localStorage.setItem('devops-theme', next); } catch (e) {}
