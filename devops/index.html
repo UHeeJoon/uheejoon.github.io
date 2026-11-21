@@ -473,7 +473,7 @@
         <dl class="facts">
           <dt>기간</dt><dd>2025.04 ~ 2026.02, 11개월, 정규직</dd>
           <dt>소속과 역할</dt><dd>백엔드 3명으로 구성된 초기 TF, DevOps와 Backend 엔지니어</dd>
-          <dt>담당</dt><dd>AWS EKS 기반 인프라 구축, Java/Spring 기반 사용자와 세션 인증 도메인 개발</dd>
+          <dt>담당</dt><dd>AWS EKS 기반 인프라 구축<br>Java/Spring 기반 사용자와 세션 인증 도메인 개발</dd>
           <dt>기술</dt>
           <dd>
             <ul class="tags">
@@ -882,52 +882,38 @@ Error from server: admission webhook <span class="d">"..."</span> denied the req
       <div class="proj-head">
         <p class="sec-label">Project 02 · 팀 프로젝트</p>
         <h2>사전예약 서비스 NOVA</h2>
-        <p class="sub">판매가 열리면 10초 사이에 예약 5,000건이 몰리는 사전예약 서비스의 AWS 인프라 단독 설계 · 구축 · 운영</p>
+        <p class="sub">판매가 열리면 10초 사이에 예약 5,000건이 몰리는 사전예약 서비스를 AWS에 구축한 프로젝트</p>
       </div>
 
       <div id="nv-overview" data-title="NOVA · 개요">
         <dl class="facts">
-          <dt>기간</dt><dd>2026.09 ~ 2026.10 · LG U+ 유레카 부트캠프</dd>
-          <dt>팀 · 역할</dt><dd>7인 팀 (백엔드 5명, 프론트엔드 2명) · AWS 인프라 설계, 구축, 운영 단독 담당</dd>
-          <dt>백엔드</dt><dd>사전예약 접수 서버와 대기열, 외부 연동 worker 개발</dd>
+          <dt>기간</dt><dd>2026.09 ~ 2026.10, LG U+ 유레카 부트캠프</dd>
+          <dt>소속과 역할</dt><dd>백엔드 5명과 프론트엔드 2명으로 구성된 7인 팀, 인프라 단독 담당과 백엔드 개발</dd>
+          <dt>담당</dt><dd>AWS 인프라 설계와 구축, 운영<br>사전예약 접수 서버와 대기열, 외부 연동 worker 개발</dd>
           <dt>저장소</dt>
           <dd>
-            <a href="https://github.com/Nova-Grandis/nova-infra" target="_blank" rel="noopener">Nova-Grandis/nova-infra</a> ·
+            <a href="https://github.com/Nova-Grandis/nova-infra" target="_blank" rel="noopener">Nova-Grandis/nova-infra</a>,
             <a href="https://github.com/Nova-Grandis/atlantis-deploy" target="_blank" rel="noopener">Nova-Grandis/atlantis-deploy</a>
           </dd>
           <dt>기술</dt>
           <dd>
             <ul class="tags">
-              <li>ECS Fargate</li><li>SQS</li><li>CloudFront</li><li>WAF</li><li>Terraform</li><li>Atlantis</li><li>IAM · OIDC</li>
-              <li>Secrets Manager</li><li>SOPS · KMS</li><li>OpenTelemetry</li><li>Grafana</li><li>Mimir · Loki · Tempo</li><li>k6</li>
+              <li>ECS Fargate</li><li>SQS</li><li>CloudFront</li><li>WAF</li><li>Terraform</li><li>Atlantis</li><li>IAM</li><li>OIDC</li>
+              <li>Secrets Manager</li><li>SOPS</li><li>KMS</li><li>OpenTelemetry</li><li>Grafana</li><li>Mimir</li><li>Loki</li><li>Tempo</li><li>k6</li>
             </ul>
           </dd>
         </dl>
 
         <h3>서비스 개요</h3>
         <p class="lede" style="margin-top:14px">
-          회차마다 정해진 시각에 판매가 열리고 열리는 순간 10초 사이에 예약 5,000건이 몰리는 사전예약 서비스입니다.
-          사용자는 CloudFront와 WAF, ALB를 거쳐 대기열(waitingroom) → 사전예약 접수(preorder) 순서로 들어오고 상품 조회(catalog)를 포함해
-          <strong>서비스 10개가 ECS Fargate</strong>에서 돕니다. 외부 예약 시스템 등록은 접수 뒤 SQS를 거쳐 worker가 비동기로 처리합니다.
+          회차마다 정해진 시각에 판매가 열리는 사전예약 서비스입니다. 판매가 열리면 10초 사이에 예약 5,000건이 몰리기 때문에 그 순간의 요청을 받아 내는 구조를 AWS에 구축하는 프로젝트였습니다.
+          7인 팀에서 인프라를 혼자 맡아 설계부터 구축, 운영까지 담당했습니다.
         </p>
-        <p>
-          VPC부터 ECS, RDS, SQS, CloudFront까지 모든 자원을 Terraform으로 만들고 변경은 Atlantis를 거쳐서만 적용되게 했습니다.
-        </p>
-
-        <div class="callout">
-          인프라 담당이 한 명이라 변경 요청이 한 사람에게 몰리지 않게 만드는 데 집중했습니다.
-          팀원이 <code>service.yml</code>과 PR만으로 자기 서비스의 인프라를 직접 바꾸고 apply는 Atlantis에서만 실행되게 했습니다.
-          서비스마다 IAM Role을 나눠 선언한 자원만 접근하게 했습니다.
-        </div>
 
         <figure class="wide">
           <button class="frame" type="button" data-zoom><img src="../images/devops/nova_ov2.png" width="2118" height="1027" loading="lazy" alt="NOVA AWS 아키텍처: CloudFront와 WAF, ALB를 거쳐 ECS Fargate 서비스들로 요청이 들어오고 RDS, ElastiCache, SQS와 worker, Atlantis 배포, 관측 서버로 구성된 구조"></button>
           <figcaption>CloudFront와 ALB를 거쳐 ECS Fargate로 들어오는 요청 경로와 데이터, 배포, 모니터링 구성</figcaption>
         </figure>
-
-        <h4>운영 비용</h4>
-        <p>6주 예산은 40만 원이었습니다. 목표 구조는 코드로 모두 구현하고 비용이 큰 항목만 변수로 낮춰
-          월 운영비를 <strong>약 890달러에서 약 240달러</strong>로 73% 줄였습니다. 줄인 항목은 대부분 변수 하나로 목표 구조로 되돌릴 수 있습니다. (<a href="#nv-6">06 사례</a>)</p>
 
         <h4 class="print-only">주요 사례</h4>
         <ol class="case-index print-only">
