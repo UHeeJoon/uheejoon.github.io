@@ -65,6 +65,9 @@
     pre.code .k { color: var(--accent-ink); font-weight: 600; }
     pre.code .v { color: var(--warn); }
     pre.code .d { color: var(--ink-3); }
+    .code-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; align-items: stretch; }
+    .code-cols pre.code { font-size: 12.5px; padding: 14px 16px; }
+    @media (max-width: 860px) { .code-cols { grid-template-columns: 1fr; } }
     .point { margin: 18px 0 20px; padding: 14px 18px; background: var(--bg-sunk); border-left: 4px solid var(--accent); border-radius: 0 8px 8px 0; color: var(--ink); font-weight: 650; }
     strong { color: var(--ink); font-weight: 650; }
     .key { color: var(--ink); font-weight: 650; background: linear-gradient(transparent 86%, color-mix(in srgb, var(--accent) 55%, transparent) 86%); padding: 0 2px; -webkit-box-decoration-break: clone; box-decoration-break: clone; }
@@ -377,7 +380,7 @@
           <a href="#nova">사전예약 서비스 NOVA<span class="meta">팀 프로젝트 · 2026.09 ~ 2026.10</span></a>
           <ol class="lv2">
             <li><a href="#nv-overview"><span class="n">00</span><span>프로젝트 개요</span></a></li>
-            <li><a href="#nv-1"><span class="n">01</span><span>service.yml 인프라 자동화</span></a></li>
+            <li><a href="#nv-1"><span class="n">01</span><span>YAML 기반 인프라 자동화</span></a></li>
             <li><a href="#nv-2"><span class="n">02</span><span>Atlantis PR 변경 절차</span></a></li>
             <li><a href="#nv-3"><span class="n">03</span><span>IAM Role · OIDC · 비밀 값</span></a></li>
             <li><a href="#nv-4"><span class="n">04</span><span>통합 모니터링과 개선</span></a></li>
@@ -917,7 +920,7 @@ Error from server: admission webhook <span class="d">"..."</span> denied the req
 
         <h4 class="print-only">주요 사례</h4>
         <ol class="case-index print-only">
-          <li><a href="#nv-1"><span class="n">01</span><span>담당자 한 명을 거치던 인프라 변경을 설정 파일 하나로 팀원이 직접 처리</span></a></li>
+          <li><a href="#nv-1"><span class="n">01</span><span>YAML 설정 하나로 AWS 인프라가 만들어지는 Terraform 자동화</span></a></li>
           <li><a href="#nv-2"><span class="n">02</span><span>팀원 각자의 로컬 apply를 Atlantis PR 절차로 바꿔 main과 인프라를 일치</span></a></li>
           <li><a href="#nv-3"><span class="n">03</span><span>IAM Role과 OIDC로 장기 액세스 키를 없애고 권한 밖 접근을 차단</span></a></li>
           <li><a href="#nv-4"><span class="n">04</span><span>모니터링을 한 화면에 모아 원인 분석을 수십 분에서 수 분으로</span></a></li>
@@ -927,74 +930,100 @@ Error from server: admission webhook <span class="d">"..."</span> denied the req
       </div>
 
       <!-- ---------- NOVA 01 ---------- -->
-      <article class="case" id="nv-1" data-title="NOVA 01 · service.yml">
+      <article class="case" id="nv-1" data-title="NOVA 01 · 인프라 자동화">
         <div class="case-head">
           <div class="num">NOVA · 01</div>
-          <h3>담당자 한 명을 거치던 인프라 변경을 설정 파일 하나로 팀원이 직접 처리</h3>
-          <ul class="outcome"><li>인프라 변경 병목 해소</li><li>Terraform 수정 없이 PR 하나로</li><li>잘못된 값은 plan에서 차단</li></ul>
+          <h3>YAML 설정 하나로 AWS 인프라가 만들어지는 Terraform 자동화</h3>
+          <ul class="outcome"><li>YAML 설정 하나로 인프라 선언</li><li>잘못된 값은 plan에서 차단</li><li>로컬 에뮬레이터로 먼저 검증</li></ul>
         </div>
 
         <ol class="steps">
           <li class="step problem">
             <div class="step-label">설계 배경</div>
             <ul class="dot">
-              <li>서비스의 경로, 보안 그룹, 확장 설정을 바꿀 때마다 <strong class="key">인프라 담당인 저에게 요청해야 하는 구조</strong>였습니다.</li>
+              <li>서비스의 경로, 보안 그룹, 확장 설정을 바꿀 때마다 <strong class="key">인프라 담당 한 명에게 요청해야 하는 구조</strong>였습니다.</li>
               <li>백엔드 팀원은 Terraform과 AWS를 몰라 직접 고치기 어려웠고 고치더라도 잘못된 값이 그대로 적용될 위험이 있었습니다.</li>
-              <li>필요한 것은 팀원이 이미 아는 방식으로 입력하고 잘못된 값은 적용 전에 막는 구조였습니다.</li>
+              <li>팀원이 이미 아는 방식으로 입력하고 잘못된 값은 적용 전에 막는 구조가 필요했습니다.</li>
             </ul>
           </li>
 
           <li class="step solve">
             <div class="step-label">해결 과정</div>
-            <figure class="wide">
-              <button class="frame" type="button" data-zoom><img src="../images/diagrams/nv-tf.png" width="2200" height="1555" loading="lazy" alt="terraform 저장소의 application 폴더에 서비스마다 service.yml이 있고, 각 스택이 이를 읽어 ECS 서비스, ALB 리스너 규칙, 보안 그룹, IAM task 역할, Secrets Manager를 만들고 잘못된 선언은 plan에서 멈추는 구조"></button>
-              <figcaption>저장소 폴더 구조와 service.yml 한 파일에서 AWS 자원이 만들어지는 흐름 (같은 색끼리 대응)</figcaption>
+            <figure>
+              <button class="frame" type="button" data-zoom><img src="../images/diagrams/nv-tf-all.png" width="3830" height="1711" loading="lazy" alt="terraform 저장소의 application 폴더에 서비스마다 service.yml이 있고 그 항목마다 ECR과 ECS 서비스, ALB 리스너 규칙, 보안 그룹, IAM 역할이 만들어지며 secrets.sops.yml은 Secrets Manager로 들어가는 구조"></button>
+              <figcaption>저장소 폴더 구조와 service.yml 한 파일에서 AWS 자원이 만들어지는 흐름</figcaption>
             </figure>
 
-            <h4>① 입력은 YAML 파일 하나로</h4>
+            <h4>① service.yml 선언 하나로 서비스 인프라 생성</h4>
             <ul class="dot">
-              <li>팀원이 <code>application.yml</code>로 매일 쓰던 YAML을 골라 서비스마다 <strong class="key"><code>service.yml</code> 하나만 작성</strong>하게 했습니다.</li>
+              <li>팀원이 <code>application.yml</code>로 매일 쓰던 YAML 형식으로 서비스마다 <strong class="key"><code>service.yml</code> 하나만 작성</strong>하게 했습니다.</li>
               <li>항목 이름은 보안 그룹, ALB 규칙 같은 AWS 용어 대신 <code>routes</code>, <code>calls</code>, <code>queues</code>, <code>scaling</code>처럼 서비스가 하는 일로 정의했습니다.</li>
-            </ul>
-            <div class="tbl"><table>
-              <thead><tr><th>service.yml 항목</th><th>만들어지는 자원</th></tr></thead>
-              <tbody>
-                <tr><td><code>scaling</code>, <code>deployment</code></td><td>ECS 서비스와 오토스케일링, Blue/Green 배포</td></tr>
-                <tr><td><code>routes</code></td><td>ALB 리스너 규칙</td></tr>
-                <tr><td><code>calls</code>, <code>db</code>, <code>redis</code></td><td>호출 대상과 DB, 캐시만 열린 보안 그룹</td></tr>
-                <tr><td><code>queues</code></td><td>선언한 큐만 쓰는 IAM task 역할</td></tr>
-                <tr><td><code>secrets.sops.yml</code></td><td>복호화해 Secrets Manager에 저장, 키 이름이 곧 환경변수</td></tr>
-              </tbody>
-            </table></div>
-            <ul class="dot">
-              <li><code>locals_services.tf</code>가 Terraform 기본 함수 <code>fileset</code>과 <code>yamldecode</code>로 모든 service.yml을 서비스 목록으로 바꾸고
-                ECR, IAM, 보안 그룹, ECS 스택은 이 파일을 심볼릭 링크로 가져와 <strong class="key"><code>for_each</code>로 서비스마다 자원을 만듭니다</strong>.</li>
               <li>팀원이 묻지 않고도 작성할 수 있게 README에 필수 항목, 기본값, 항목마다 만들어지는 자원을 예시와 함께 정리했습니다.</li>
             </ul>
+            <p>선언한 내용은 모든 service.yml을 한곳에서 읽고 각 스택이 그 파일을 심볼릭 링크로 가져와 <strong class="key">서비스마다 자원을 만들도록</strong> 구성했습니다.</p>
+            <figure class="codefig">
+              <div class="code-cols">
+<pre class="code"><code><span class="c"># terraform/variables/locals_services.tf</span>
+<span class="c"># 모든 service.yml을 읽어 서비스 목록 생성</span>
+<span class="k">locals</span> {
+  <span class="k">_service_raw</span> = {
+    for f in <span class="k">fileset</span>(
+      local.application_dir, <span class="v">"*/service.yml"</span>
+    ) :
+    dirname(f) =&gt; <span class="k">yamldecode</span>(
+      file(<span class="v">"${local.application_dir}/${f}"</span>)
+    )
+    <span class="d">...</span>
+  }
+  <span class="d">...</span>
+}</code></pre>
+<pre class="code"><code><span class="c"># terraform/aws/ecs/nova_apnortheast2/services.tf</span>
+<span class="c"># 왼쪽 파일을 심볼릭 링크로 가져와 서비스마다 모듈 실행</span>
+<span class="k">module</span> <span class="v">"service"</span> {
+  <span class="c"># 직접 만든 모듈. ECS 서비스, 태스크 정의,</span>
+  <span class="c"># ALB 규칙, 오토스케일링 생성</span>
+  <span class="k">source</span>   = <span class="v">"../_modules/service"</span>
+  <span class="c"># service.yml에서 읽은 서비스 목록</span>
+  <span class="k">for_each</span> = local.deployed_services
 
-            <h4>② 잘못 적은 값은 apply 전에 plan에서 차단</h4>
+  <span class="k">name</span>   = <span class="v">"${local.name_prefix}-${each.value.name}"</span>
+  <span class="k">cpu</span>    = each.value.cpu
+  <span class="c"># service.yml의 routes가 ALB 리스너 규칙이 됨</span>
+  <span class="k">routes</span> = each.value.routes
+  <span class="d">...</span>
+}</code></pre>
+              </div>
+              <figcaption>왼쪽은 service.yml을 읽는 부분, 오른쪽은 읽은 값을 서비스마다 모듈에 넘겨 자원을 만드는 부분</figcaption>
+            </figure>
+
+            <h4>② 잘못 적은 값을 plan에서 차단</h4>
             <ul class="dot">
-              <li><code>precondition</code>으로 service.yml 값을 검사하고 틀리면 <strong class="key">무엇을 고쳐야 하는지 오류 메시지로 안내</strong>합니다.</li>
-              <li>RDS 연결 한도를 넘는 최대 대수, 다른 규칙과 겹치는 ALB 우선순위, 비밀 값과 이름이 겹치는 환경변수 같은 실수를 검사합니다.</li>
+              <li>apply 전 plan 단계에서 service.yml 값을 검사해 틀리면 아래처럼 <strong class="key">어느 파일의 무엇이 틀렸는지 오류 메시지로 알려 주게</strong> 했습니다.</li>
+              <li>모르는 필드나 오타, 없는 호출 대상, 다른 규칙과 겹치는 ALB 우선순위, RDS 연결 한도를 넘는 최대 대수를 검사하게 했습니다.</li>
             </ul>
+            <figure class="codefig">
+<pre class="code"><code><span class="c"># order의 service.yml에 scaling을 scalling으로 잘못 적은 경우</span>
+$ terraform plan
+Error: <span class="d">...</span>
+<span class="v">"application/order/service.yml — 모르는 필드 'scalling'"</span></code></pre>
+              <figcaption>오타를 넣은 service.yml로 plan을 실행한 출력에서 핵심 줄만 남겼습니다.</figcaption>
+            </figure>
 
-            <h4>③ 자원을 만드는 코드는 로컬 에뮬레이터에서 먼저 검증</h4>
-            <p>이 코드가 틀리면 모든 서비스의 자원이 잘못 만들어져 실제 AWS에 적용하기 전에 로컬에서 먼저 검증했습니다.</p>
+          </li>
+
+          <li class="step trace">
+            <div class="step-label">로컬 검증</div>
+            <p>Terraform 코드를 실제 AWS에서 바로 시험하면 요금이 들고 실수가 운영 환경에 그대로 반영되기 때문에 <strong class="key">AWS 에뮬레이터 Floci를 활용해 로컬에서 먼저 apply</strong>해 검증했습니다.</p>
             <ul class="dot">
-              <li>로컬 AWS 에뮬레이터 floci에 가짜 자격 증명으로만 연결해 <strong class="key">요금 없이 apply를 시험</strong>했습니다.</li>
-              <li>스택마다 state를 로컬 파일로 두고 앞 스택의 출력을 이어 받으며 실제와 같은 순서(VPC → 보안 그룹 → ECR → IAM → ECS)로 전체 스택을 적용했습니다.</li>
-              <li>AWS API가 거부하는 리소스 인자, apply 때 정해지는 값을 <code>for_each</code>에 쓴 실수처럼 <code>terraform validate</code>로는 잡히지 않는 오류를 여기서 찾아 고쳤고
-                <code>calls</code>와 <code>routes</code>대로 보안 그룹과 ALB 규칙이 생기는지 확인했습니다.</li>
+              <li>가짜 자격 증명으로만 연결해 실제 AWS 계정에는 적용되지 않게 했습니다.</li>
+              <li>스택마다 state를 로컬 파일로 두고 앞 스택의 출력을 이어 받아 VPC, 보안 그룹, ECR, IAM, ECS의 실제 순서대로 적용했습니다.</li>
+              <li><code>terraform validate</code>는 통과하지만 <strong class="key">실제로 apply하면 AWS가 거절하는 설정을 미리 찾아 고쳤고</strong> <code>calls</code>와 <code>routes</code>대로 보안 그룹과 ALB 규칙이 생기는지 확인했습니다.</li>
             </ul>
           </li>
 
           <li class="step result">
             <div class="step-label">결과</div>
-            <ul class="dot">
-              <li>백엔드 팀원이 인프라 담당자를 거치지 않고 <strong class="key">service.yml과 PR만으로 자기 서비스의 인프라를 직접 변경</strong>했습니다.</li>
-              <li>Terraform과 AWS를 모르는 팀원도 ALB 경로 추가, 서비스 간 호출 허용, 큐 권한, 최소 대수를 YAML 몇 줄로 처리했습니다.</li>
-              <li>잘못 적은 값은 <strong class="key">plan에서 오류로 걸려 적용 전에 수정</strong>됩니다.</li>
-            </ul>
+            <p>팀원이 인프라 담당자를 거치지 않고 ALB 경로, 서비스 간 호출 허용, 큐 권한, 최소 대수를 <strong class="key">service.yml과 PR로 직접 변경</strong>했습니다.</p>
           </li>
         </ol>
       </article>
