@@ -518,7 +518,7 @@
         <div class="case-head">
           <div class="num">OCTACO · 01</div>
           <h3>서비스별 AWS 권한 분리로 탈취 피해를 한 서비스 안으로 제한</h3>
-          <ul class="outcome"><li>다른 서비스 비밀 값 조회 AccessDenied</li><li>노드 메타데이터 접근 차단</li><li>로컬에서 Secret 직접 생성 제거</li></ul>
+          <ul class="outcome"><li>서비스마다 IAM Role 분리</li><li>Pod 통신과 DB 접속 제한</li><li>비밀 값은 중앙 저장소에서 주입</li></ul>
         </div>
 
         <ol class="steps">
@@ -530,7 +530,7 @@
               <li>Pod 사이 통신이 Kubernetes 기본값대로 모두 열려 있어 한 Pod에서 다른 서비스를 바로 호출할 수 있었습니다.</li>
               <li>RDS와 ElastiCache 접속 허용 규칙이 CIDR 기준이라 같은 대역의 어떤 리소스든 DB와 캐시에 접근할 수 있었습니다.</li>
             </ul>
-            <p>비밀 값도 각자 로컬에서 ConfigMap과 Secret으로 직접 만들어 <strong class="key">누가 무엇을 만들었는지 추적할 수 없었습니다</strong>.</p>
+            <p>비밀 값도 각자 로컬에서 ConfigMap과 Secret으로 직접 만들어 <strong class="key">한곳에서 관리되지 않았습니다</strong>.</p>
           </li>
 
           <li class="step solve">
@@ -581,7 +581,7 @@
         <div class="case-head">
           <div class="num">OCTACO · 02</div>
           <h3>Probe와 CPU limit 조정으로 수백 번 반복되던 Pod 재시작을 0번으로 해소</h3>
-          <ul class="outcome"><li>Pod 재시작 수백 번 → 0번</li><li>20번 이상 재생성 테스트에서 Probe 실패 0건</li><li>공통 기본값과 배포 기준으로 재발 방지</li></ul>
+          <ul class="outcome"><li>Pod 재시작 수백 번에서 0번으로</li><li>20번 이상 재생성 테스트에서 Probe 실패 0건</li><li>공통 기본값과 배포 기준으로 재발 방지</li></ul>
         </div>
 
         <ol class="steps">
@@ -601,8 +601,7 @@
           <li class="step solve">
             <div class="step-label">1차 조치</div>
             <ul class="dot">
-              <li>로컬에서 잰 기동 시간을 기준으로 <strong class="key">startupProbe를 설정</strong>했습니다.</li>
-              <li>liveness Probe는 기존 설정을 유지했습니다.</li>
+              <li>liveness Probe는 그대로 두고 로컬에서 잰 기동 시간을 기준으로 <strong class="key">startupProbe를 설정</strong>했습니다.</li>
             </ul>
             <div class="tbl"><table>
               <thead><tr><th>설정</th><th>정한 값</th><th>근거</th></tr></thead>
@@ -638,7 +637,7 @@
           <li class="step result">
             <div class="step-label">검증과 결과</div>
             <ul class="dot">
-              <li>조치 뒤 평시와 CPU 작업이 몰릴 때 모두 <strong class="key">Probe 실패와 Pod 재시작이 발생하지 않았습니다</strong>.</li>
+              <li>조치 뒤 근무하는 동안 평시와 CPU 작업이 몰릴 때 모두 <strong class="key">Probe 실패와 Pod 재시작이 발생하지 않았습니다</strong>.</li>
               <li>Pod를 20번 이상 다시 만드는 테스트에서도 <strong class="key">Probe 실패는 0건</strong>이었습니다.</li>
             </ul>
           </li>
@@ -667,7 +666,7 @@
             <ul class="dot">
               <li>시간대, JVM 메모리, 보안 설정 같은 기본값이 Helm 공통 Template에만 들어 있어 차트를 거치지 않고 kubectl로 직접 적용한 배포에는 <strong class="key">기준이 빠질 수 있는 구조</strong>였습니다.</li>
               <li>02 사례의 CPU limit 문제처럼 리소스 기준이 빠지면 운영 장애로 이어질 수 있었습니다.</li>
-              <li>그래서 <strong class="key">배포 경로와 상관없이 클러스터 입구에서 리소스와 보안 기준을 지킬 방법</strong>이 필요했습니다.</li>
+              <li><strong class="key">배포 경로와 상관없이 클러스터 입구에서 리소스와 보안 기준을 지킬 방법</strong>이 필요했습니다.</li>
             </ul>
           </li>
 
@@ -680,7 +679,7 @@
                 <tr class="chosen"><td>Admission Webhook 직접 개발</td><td>삽입과 검사를 코드로 자유롭게 작성</td><td>Webhook 서버를 직접 개발하고 운영</td></tr>
               </tbody>
             </table></div>
-            <p class="point">필요한 규칙이 몇 개뿐이라 정책 문법을 새로 익히고 컨트롤러와 CRD를 더 운영하는 대신 참고할 예제 코드를 바탕으로 Admission Webhook을 직접 개발하는 쪽을 택했습니다.</p>
+            <p class="point">필요한 규칙이 몇 개뿐이라 참고할 예제 코드를 바탕으로 Admission Webhook을 직접 개발하는 쪽을 택했습니다.</p>
           </li>
 
           <li class="step solve">
@@ -694,17 +693,25 @@
 
             <h4>Mutating Webhook으로 빠진 기본값만 삽입</h4>
             <ul class="dot">
-              <li>Pod가 만들어질 때 <code>TZ=Asia/Seoul</code>, JVM 메모리 옵션, 환경 이름과 서비스 이름 환경 변수가 <strong class="key">Pod spec에 없으면 넣습니다</strong>.</li>
-              <li><code>runAsNonRoot</code>, <code>allowPrivilegeEscalation: false</code> 같은 보안 설정도 지정하지 않은 경우에만 넣고 서비스가 직접 지정한 값은 덮어쓰지 않습니다.</li>
-              <li>Helm Chart에도 같은 기본값을 그대로 두었습니다.</li>
+              <li>Pod가 만들어질 때 <code>TZ=Asia/Seoul</code>, JVM 메모리 옵션, 환경 이름과 서비스 이름 환경 변수가 <strong class="key">Pod spec에 없으면 넣도록</strong> 했습니다.</li>
+              <li><code>runAsNonRoot</code>, <code>allowPrivilegeEscalation: false</code> 같은 보안 설정도 지정하지 않은 경우에만 넣고 서비스가 직접 지정한 값은 덮어쓰지 않게 했습니다.</li>
+              <li>Webhook이 멈춰도 기본값이 빠지지 않도록 Helm Chart에도 같은 기본값을 그대로 뒀습니다.</li>
             </ul>
 
             <h4>Validating Webhook으로 기준이 빠진 배포 거절</h4>
             <ul class="dot">
-              <li>requests와 limits가 없는 Pod와 default Namespace 배포는 <strong class="key">빠진 항목을 메시지로 알려 주며 거절</strong>합니다.</li>
-              <li>CPU limit 때문에 Pod가 재시작한 적이 있어 <strong class="key">리소스 값은 자동으로 넣지 않고 서비스에서 직접 지정하도록 거절</strong>합니다.</li>
-              <li>default Namespace는 Namespace를 적지 않아 실수로 올라가는 배포를 막고 서비스와 환경을 Namespace로 구분하려고 거절 대상에 넣었습니다.</li>
+              <li>requests와 limits가 없는 Pod는 CPU limit 때문에 재시작한 적이 있어 <strong class="key">자동으로 넣지 않고 거절해 직접 지정하게</strong> 했습니다.</li>
+              <li>default Namespace 배포는 Namespace를 빠뜨린 배포를 막고 <strong class="key">서비스와 환경을 Namespace로 구분</strong>하려고 거절하게 했습니다.</li>
+              <li>거절할 때는 배포한 사람이 바로 고칠 수 있도록 아래처럼 빠진 항목을 메시지로 알려 주게 했습니다.</li>
             </ul>
+            <figure class="codefig">
+<pre class="code"><code><span class="c"># requests와 limits 없이 default Namespace에 배포한 경우</span>
+$ kubectl apply -f pod.yaml
+Error from server: admission webhook <span class="d">"..."</span> denied the request:
+  <span class="v">default Namespace에는 배포할 수 없습니다</span>
+  <span class="v">resources.requests와 resources.limits를 지정해야 합니다</span></code></pre>
+              <figcaption>거절될 때 kubectl에 나오는 모양. 메시지 문구는 예시입니다.</figcaption>
+            </figure>
           </li>
 
           <li class="step result">
@@ -753,19 +760,20 @@
             <div class="tbl"><table>
               <thead><tr><th style="white-space:nowrap">단계</th><th style="white-space:nowrap">구성 요소</th><th>하는 일</th></tr></thead>
               <tbody>
-                <tr><td style="white-space:nowrap">1. 빌드와 검사</td><td style="white-space:nowrap">GitHub Actions, Trivy</td><td>이미지를 빌드하고 취약점 검사에 실패하면 배포 중단</td></tr>
+                <tr><td style="white-space:nowrap">1. 빌드와 검사</td><td style="white-space:nowrap">GitHub Actions, Trivy</td><td>이미지를 빌드하고 HIGH 이상 취약점이 나오면 배포 중단</td></tr>
                 <tr><td style="white-space:nowrap">2. 이미지 등록</td><td style="white-space:nowrap">ECR</td><td>Commit SHA 태그로 올려 이미지가 어느 커밋에서 나왔는지 추적</td></tr>
                 <tr><td style="white-space:nowrap">3. 설정 갱신</td><td style="white-space:nowrap">Helm 배포 저장소</td><td>이미지 태그를 Commit SHA로 자동 커밋해 배포 이력을 Git 커밋으로 관리</td></tr>
-                <tr><td style="white-space:nowrap">4. 동기화</td><td style="white-space:nowrap">Argo CD</td><td>Auto Sync로 반영하고 클러스터 직접 수정은 Self-Heal로 Git 상태로 복구</td></tr>
+                <tr><td style="white-space:nowrap">4. 동기화</td><td style="white-space:nowrap">Argo CD</td><td>Auto Sync로 반영하고 클러스터를 직접 수정하면 Self-Heal이 Git 상태로 복구</td></tr>
                 <tr><td style="white-space:nowrap">5. 롤백</td><td style="white-space:nowrap">Git Revert</td><td>배포 저장소 커밋을 되돌리면 Argo CD가 이전 이미지 태그로 복구</td></tr>
               </tbody>
             </table></div>
             <ul class="dot">
-              <li>Helm 배포 저장소의 공통 Template 하나로 Rollout, Service, HPA를 만들고 서비스별 설정 값은 values 파일로 override해 적용했습니다.</li>
+              <li>Helm 배포 저장소의 공통 Template 하나로 Rollout, Service, HPA를 만들고 서비스별 설정 값은 values 파일로 override했습니다.</li>
               <li>새 서비스는 <strong class="key">Helm values 파일과 Argo CD Application 등록만으로 배포</strong>되도록 구성했습니다.</li>
             </ul>
 
             <h4>② Argo Rollouts로 배포 중 끊김 없이 Pod 교체</h4>
+            <p>배포 중에도 서비스가 끊기지 않도록 세 가지 배포 방식을 비교했습니다.</p>
             <div class="tbl"><table>
               <thead><tr><th style="white-space:nowrap">배포 방식</th><th style="white-space:nowrap">동작</th><th>판단</th></tr></thead>
               <tbody>
@@ -775,7 +783,7 @@
               </tbody>
             </table></div>
             <p class="point">출시 전에는 빨리 적용하는 것이 중요해 가장 단순한 Rolling Update를 우선 선택했습니다.</p>
-            <p>Argo Rollouts의 Canary 전략에 steps를 두지 않아 지금은 Rolling Update로 동작하고 <strong class="key">출시 뒤 steps만 더하면 Canary로 바뀌도록</strong> 설정했습니다.</p>
+            <p>Canary 전략에 steps를 두지 않아 지금은 Rolling Update로 동작하고 <strong class="key">출시 뒤 steps만 더하면 Canary로 바뀌도록</strong> 설정했습니다.</p>
             <figure class="codefig">
 <pre class="code"><code><span class="c"># Rollout</span>
 <span class="k">spec</span>:
@@ -797,6 +805,12 @@
             <ul class="dot">
               <li>배포 경로가 하나로 모여 <strong class="key">서로 덮어쓰는 일이 없어졌고</strong> 올라간 버전은 Git 이력과 이미지 태그로 확인합니다.</li>
               <li>배포 중 k6로 부하를 걸어 <strong class="key">실패한 요청 없이 Pod가 교체되는 것을 확인</strong>했습니다.</li>
+            </ul>
+          </li>
+
+          <li class="step next">
+            <div class="step-label">후속 조치</div>
+            <ul class="dot">
               <li>배포와 롤백 절차를 문서로 남겨 다른 개발자도 혼자 배포하고 되돌릴 수 있게 했습니다.</li>
             </ul>
           </li>
