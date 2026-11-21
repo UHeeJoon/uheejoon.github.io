@@ -922,7 +922,7 @@ Error from server: admission webhook <span class="d">"..."</span> denied the req
         <ol class="case-index print-only">
           <li><a href="#nv-1"><span class="n">01</span><span>YAML 설정 하나로 AWS 인프라가 만들어지는 Terraform 자동화</span></a></li>
           <li><a href="#nv-2"><span class="n">02</span><span>Atlantis를 활용한 AWS 인프라 변경 관리</span></a></li>
-          <li><a href="#nv-3"><span class="n">03</span><span>IAM Role과 OIDC로 장기 액세스 키를 없애고 권한 밖 접근을 차단</span></a></li>
+          <li><a href="#nv-3"><span class="n">03</span><span>IAM Role과 OIDC를 활용한 AWS 권한과 비밀 값 관리</span></a></li>
           <li><a href="#nv-4"><span class="n">04</span><span>모니터링을 한 화면에 모아 원인 분석을 수십 분에서 수 분으로</span></a></li>
           <li><a href="#nv-5"><span class="n">05</span><span>판매 오픈의 급증 트래픽과 큐에 쌓인 메시지에 맞춰 늘어나는 ECS 확장 구조</span></a></li>
           <li><a href="#nv-6"><span class="n">06</span><span>목표 구조는 코드에 남기고 비용이 큰 항목만 변수로 낮춰 월 운영비 73% 절감</span></a></li>
@@ -1097,60 +1097,60 @@ Error: <span class="d">...</span>
       <article class="case" id="nv-3" data-title="NOVA 03 · IAM · 비밀 값">
         <div class="case-head">
           <div class="num">NOVA · 03</div>
-          <h3>IAM Role과 OIDC로 장기 액세스 키를 없애고 권한 밖 접근을 모두 차단</h3>
-          <ul class="outcome"><li>장기 액세스 키 0개</li><li>Git · state · 이미지에 평문 비밀 값 없음</li><li>권한 밖 접근 직접 시도해 거부 확인</li></ul>
+          <h3>IAM Role과 OIDC를 활용한 AWS 권한과 비밀 값 관리</h3>
+          <ul class="outcome"><li>사람 · CI · 서비스마다 Role 분리</li><li>OIDC로 장기 액세스 키 없이 배포</li><li>비밀 값은 태스크 기동 때 주입</li></ul>
         </div>
 
         <ol class="steps">
           <li class="step problem">
             <div class="step-label">설계 배경</div>
             <ul class="dot">
-              <li>AWS 계정을 새로 만들면서 팀원, 서비스, CI가 각자 AWS에 접근해야 했습니다. 누구든 쓰기 권한이 있으면 실수 하나가 계정 전체에 영향을 줍니다.</li>
-              <li>액세스 키를 발급해 함께 쓰거나 비밀 값을 설정 파일에 평문으로 두면 <strong class="key">한 번의 유출로 계정 전체가 노출</strong>됩니다.</li>
-              <li>서비스가 같은 권한을 나눠 쓰면 하나가 뚫렸을 때 다른 서비스의 큐와 데이터까지 접근할 수 있습니다.</li>
-              <li>DB 비밀번호, JWT 키 같은 비밀 값이 Git, 이미지, 태스크 정의에 평문으로 남으면 유출 경로가 늘어납니다.</li>
+              <li>AWS 계정을 새로 만들면서 팀원, CI, 서비스가 AWS에 접근하는 방식을 정해야 했습니다.</li>
+              <li>액세스 키를 발급해 함께 쓰거나 비밀 값을 설정 파일에 평문으로 두면 <strong class="key">한 번의 유출로 계정 전체가 노출</strong>될 수 있어 장기 액세스 키와 평문 비밀 값이 없는 구조가 필요했습니다.</li>
+              <li>서비스가 같은 권한을 나눠 쓰면 하나가 뚫렸을 때 다른 서비스의 큐와 데이터까지 접근할 수 있어 서비스마다 권한을 나눠야 했습니다.</li>
             </ul>
           </li>
 
           <li class="step solve">
             <div class="step-label">구현 방식</div>
-            <figure class="wide">
+            <figure>
               <button class="frame" type="button" data-zoom><img src="../images/devops/iam2.png" width="4009" height="1690" loading="lazy" alt="사람은 읽기 전용 역할, Atlantis는 변경 역할, GitHub Actions는 OIDC 배포 역할, 서비스는 task 역할을 받고, 비밀 값은 SOPS와 KMS, Secrets Manager를 거쳐 ECS 태스크 기동 시 주입되는 구조"></button>
-              <figcaption>사람, CI, 서비스가 받는 역할과 SOPS · KMS · Secrets Manager를 거쳐 기동할 때 주입되는 비밀 값</figcaption>
+              <figcaption>사람 · CI · 서비스가 받는 Role과 SOPS · KMS · Secrets Manager를 거쳐 기동할 때 주입되는 비밀 값</figcaption>
             </figure>
 
-            <h4>① 사람, CI, 서비스마다 Role 분리</h4>
+            <h4>① 사람 · CI · 서비스마다 Role 분리</h4>
+            <p>주체마다 Role을 아래처럼 나눴습니다.</p>
             <div class="tbl"><table>
               <thead><tr><th>주체</th><th>받는 권한</th></tr></thead>
               <tbody>
-                <tr><td>팀원</td><td>읽기 전용 Role만 사용. 콘솔과 로컬 모두 조회와 plan까지</td></tr>
-                <tr><td>Atlantis</td><td>변경 담당. 단 IAM은 <code>nova-</code>로 시작하는 프로젝트 자원만 다루고 자기 권한을 넓히는 IAM 수정은 거부</td></tr>
-                <tr><td>GitHub Actions</td><td>OIDC로 main 브랜치에서만 배포 Role을 받음. 권한은 ECR 푸시와 재배포로 제한</td></tr>
-                <tr><td>서비스 (task role)</td><td>서비스마다 따로. service.yml에 적은 큐와 업로드 버킷만 허용</td></tr>
+                <tr><td>팀원</td><td>읽기 전용 Role, 콘솔과 로컬 모두 조회와 plan까지</td></tr>
+                <tr><td>Atlantis</td><td>인프라 변경 Role, IAM은 <code>nova-</code>로 시작하는 자원만 다루고 자기 권한 수정은 거부</td></tr>
+                <tr><td>GitHub Actions</td><td>OIDC로 main 브랜치에서만 받는 배포 Role, ECR 푸시와 재배포까지</td></tr>
+                <tr><td>서비스</td><td>서비스마다 다른 Role, service.yml에 적은 큐와 업로드 버킷까지</td></tr>
               </tbody>
             </table></div>
             <ul class="dot">
-              <li>Role과 비밀 값 위치가 들어 있는 태스크 정의는 CI에 등록 권한을 주지 않고 <strong class="key">Terraform에서만 바꾸게</strong> 했습니다. CI 권한으로는 Role이나 비밀 값 위치를 바꿀 수 없습니다.</li>
+              <li>GitHub Actions에는 액세스 키를 저장하지 않고 main 브랜치 <strong class="key">워크플로가 실행될 때만 OIDC 토큰으로 배포 Role을 받게</strong> 했습니다.</li>
+              <li>Role과 비밀 값 위치가 들어 있는 태스크 정의는 CI에 등록 권한을 주지 않고 <strong class="key">Terraform에서만 바꾸게</strong> 했습니다.</li>
+              <li>서비스를 추가하면 service.yml에 적은 자원만 허용하는 Role이 함께 만들어지게 했습니다.</li>
             </ul>
 
-            <h4>② 비밀 값은 Secrets Manager에 두고 태스크를 띄울 때 주입</h4>
+
+            <h4>② 비밀 값을 Secrets Manager에 넣고 태스크 기동 때 주입</h4>
             <ul class="dot">
               <li>외부에서 받은 비밀 값만 <strong class="key">KMS 키로 SOPS 암호화해 Git에 두고</strong> 복호화는 Atlantis와 관리자 Role로 한정했습니다.</li>
               <li>JWT 키, 서비스 공용 비밀, 관리자 비밀번호는 apply 때 무작위로 생성해 사람이 값을 보거나 전달하지 않게 했습니다.</li>
-              <li>복호화하거나 생성한 값은 write-only 속성으로 Secrets Manager에 넣어 <strong class="key">Terraform state에도 평문이 남지 않습니다</strong>.</li>
-              <li>태스크 정의에는 <strong class="key">값 대신 비밀 값의 위치만 적고</strong> ECS가 태스크를 띄울 때 execution role로 읽어 환경변수로 주입합니다.</li>
-              <li>execution role은 앱과 서비스 DB 계정 비밀만 읽고 DB 관리자 · Grafana · Slack 같은 운영 비밀은 읽을 수 없게 막았습니다.</li>
+              <li>복호화하거나 생성한 값은 <strong class="key">Terraform state에 평문이 남지 않도록</strong> state에 저장되지 않는 write-only 속성으로 넣었습니다.</li>
+              <li>태스크 정의에는 <strong class="key">값 대신 비밀 값의 위치만 적어</strong> ECS가 태스크를 띄울 때 읽어 환경변수로 주입하게 했습니다.</li>
+              <li>ECS가 비밀 값을 읽는 Role은 앱과 서비스 DB 계정 비밀만 읽고 DB 관리자, Grafana, Slack 같은 운영 비밀은 읽지 못하게 했습니다.</li>
             </ul>
           </li>
 
           <li class="step result">
             <div class="step-label">검증과 결과</div>
             <ul class="dot">
-              <li>CI와 서비스는 실행할 때마다 임시 자격 증명을 받아 <strong class="key">장기 액세스 키 없이 운영</strong>합니다.</li>
               <li>선언하지 않은 큐와 버킷 접근, 운영 비밀 읽기, 읽기 전용 Role로의 변경을 직접 시도해 <strong class="key">모두 거부되는 것을 확인</strong>했습니다.</li>
-              <li>서비스 하나가 뚫려도 피해는 그 서비스가 선언한 큐, 버킷, 비밀 값 안으로 한정됩니다.</li>
-              <li>앱 비밀 값이 Git, state, 태스크 정의, 이미지 <strong class="key">어디에도 평문으로 남지 않습니다</strong>.</li>
-              <li>서비스를 새로 추가해도 service.yml에 적은 자원만 허용하는 Role이 함께 만들어져 권한 분리가 자동으로 유지됩니다.</li>
+              <li>CI와 서비스가 실행할 때마다 임시 자격 증명을 받아 <strong class="key">장기 액세스 키를 하나도 만들지 않고 운영</strong>했습니다.</li>
             </ul>
           </li>
         </ol>
@@ -1181,7 +1181,7 @@ Error: <span class="d">...</span>
               <figcaption>앱, 브라우저, 엣지 로그가 수집 게이트웨이를 거쳐 각 저장소에 모이고 Grafana 경보가 Slack으로 가는 구성</figcaption>
             </figure>
 
-            <h4>① 지표, 로그, 트레이스, 프로파일을 한곳에</h4>
+            <h4>① 지표 · 로그 · 트레이스 · 프로파일을 한곳에</h4>
             <ul class="dot">
               <li>OpenTelemetry Java Agent와 Pyroscope 확장으로 <strong class="key">앱 코드 수정 없이</strong> 지표, 로그, 트레이스, 프로파일을 수집했습니다. 브라우저 오류와 속도는 Faro RUM으로 모았습니다.</li>
               <li>CloudWatch 대신 EC2 한 대에 Mimir(지표), Loki(로그), Tempo(트레이스), Pyroscope(프로파일)를 올리고 S3에 저장해 요금 부담을 줄였습니다.</li>
