@@ -381,7 +381,7 @@
           <ol class="lv2">
             <li><a href="#nv-overview"><span class="n">00</span><span>프로젝트 개요</span></a></li>
             <li><a href="#nv-1"><span class="n">01</span><span>YAML 기반 인프라 자동화</span></a></li>
-            <li><a href="#nv-2"><span class="n">02</span><span>Atlantis PR 변경 절차</span></a></li>
+            <li><a href="#nv-2"><span class="n">02</span><span>Atlantis 인프라 변경 관리</span></a></li>
             <li><a href="#nv-3"><span class="n">03</span><span>IAM Role · OIDC · 비밀 값</span></a></li>
             <li><a href="#nv-4"><span class="n">04</span><span>통합 모니터링과 개선</span></a></li>
             <li><a href="#nv-5"><span class="n">05</span><span>급증 트래픽 ECS 확장</span></a></li>
@@ -921,7 +921,7 @@ Error from server: admission webhook <span class="d">"..."</span> denied the req
         <h4 class="print-only">주요 사례</h4>
         <ol class="case-index print-only">
           <li><a href="#nv-1"><span class="n">01</span><span>YAML 설정 하나로 AWS 인프라가 만들어지는 Terraform 자동화</span></a></li>
-          <li><a href="#nv-2"><span class="n">02</span><span>팀원 각자의 로컬 apply를 Atlantis PR 절차로 바꿔 main과 인프라를 일치</span></a></li>
+          <li><a href="#nv-2"><span class="n">02</span><span>Atlantis를 활용한 AWS 인프라 변경 관리</span></a></li>
           <li><a href="#nv-3"><span class="n">03</span><span>IAM Role과 OIDC로 장기 액세스 키를 없애고 권한 밖 접근을 차단</span></a></li>
           <li><a href="#nv-4"><span class="n">04</span><span>모니터링을 한 화면에 모아 원인 분석을 수십 분에서 수 분으로</span></a></li>
           <li><a href="#nv-5"><span class="n">05</span><span>판매 오픈의 급증 트래픽과 큐에 쌓인 메시지에 맞춰 늘어나는 ECS 확장 구조</span></a></li>
@@ -1032,64 +1032,62 @@ Error: <span class="d">...</span>
       <article class="case" id="nv-2" data-title="NOVA 02 · Atlantis">
         <div class="case-head">
           <div class="num">NOVA · 02</div>
-          <h3>팀원 각자의 로컬 apply를 Atlantis PR 절차로 바꿔 main과 인프라를 같은 상태로 유지</h3>
-          <ul class="outcome"><li>로컬 apply 제거</li><li>동시 PR도 state 충돌 없이 순서대로</li><li>main = 실제 AWS</li></ul>
+          <h3>Atlantis를 활용한 AWS 인프라 변경 관리</h3>
+          <ul class="outcome"><li>AWS 쓰기 권한은 Atlantis에만</li><li>팀원은 읽기 전용으로 plan까지</li><li>apply 성공 뒤에만 병합</li></ul>
         </div>
 
         <ol class="steps">
           <li class="step problem">
             <div class="step-label">설계 배경</div>
             <ul class="dot">
-              <li>service.yml 자동화로 백엔드 팀원들이 각자 PR로 인프라를 바꾸게 되면서 여러 변경이 동시에 올라오기 시작했습니다.</li>
-              <li>각자 로컬에서 apply하면 <strong class="key">서로의 변경을 모른 채 같은 state를 바꾸고</strong> 어떤 PR이 실제로 적용됐는지 확인할 수 없습니다.</li>
-              <li>콘솔과 로컬에서 바꾼 것은 코드에 남지 않아 누가 바꿨는지 모르고 잊힌 자원은 비용으로 남습니다.</li>
-              <li>순서가 있는 스택(VPC → 보안 그룹 → DB → ECS)을 거꾸로 적용하면 실패합니다.</li>
+              <li>7명이 AWS 계정 하나를 함께 쓰는데 콘솔이나 로컬에서 바꾸면 코드에 남지 않아 <strong class="key">누가 무엇을 바꿨는지 알 수 없고</strong> 지우지 않은 자원에 요금이 계속 나가는 구조였습니다.</li>
+              <li>인프라를 바꾸는 경로를 하나만 두고 모든 변경이 PR에 남는 절차가 필요했습니다.</li>
             </ul>
-            <p>그래서 <strong class="key">apply를 한곳에서만 실행</strong>하고 적용 여부와 순서를 PR에서 확인할 수 있는 절차가 필요했습니다.</p>
-            <p class="point">PR 댓글로 plan과 apply를 실행하고 스택 잠금까지 기본 제공하는 Atlantis를 택했습니다.</p>
+          </li>
+
+          <li class="step trace">
+            <div class="step-label">설계 판단</div>
+            <p>PR에서 plan과 apply를 실행하는 방법으로 GitHub Actions와 Atlantis를 비교했습니다.</p>
+            <div class="tbl"><table>
+              <thead><tr><th>필요한 기능</th><th>GitHub Actions</th><th class="chosen-col">Atlantis</th></tr></thead>
+              <tbody>
+                <tr><td>PR에 plan 결과 표시</td><td>워크플로 직접 작성</td><td class="pick">PR을 열면 자동 plan 후 댓글</td></tr>
+                <tr><td>PR에서 apply 실행</td><td class="muted">직접 구현</td><td class="pick">apply 댓글로 실행</td></tr>
+                <tr><td>스택 잠금</td><td class="muted">직접 구현</td><td class="pick">plan한 PR이 병합될 때까지 잠금</td></tr>
+              </tbody>
+            </table></div>
+            <p class="point">GitHub Actions로는 apply와 스택 잠금을 따로 만들어야 해서 둘을 기본 제공하는 Atlantis를 택했습니다.</p>
           </li>
 
           <li class="step solve">
             <div class="step-label">운영 방식</div>
-            <figure class="wide">
+            <figure>
               <button class="frame" type="button" data-zoom><img src="../images/devops/atlantis2.png" width="2507" height="1109" loading="lazy" alt="PR 하나로 Atlantis가 plan, apply, 자동 병합까지 이어서 처리하는 경로와 팀원은 읽기 전용 역할로만 AWS에 접근하는 경로"></button>
               <figcaption>PR 하나로 plan, apply, 자동 병합이 이어지는 경로와 팀원의 읽기 전용 경로</figcaption>
             </figure>
 
-            <h4>① 변경은 반드시 PR로</h4>
-            <ul class="dot">
-              <li>관리자가 아닌 팀원에게는 <strong class="key">AWS 읽기 권한만 주고</strong>(콘솔과 로컬 모두 조회와 plan까지), 인프라 변경은 반드시 PR로 올리도록 규칙을 정했습니다. 비밀 값 스택의 복호화 권한은 제외했습니다.</li>
-              <li>Atlantis는 개인 토큰 없이 GitHub App으로 인증하고 webhook은 서명을 확인한 뒤 처리합니다.</li>
-            </ul>
-
+            <h4>① AWS 쓰기 권한을 Atlantis에만 부여</h4>
+            <p>팀원에게는 콘솔과 로컬 모두 plan까지만 되는 읽기 전용 역할을 주고 <strong class="key">쓰기 역할은 Atlantis에만 부여</strong>했습니다.</p>
             <h4>② 바뀌는 스택만 plan하고 잠금</h4>
             <ul class="dot">
-              <li>service.yml이나 tf 파일이 바뀌면 해당 스택만 plan해 실제로 바뀔 자원을 PR 댓글로 보여 줍니다.</li>
-              <li>공용 변수와 모듈이 바뀌면 그 파일을 읽는 스택까지 함께 plan해 일부 스택에만 반영되는 일을 막았습니다.</li>
+              <li>PR이 올라오면 <strong class="key">Atlantis가 GitHub webhook을 받아 바뀐 스택만 plan</strong>하고 결과를 PR 댓글로 남기게 했습니다.</li>
+              <li>공용 변수와 모듈이 바뀌면 그 파일을 읽는 스택까지 plan해 빠지는 스택이 없게 했습니다.</li>
               <li>plan한 스택은 <strong class="key">PR이 병합될 때까지 잠가</strong> 다른 PR의 apply 때문에 앞선 plan 결과가 달라지지 않게 했습니다.</li>
             </ul>
-
-            <h4>③ plan을 통과한 PR만 순서대로 apply</h4>
+            <h4>③ plan을 통과한 PR만 순서대로 apply하고 병합</h4>
             <ul class="dot">
-              <li>plan이 실패했거나 main과 충돌해 병합할 수 없는 PR은 apply할 수 없게 조건을 걸었습니다.</li>
-              <li>VPC, 보안 그룹, DB, ECS처럼 state를 나눈 스택은 <code>atlantis.yaml</code>에 0~7단계로 순서를 적어 <strong class="key">의존하는 순서대로 적용</strong>됩니다.</li>
-              <li>앞 스택의 apply가 실패하면 뒤 스택은 실행하지 않아 절반만 적용된 상태로 진행되지 않습니다.</li>
-            </ul>
-
-            <h4>④ apply가 모두 성공한 뒤에만 병합</h4>
-            <ul class="dot">
-              <li>병합을 먼저 하면 apply가 실패해도 main에는 적용되지 않은 변경이 남습니다. 그래서 <strong class="key">순서를 apply → 병합으로 고정</strong>했습니다.</li>
-              <li>PR이 바꾼 스택의 apply가 모두 성공하면 Atlantis가 자동 병합하고 하나라도 실패하면 PR을 열어 둔 채 다시 적용합니다.</li>
-              <li>main 브랜치 보호 규칙에 apply 성공 체크를 넣어 apply하지 않은 PR은 사람이 직접 병합할 수 없게 했습니다.</li>
+              <li>팀원이 PR에 apply 댓글을 달면 Atlantis가 적용하고 plan이 실패했거나 main과 충돌한 PR은 거절하게 했습니다.</li>
+              <li>ECS 서비스는 VPC와 보안 그룹이 먼저 있어야 하듯 스택 사이에 순서가 있어 Atlantis 설정 파일 <code>atlantis.yaml</code>에 <strong class="key">스택마다 적용 순서를 적고</strong> 앞 스택이 실패하면 뒤 스택은 멈추게 했습니다.</li>
+              <li>병합을 먼저 하면 apply가 실패해도 main에 적용되지 않은 변경이 남기 때문에 <strong class="key">apply가 모두 성공한 뒤에만 자동 병합</strong>되게 하고 브랜치 보호 규칙으로 직접 병합도 막았습니다.</li>
             </ul>
           </li>
 
           <li class="step result">
             <div class="step-label">결과</div>
             <ul class="dot">
-              <li>로컬 apply가 없어지고 여러 팀원의 PR이 동시에 올라와도 <strong class="key">state 충돌 없이 Atlantis 한곳에서 순서대로 적용</strong>됩니다.</li>
-              <li>모든 인프라 변경이 PR을 거쳐 적용되어 누가 언제 무엇을 바꿨는지 PR 이력으로 추적됩니다.</li>
-              <li>main의 코드와 실제 인프라가 달라지는 경로를 막아 <strong class="key">main 코드와 실제 AWS가 같은 상태로 유지</strong>됩니다.</li>
+              <li>모든 인프라 변경이 Atlantis에서만 PR을 거쳐 적용되어 <strong class="key">누가 무엇을 바꿨는지 plan과 apply 결과와 함께 PR에 남았습니다</strong>.</li>
+              <li>콘솔에서 따로 만든 자원이 없어 코드에 없는 자원이 요금으로 남지 않았습니다.</li>
+              <li>AWS 쓰기 권한 없이도 팀원이 PR 안에서 plan 확인부터 apply와 병합까지 직접 처리했습니다.</li>
             </ul>
           </li>
         </ol>
