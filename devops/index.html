@@ -182,6 +182,22 @@
     figure .frame { background: #fff; border: 1px solid var(--line); border-radius: 12px; padding: 14px; cursor: zoom-in; display: block; width: 100%; font: inherit; text-align: inherit; }
     figure .frame.dark { background: #181b1f; padding: 0; overflow: hidden; }
     figure .frame img { border-radius: 4px; }
+    /* 화면 슬라이드 */
+    .slides-bar { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 10px; }
+    .slides-bar p { margin: 0; }
+    .slides-head { display: flex; align-items: center; gap: 10px; font-size: 15px; }
+    .slides-kind { font-size: 12px; color: var(--ink-3); border: 1px solid var(--line); border-radius: 999px; padding: 1px 9px; white-space: nowrap; }
+    .slides-nav { display: flex; align-items: center; gap: 8px; font-family: var(--mono); font-size: 12.5px; color: var(--ink-3); white-space: nowrap; }
+    .slides-nav button { font: inherit; font-size: 18px; line-height: 1; width: 32px; height: 32px; border: 1px solid var(--line); border-radius: 999px; background: transparent; color: inherit; cursor: pointer; }
+    .slides-nav button:hover { background: var(--bg-sunk); }
+    .slides-view { height: min(70vh, 620px); overflow-y: auto; background: #111217; border: 1px solid var(--line); border-radius: 12px; cursor: zoom-in; }
+    .slides-view img { display: block; width: 100%; height: auto; }
+    .slides-view img[hidden] { display: none; }
+    .slides-tabs { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 10px; }
+    .slides-tabs button { font: inherit; font-size: 12px; padding: 3px 7px; border: 1px solid var(--line); border-radius: 999px; background: transparent; color: var(--ink-3); cursor: pointer; }
+    .slides-tabs button[aria-current="true"] { background: var(--accent-soft); border-color: var(--accent); color: var(--accent-ink); }
+    dialog.zoom.tall { overflow-y: auto; }
+    dialog.zoom.tall img { max-height: none; width: min(96vw, 1680px); }
     figcaption { font-size: 13.5px; color: var(--ink-3); margin-top: 10px; line-height: 1.6; padding: 0 2px; }
     figcaption::before { content: "▲ "; font-size: 10px; color: var(--ink-3); }
     @media (min-width: 1280px) {
@@ -336,6 +352,8 @@
       figure .frame { padding: 8px; cursor: default; }
       figure .frame img { max-height: 120mm; width: auto; margin: 0 auto; }
       figcaption { font-size: 8.5pt; }
+      .slides-nav, .slides-tabs { display: none; }
+      .slides-view { height: auto; max-height: 120mm; overflow: hidden; }
       .tbl { overflow: visible; margin: 10px 0 14px; }
       table { font-size: 9pt; }
       th, td { padding: 7px 10px; }
@@ -444,7 +462,7 @@
           <div class="p">NOVA · 03</div>
         </a>
         <a class="stat" href="#nv-4">
-          <div class="k">503 원인 분석 시간</div>
+          <div class="k">장애 원인 분석 시간</div>
           <div class="v"><span class="from">수십 분</span><span class="arr">→</span>수 분</div>
           <div class="d">지표, 로그, 트레이스를 Grafana 한 화면에서 요청 시작부터 DB까지 추적</div>
           <div class="p">NOVA · 04</div>
@@ -923,9 +941,9 @@ Error from server: admission webhook <span class="d">"..."</span> denied the req
           <li><a href="#nv-1"><span class="n">01</span><span>YAML 설정 하나로 AWS 인프라가 만들어지는 Terraform 자동화</span></a></li>
           <li><a href="#nv-2"><span class="n">02</span><span>Atlantis를 활용한 AWS 인프라 변경 관리</span></a></li>
           <li><a href="#nv-3"><span class="n">03</span><span>IAM Role과 OIDC를 활용한 AWS 권한과 비밀 값 관리</span></a></li>
-          <li><a href="#nv-4"><span class="n">04</span><span>모니터링을 한 화면에 모아 원인 분석을 수십 분에서 수 분으로</span></a></li>
-          <li><a href="#nv-5"><span class="n">05</span><span>판매 오픈의 급증 트래픽과 큐에 쌓인 메시지에 맞춰 늘어나는 ECS 확장 구조</span></a></li>
-          <li><a href="#nv-6"><span class="n">06</span><span>목표 구조는 코드에 남기고 비용이 큰 항목만 변수로 낮춰 월 운영비 73% 절감</span></a></li>
+          <li><a href="#nv-4"><span class="n">04</span><span>원인 분석을 수십 분에서 수 분으로 줄인 OpenTelemetry와 Grafana 통합 모니터링</span></a></li>
+          <li><a href="#nv-5"><span class="n">05</span><span>판매 오픈의 급증 트래픽과 큐에 쌓인 메시지에 맞춰 늘어나는 ECS Fargate 확장 구조</span></a></li>
+          <li><a href="#nv-6"><span class="n">06</span><span>목표 구조는 코드에 남기고 월 운영비를 73% 줄인 Terraform 변수 기반 비용 절감</span></a></li>
         </ol>
       </div>
 
@@ -1160,15 +1178,15 @@ Error: <span class="d">...</span>
       <article class="case" id="nv-4" data-title="NOVA 04 · 모니터링">
         <div class="case-head">
           <div class="num">NOVA · 04</div>
-          <h3>모니터링을 한 화면에 모아 원인 분석을 수십 분에서 수 분으로 단축</h3>
-          <ul class="outcome"><li>원인 분석 수십 분 → 수 분</li><li>접수 p50 521ms → 48ms</li><li>약 3분 증설 지연 발견 · 사전 증설</li></ul>
+          <h3>원인 분석을 수십 분에서 수 분으로 줄인 OpenTelemetry와 Grafana 통합 모니터링</h3>
+          <ul class="outcome"><li>지표 · 로그 · 트레이스를 한곳에 수집</li><li>요청 시작부터 DB까지 한 화면에서 추적</li><li>원인 분석 수십 분 → 수 분</li></ul>
         </div>
 
         <ol class="steps">
           <li class="step problem">
             <div class="step-label">설계 배경</div>
             <ul class="dot">
-              <li>지표는 CloudWatch에, 로그는 서비스마다 흩어져 있어 503이 나면 CloudWatch와 로그 검색을 오가며 어느 서비스가 왜 실패했는지 직접 찾아야 했습니다. <strong class="key">원인을 찾는 데 수십 분이 걸렸습니다</strong>.</li>
+              <li>지표는 CloudWatch에, 로그는 서비스마다 흩어져 있어 장애가 발생했을 때 둘을 오가며 <strong class="key">원인을 찾는 데 수십 분이 걸렸습니다</strong>.</li>
               <li>한 요청이 여러 서비스를 거치는데 서비스별 로그만으로는 요청의 흐름을 이어 볼 수 없었습니다.</li>
               <li>사용자 영향이 생기면 알림을 받고 요청 시작부터 DB까지 한 화면에서 따라갈 수 있는 구조가 필요했습니다.</li>
             </ul>
@@ -1176,61 +1194,66 @@ Error: <span class="d">...</span>
 
           <li class="step solve">
             <div class="step-label">구축 방식</div>
-            <figure class="wide">
-              <button class="frame" type="button" data-zoom><img src="../images/devops/obs2.png" width="3773" height="1615" loading="lazy" alt="앱의 OpenTelemetry 에이전트, 브라우저, 엣지 로그가 수집 게이트웨이를 거쳐 Mimir, Loki, Tempo, Pyroscope에 저장되고 Grafana 경보가 Slack으로 가는 관측 구성"></button>
-              <figcaption>앱, 브라우저, 엣지 로그가 수집 게이트웨이를 거쳐 각 저장소에 모이고 Grafana 경보가 Slack으로 가는 구성</figcaption>
+            <figure>
+              <button class="frame" type="button" data-zoom><img src="../images/devops/obs2.png" width="3773" height="1615" loading="lazy" alt="앱의 OpenTelemetry 에이전트, 브라우저, 엣지 로그가 OTel 게이트웨이를 거쳐 Mimir, Loki, Tempo, Pyroscope에 저장되고 Grafana 경보가 Slack으로 가는 모니터링 구성"></button>
+              <figcaption>앱, 브라우저, 엣지 로그가 OTel 게이트웨이를 거쳐 각 저장소에 모이고 Grafana 경보가 Slack으로 가는 구성</figcaption>
             </figure>
 
-            <h4>① 지표 · 로그 · 트레이스 · 프로파일을 한곳에</h4>
+            <h4>① 지표 · 로그 · 트레이스 · 프로파일을 한곳에 수집</h4>
             <ul class="dot">
-              <li>OpenTelemetry Java Agent와 Pyroscope 확장으로 <strong class="key">앱 코드 수정 없이</strong> 지표, 로그, 트레이스, 프로파일을 수집했습니다. 브라우저 오류와 속도는 Faro RUM으로 모았습니다.</li>
-              <li>CloudWatch 대신 EC2 한 대에 Mimir(지표), Loki(로그), Tempo(트레이스), Pyroscope(프로파일)를 올리고 S3에 저장해 요금 부담을 줄였습니다.</li>
+              <li>OpenTelemetry Java Agent와 Pyroscope 확장으로 <strong class="key">앱 코드 수정 없이</strong> 지표, 로그, 트레이스, 프로파일을 수집하고 브라우저 오류와 속도는 Faro RUM으로 모았습니다.</li>
+              <li>CloudWatch 대신 EC2 한 대에 Mimir, Loki, Tempo, Pyroscope를 올리고 S3에 저장해 Grafana 한곳에서 조회하게 했습니다.</li>
               <li>트레이스는 <strong class="key">오류와 느린 요청은 전부, 나머지는 일부만 저장</strong>해 서버 부담을 줄이고 지표는 모든 요청으로 계산해 정확도를 유지했습니다.</li>
-              <li>수집 게이트웨이를 관측 서버와 분리해 관측 서버를 재배포하는 동안 들어온 데이터도 잃지 않게 했습니다.</li>
             </ul>
 
-            <h4>② 대시보드는 사용자 영향에서 원인 순서로 배치</h4>
-            <figure class="wide">
-              <button class="frame dark" type="button" data-zoom><img src="../images/devops/obs_service.png" width="3780" height="1772" loading="lazy" alt="Grafana 서비스 상세 대시보드: 상단에 요청 수, 5xx 건수와 비율, 0.5초 초과 비율, p95, CPU 최대, 인스턴스 수, DB 풀 최대 사용률, 아래에 5xx 업무 오류 코드, 태스크별 CPU, 인스턴스 수, Redis 명령, DB 커넥션을 기다리는 요청, 나가는 호출 오류율 그래프"></button>
-              <figcaption>실제 서비스 상세 대시보드에 예시 데이터를 넣은 화면으로 CPU는 여유가 있지만 DB 풀이 가득 차 커넥션 대기가 쌓이는 상황</figcaption>
+            <h4>② 사용자 영향에서 원인 순서로 대시보드 배치</h4>
+            <figure class="slides" data-slides>
+              <div class="slides-bar">
+                <p class="slides-head"><strong class="slides-title"></strong><span class="slides-kind"></span></p>
+                <p class="slides-nav"><button type="button" data-dir="-1" aria-label="이전 화면">‹</button><span class="slides-count"></span><button type="button" data-dir="1" aria-label="다음 화면">›</button></p>
+              </div>
+              <div class="slides-view" tabindex="0">
+                <img src="../images/devops/mon_overview.jpg" width="1920" height="1300" loading="lazy" alt="Grafana 개요 화면" data-title="개요" data-kind="실제" data-cap="요청 수와 5xx, 0.5초 넘은 요청, 지금 5xx를 내는 서비스, 서비스별 5xx와 CPU, 인스턴스 수, p95">
+                <img src="../images/devops/mon_slo.jpg" width="1920" height="1183" loading="lazy" alt="Grafana SLO 화면" data-title="SLO" data-kind="실제" data-cap="서비스별 가용성과 응답 시간 SLO, 남은 예산, 소진 속도" hidden>
+                <img src="../images/devops/mon_open.jpg" width="1920" height="2536" loading="lazy" alt="Grafana 오픈 상황판 화면" data-title="오픈 상황판" data-kind="실제" data-cap="판매 오픈 때 사용자가 겪은 오류, 서비스 포화와 증설 시점, Redis, 대기열과 접수, 캐시" hidden>
+                <img src="../images/devops/mon_service.jpg?v=4" width="1920" height="2910" loading="lazy" alt="Grafana 서비스 상세 화면" data-title="서비스 상세" data-kind="예시" data-cap="접수 서비스의 오류와 포화, API별 응답, 의존 대상, 오류 로그와 트레이스" hidden>
+                <img src="../images/devops/mon_api.jpg?v=4" width="1920" height="2200" loading="lazy" alt="Grafana API 상세 화면" data-title="API 상세" data-kind="예시" data-cap="접수 API 하나의 응답 코드와 응답 시간, 느린 요청과 오류 요청 트레이스, 느린 DB 쿼리, 로그" hidden>
+                <img src="../images/devops/mon_mysql.jpg" width="1920" height="1965" loading="lazy" alt="Grafana MySQL 화면" data-title="MySQL" data-kind="실제" data-cap="DB 부하와 연결 수, 총 시간 순 상위 SQL, 행 잠금 대기, 디스크와 메모리" hidden>
+                <img src="../images/devops/mon_sqs.jpg" width="1920" height="2079" loading="lazy" alt="Grafana SQS 화면" data-title="SQS" data-kind="실제" data-cap="큐별 보냄과 처리, 처리 시간, 적체, DLQ" hidden>
+                <img src="../images/devops/mon_valkey.jpg" width="1920" height="1000" loading="lazy" alt="Grafana Valkey 화면" data-title="Valkey" data-kind="실제" data-cap="엔진 CPU, 메모리, 연결, 적중률, 명령 수, 응답 지연" hidden>
+                <img src="../images/devops/mon_compute.jpg" width="1920" height="1243" loading="lazy" alt="Grafana 컴퓨팅 화면" data-title="컴퓨팅" data-kind="실제" data-cap="서비스별 CPU와 메모리, 가장 바쁜 태스크, 태스크 수 추이" hidden>
+                <img src="../images/devops/mon_frontend.jpg?v=3" width="1920" height="2700" loading="lazy" alt="Grafana 프론트 화면" data-title="프론트" data-kind="예시" data-cap="Faro RUM으로 모은 실사용자 세션, 웹 바이탈, JS 오류, 브라우저가 겪은 API 시간, 핵심 동작별 소요 시간" hidden>
+                <img src="../images/devops/mon_explore_logs.jpg?v=3" width="1920" height="1143" loading="lazy" alt="Grafana 로그 → 트레이스 화면" data-title="로그 → 트레이스" data-kind="예시" data-cap="접수 서비스의 오류 로그에서 trace ID로 트레이스를 열어 행 잠금 대기 시간 초과를 확인하는 Explore 화면" hidden>
+                <img src="../images/devops/mon_explore_slow.jpg" width="1920" height="1143" loading="lazy" alt="Grafana 느린 DB 호출 → 트레이스 화면" data-title="느린 DB → 트레이스" data-kind="예시" data-cap="300ms 넘은 DB 호출을 찾아 트레이스에서 행 잠금 대기 468ms를 확인하는 Explore 화면" hidden>
+              </div>
+              <div class="slides-tabs"></div>
+              <figcaption></figcaption>
             </figure>
             <ul class="dot">
-              <li>첫 화면 맨 위에 요청 수, 5xx, 0.5초 넘은 요청, <strong class="key">지금 5xx를 내는 서비스</strong>를 두어 사용자 영향부터 확인합니다.</li>
-              <li>그 아래 서비스별 5xx, CPU, 태스크 수, p95를 같은 시간축에 놓아 오류와 포화가 겹치는 시점을 비교합니다.</li>
-              <li>서비스 상세 화면은 호출 대상별 오류율, 경로별 p99, 오류 로그, 느린 트레이스 순서이고 <strong class="key">trace ID로 서로 이동</strong>합니다.</li>
+              <li>개요 화면은 <strong class="key">사용자 영향을 맨 위에</strong> 두고 그 아래 서비스별 5xx, CPU, 인스턴스 수를 같은 시간축에 놓아 오류와 포화가 겹치는 시점을 비교할 수 있게 했습니다.</li>
+              <li>서비스 상세 화면은 위에서 아래로 원인을 좁혀 가는 순서로 두고 <strong class="key">trace ID로 로그와 트레이스를 오가게</strong> 했습니다.</li>
             </ul>
 
-            <h4>③ 사용자 영향이 있을 때만 critical 경보</h4>
+            <h4>③ 사용자 영향이 있을 때만 critical 경보 발송</h4>
             <ul class="dot">
-              <li>SLA와 SLO를 가상으로 정해 <strong class="key">가용성 99.9%, 요청의 95%가 0.5초 안</strong>이라는 기준을 critical 경보에 적용했습니다. 서비스별 5xx와 SLO 예산 소진처럼 사용자가 겪는 증상만 기준으로 삼았습니다.</li>
+              <li>SLA와 SLO를 가상으로 정해 <strong class="key">가용성 99.9%, 요청의 95%가 0.5초 안</strong>을 기준으로 삼고 서비스별 5xx와 SLO 예산 소진처럼 사용자가 겪는 증상에만 critical 경보를 걸었습니다.</li>
               <li>JVM 힙, DB 연결 사용률 같은 <strong class="key">원인 지표는 warning으로 낮추고</strong> 수신처를 나눠 critical이 묻히지 않게 했습니다.</li>
             </ul>
           </li>
 
-          <li class="step trace">
-            <div class="step-label">모니터링으로 개선한 것</div>
-            <p>부하 시험과 오픈 대비 과정에서 이 화면으로 다음 문제들을 찾아 고쳤습니다.</p>
+          <li class="step result">
+            <div class="step-label">결과</div>
+            <p>여러 도구를 오가며 수십 분 걸리던 원인 분석을 Grafana 한 화면에서 요청 시작부터 DB까지 따라가 <strong class="key">수 분으로 줄였습니다</strong>.</p>
+            <p>부하 시험에서는 이 화면으로 아래 문제를 찾아 고쳤습니다.</p>
             <div class="tbl"><table>
               <thead><tr><th>찾은 문제</th><th>근거</th><th>조치</th></tr></thead>
               <tbody>
-                <tr><td>접수 응답 지연</td><td>경보 → 트레이스로 따라가 DB 행 잠금 대기(<code>SELECT … FOR UPDATE</code> 468ms) 확인</td><td class="pick">잠금 시점을 커밋 직전으로 옮겨 <strong class="key">p50 521ms → 48ms</strong></td></tr>
-                <tr><td>증설이 급증 뒤에야 붙음</td><td>서비스별 CPU와 경보 시각을 같은 시간축에서 비교. 대상 추적 경보가 1분 지표 3번 연속을 기다려 <strong class="key">약 3분 지연</strong></td><td class="pick">오픈 전 사전 증설로 변경 (<a href="#nv-5">05 사례</a>)</td></tr>
-                <tr><td>특정 서비스 CPU 포화</td><td>서비스별 CPU 사용량을 같은 시각으로 비교해 포화된 서비스 특정</td><td class="pick">태스크 사양과 최소 대수 상향</td></tr>
-                <tr><td>배포가 자꾸 롤백됨</td><td>새 태스크가 CPU 부족으로 기동을 반복하다 deployment circuit breaker로 롤백</td><td class="pick">CPU 할당 조정</td></tr>
+                <tr><td>접수 응답 지연</td><td>경보에서 트레이스로 따라가 DB 행 잠금 대기 468ms 확인</td><td class="pick">잠금을 커밋 직전으로 옮겨 <span style="white-space:nowrap">p50 521ms → 48ms</span></td></tr>
+                <tr><td>급증 뒤에야 붙는 증설</td><td>CPU와 경보 시각을 같은 시간축에서 비교해 약 3분 지연 확인</td><td class="pick">오픈 전 사전 증설로 변경 (<a href="#nv-5">05 사례</a>)</td></tr>
+                <tr><td style="white-space:nowrap">대기열과 상품 조회 CPU 포화</td><td>서비스별 CPU 그래프에서 포화된 서비스 확인</td><td class="pick">태스크 사양과 최소 대수 상향</td></tr>
+                <tr><td>반복되는 배포 롤백</td><td>새 태스크가 CPU 부족으로 기동을 반복하다 롤백되는 것 확인</td><td class="pick">CPU 할당 조정</td></tr>
               </tbody>
             </table></div>
-            <figure class="wide">
-              <button class="frame dark" type="button" data-zoom><img src="../images/devops/obs_trace.png" width="2672" height="1088" loading="lazy" alt="waitingroom에서 preorder로 이어지는 POST 요청 트레이스에서 SELECT nova.sale_round FOR UPDATE 쿼리가 468ms를 차지하는 모습"></button>
-              <figcaption>여러 서비스를 거친 요청을 트레이스 하나로 이어 보고 521ms 중 468ms가 행 잠금 대기인 것을 확인</figcaption>
-            </figure>
-          </li>
-
-          <li class="step result">
-            <div class="step-label">결과</div>
-            <ul class="dot">
-              <li>여러 도구를 오가며 수십 분 걸리던 원인 분석을 Grafana 한 화면에서 요청 시작부터 DB까지 따라가 <strong class="key">수 분으로 줄였습니다</strong>.</li>
-              <li>태스크 사양, 최소 대수, 증설 시점, DB 잠금 위치를 지표와 트레이스를 근거로 조정했습니다.</li>
-            </ul>
           </li>
         </ol>
       </article>
@@ -1240,52 +1263,66 @@ Error: <span class="d">...</span>
         <div class="case-head">
           <div class="num">NOVA · 05</div>
           <h3>판매 오픈의 급증 트래픽과 큐에 쌓인 메시지에 맞춰 늘어나는 ECS Fargate 확장 구조</h3>
-          <ul class="outcome"><li>오픈 15분 전 사전 증설</li><li>worker는 큐에 쌓인 메시지 기준 확장</li><li>망가진 배포 자동 롤백</li></ul>
+          <ul class="outcome"><li>증설 6~10분 → 약 4분 30초</li><li>오픈 15분 전 사전 증설</li><li>worker는 큐에 쌓인 메시지 기준 확장</li><li>실패한 배포 자동 롤백</li></ul>
         </div>
 
         <ol class="steps">
           <li class="step problem">
             <div class="step-label">설계 배경</div>
             <ul class="dot">
-              <li>판매가 열리는 순간 대기열, 접수, 상품 조회에 트래픽이 몰리는데 CPU 기준 확장은 <strong class="key">부하가 오른 뒤에야 반응</strong>합니다. (04 사례에서 약 3분 지연 확인)</li>
-              <li>외부 등록을 맡는 worker는 큐에 일이 밀려도 CPU가 낮아 <strong class="key">CPU 기준으로는 아예 늘어나지 않습니다</strong>.</li>
-              <li>새 버전이 망가졌는데 배포가 그대로 진행되면 판매 중에 사용자 요청이 실패합니다.</li>
+              <li>판매 오픈 때 대기열, 접수, 상품 조회에 트래픽이 몰리는데 CPU 목표 추적은 <strong class="key">증설까지 6~10분</strong>이 걸려 먼저 503이 발생했습니다.</li>
+              <li>worker 4대의 처리량 초당 128건이 입장 속도 150건보다 낮아 큐가 쌓이는데 CPU는 낮아 <strong class="key">CPU가 아닌 확장 기준</strong>이 필요했습니다.</li>
+              <li>판매 중 배포가 실패해도 서비스가 유지되도록 자동 롤백이 필요했습니다.</li>
             </ul>
           </li>
 
           <li class="step solve">
             <div class="step-label">구조</div>
-            <figure class="wide">
+            <figure>
               <button class="frame" type="button" data-zoom><img src="../images/diagrams/nv-ecs.png" width="2200" height="888" loading="lazy" alt="HTTP 서비스(waitingroom 3~10대, preorder 1~10대, catalog 2~8대)는 CPU 60% 목표 추적과 오픈 15분 전 사전 증설로, worker(1~6대)는 SQS 큐 3개에 쌓인 메시지를 실행 태스크 수로 나눈 지표로 태스크당 50건을 목표로 확장하는 ECS 구성"></button>
-              <figcaption>HTTP 서비스는 CPU와 오픈 전 미리 늘리기로, worker는 SQS에 쌓인 메시지로 늘어나는 ECS 구성</figcaption>
+              <figcaption>HTTP 서비스는 CPU와 오픈 전 사전 증설로, worker는 SQS에 쌓인 메시지로 늘어나는 ECS 구성</figcaption>
             </figure>
 
-            <h4>① HTTP 서비스는 CPU로, worker는 큐에 쌓인 메시지로</h4>
+            <h4>① HTTP 서비스는 CPU와 요청 수, worker는 큐에 쌓인 메시지 기준으로 확장</h4>
             <ul class="dot">
-              <li>HTTP 서비스는 CPU와 태스크당 요청 수로 확장하고 1분 지표 1~2번에 바로 여러 대를 늘리는 Step Scaling을 더했습니다. 축소는 5분 간격으로 천천히 합니다.</li>
-              <li>worker는 큐 3개에 쌓인 메시지 합을 실행 중인 태스크 수로 나눈 값을 지표로 만들어 <strong class="key">태스크당 50건</strong>을 기준으로 대수를 조정합니다.</li>
+              <li>HTTP 서비스는 CPU 60% 목표 추적을 기본으로 두고 축소는 5분 간격으로만 하게 했습니다.</li>
+              <li>CPU나 태스크당 요청 수가 기준을 넘으면 <strong class="key">1분 지표 1~2번만 보고 대수를 2~3배로 늘리는</strong> Step Scaling을 추가했습니다.</li>
+              <li>worker는 큐 3개의 메시지 합을 태스크 수로 나눈 지표를 만들어 <strong class="key">태스크당 50건</strong>을 넘으면 늘어나게 했습니다.</li>
             </ul>
 
-            <h4>② 오픈 전에 미리 늘리고 부하 시험으로 대수 조정</h4>
+            <h4>② 오픈 전 사전 증설과 부하 시험으로 정한 값</h4>
             <ul class="dot">
-              <li>사전예약 앱이 회차 일정을 보고 <strong class="key">오픈 15분 전부터</strong> 예상 방문자 수만큼 대기열과 접수 서버의 최소 대수를 올립니다.</li>
-              <li>상품 조회는 1대일 때 급증 트래픽에 CPU가 포화되어 최소 2대로, 4대 상한에 바로 닿아 최대 8대로 올렸습니다.</li>
+              <li>Step Scaling을 더해도 증설까지 4분 넘게 걸려 사전예약 앱이 <strong class="key">오픈 15분 전부터</strong> 대기열과 접수의 최소 대수를 올리게 했습니다.</li>
             </ul>
+            <div class="tbl"><table>
+              <thead><tr><th>항목</th><th>부하 시험에서 확인한 것</th><th>변경</th></tr></thead>
+              <tbody>
+                <tr><td>대기열 최소 대수</td><td>1대가 10초에 5,000명 진입으로 CPU 포화</td><td class="pick">1대 → 3대</td></tr>
+                <tr><td>상품 조회 최소 대수</td><td>1대가 급증 트래픽에 CPU 포화</td><td class="pick">1대 → 2대</td></tr>
+                <tr><td>상품 조회 최대 대수</td><td>증설이 4대 상한에 바로 도달</td><td class="pick">4대 → 8대</td></tr>
+                <tr><td>대기열 Step Scaling 기준</td><td>태스크 한 대가 분당 6,000건에서 포화</td><td class="pick">분당 3,500건</td></tr>
+              </tbody>
+            </table></div>
 
             <h4>③ 무중단 배포와 자동 롤백</h4>
             <ul class="dot">
-              <li>ALB 뒤 서비스는 ECS Blue/Green으로 배포하고 5분 동안 이전 버전을 남겨 되돌릴 수 있게 했습니다.</li>
-              <li>모든 서비스에 deployment circuit breaker를 켜 새 태스크가 계속 실패하면 <strong class="key">이전 버전으로 자동 롤백</strong>됩니다.</li>
+              <li>ALB 뒤 서비스는 ECS Blue/Green으로 배포하고 이전 버전을 5분 남겨 바로 되돌릴 수 있게 했습니다.</li>
+              <li>모든 서비스에 deployment circuit breaker를 켜 새 태스크가 계속 실패하면 <strong class="key">이전 버전으로 자동 롤백</strong>되게 했습니다.</li>
             </ul>
           </li>
 
           <li class="step result">
             <div class="step-label">결과</div>
-            <ul class="dot">
-              <li>판매 오픈의 첫 급증 트래픽은 증설을 기다리지 않고 <strong class="key">미리 늘려 둔 대기열과 접수 서버가 처리</strong>합니다.</li>
-              <li>큐에 메시지가 처리량보다 많이 쌓이면 <strong class="key">worker가 늘어나 외부 등록이 밀리지 않습니다</strong>.</li>
-              <li>배포 중에도 사용자는 한 버전의 응답만 받고 망가진 이미지는 사람 개입 없이 이전 버전으로 돌아갑니다.</li>
-            </ul>
+            <p>6~10분 걸리던 증설을 <strong class="key">약 4분 30초</strong>로 줄였고 판매 오픈은 사전 증설로 증설을 기다리지 않게 했습니다.</p>
+            <div class="tbl"><table>
+              <thead><tr><th>항목</th><th>이전</th><th>이후</th></tr></thead>
+              <tbody>
+                <tr><td>급증 뒤 증설까지 걸린 시간</td><td>CPU 목표 추적만으로 6~10분</td><td class="pick">Step Scaling 추가 뒤 약 4분 30초</td></tr>
+                <tr><td>오픈 첫 1분 p99</td><td>1대로 받은 대기열 11.9초, 5xx 142건</td><td class="pick">미리 3대로 늘린 접수 0.44초</td></tr>
+                <tr><td>worker 확장 기준</td><td>CPU, 큐가 쌓여도 늘지 않음</td><td class="pick">태스크당 큐 메시지 50건</td></tr>
+              </tbody>
+            </table></div>
+            <p>CPU 부족으로 기동에 실패한 배포는 deployment circuit breaker가 이전 버전으로 자동 롤백했습니다.</p>
           </li>
         </ol>
       </article>
@@ -1294,38 +1331,60 @@ Error: <span class="d">...</span>
       <article class="case" id="nv-6" data-title="NOVA 06 · 비용 절감">
         <div class="case-head">
           <div class="num">NOVA · 06</div>
-          <h3>목표 구조는 코드에 남기고 비용이 큰 항목만 변수로 낮춰 월 운영비 73% 절감</h3>
-          <ul class="outcome"><li>월 약 $890 → $240 (−73%)</li><li>월 약 650달러 절감</li><li>변수 하나로 목표 구조 원복</li></ul>
+          <h3>목표 구조는 코드에 남기고 월 운영비를 73% 줄인 Terraform 변수 기반 비용 절감</h3>
+          <ul class="outcome"><li>월 운영비 약 $890 → $240</li><li>변수 하나로 목표 구조 원복</li><li>6주 예산 40만 원 안에서 운영</li></ul>
         </div>
 
         <ol class="steps">
           <li class="step problem">
             <div class="step-label">문제 발견</div>
             <ul class="dot">
-              <li>6주 예산은 40만 원인데 Multi-AZ DB와 NAT Gateway, VPC 엔드포인트를 갖춘 목표 구조는 <strong class="key">월 약 890달러</strong>로 추정되어 예산을 넘었습니다.</li>
-              <li>계기는 전체 서비스를 배포한 뒤의 청구액이었습니다. 하루 비용이 <strong class="key">약 2.9달러에서 약 10달러</strong>로 뛰었습니다.</li>
-            </ul>
-          </li>
-
-          <li class="step trace">
-            <div class="step-label">원인 분석</div>
-            <ul class="dot">
-              <li>Cost Explorer로 비용을 항목별로 나눠 보니 서비스를 모두 띄운 뒤 <strong class="key">Container Insights 지표 요금이 Fargate 다음으로 큰 비중</strong>을 차지하고 있었습니다.</li>
-              <li>그렇다고 설계 자체를 낮추면 트래픽이 늘거나 예산이 생겼을 때 다시 만들어야 합니다.</li>
+              <li>처음 설계한 목표 구조는 Multi-AZ, NAT Gateway, VPC 엔드포인트를 포함해 <strong class="key">월 약 890달러</strong>로 6주 예산 40만 원을 넘었습니다.</li>
+              <li>설계 자체를 낮추면 트래픽이 늘거나 예산이 생겼을 때 다시 만들어야 했습니다.</li>
             </ul>
             <p class="point">목표 구조를 버리지 않고 비용만 줄이는 방법이 필요했습니다.</p>
           </li>
 
           <li class="step solve">
-            <div class="step-label">해결 과정</div>
-
-            <h4>① 비용이 큰 선택을 변수로 분리</h4>
+            <div class="step-label">1차 개선</div>
             <ul class="dot">
-              <li>NAT 방식, Multi-AZ, VPC 엔드포인트 같은 <strong class="key">선택을 Terraform 변수로 빼고</strong> 기본값만 싼 쪽으로 두어 목표 구조 코드는 그대로 유지했습니다.</li>
-              <li>처음 2주는 설계와 기획에 쓰고 인프라는 실제로 필요해진 뒤에 띄웠습니다.</li>
+              <li>NAT 방식, Multi-AZ, VPC 엔드포인트처럼 비용이 큰 항목을 <code>nat_mode</code>, <code>multi_az</code>, <code>enable_interface_endpoints</code> 같은 <strong class="key">Terraform 변수로 분리</strong>하고 기본값만 비용이 낮은 쪽으로 두었습니다.</li>
+              <li>목표 구조 코드는 그대로 남아 있어 <strong class="key">변수 값만 바꾸면 목표 구조로 돌아가게</strong> 했습니다.</li>
+              <li>NAT 인스턴스를 교체하는 동안 그 AZ의 외부 통신이 끊기는 점처럼 항목마다 감수할 점과 목표 구조로 되돌리는 방법을 문서에 남겼습니다.</li>
+              <li>모니터링 스택은 CloudWatch 대신 EC2 한 대에 Mimir, Loki, Tempo, Pyroscope를 올리고 S3에 저장했습니다. (<a href="#nv-4">04 사례</a>)</li>
             </ul>
+          </li>
 
-            <h4>② 항목별로 낮춘 것과 절감액</h4>
+          <li class="step trace">
+            <div class="step-label">배포 후 확인</div>
+            <ul class="dot">
+              <li>전체 서비스를 배포한 뒤 하루 비용이 <strong class="key">20달러 안팎</strong>으로 예상보다 많이 나왔습니다.</li>
+              <li>Cost Explorer로 항목별로 나눠 보니 Fargate가 가장 컸고 <strong class="key">Container Insights 지표 요금이 그다음</strong>이었습니다.</li>
+            </ul>
+          </li>
+
+          <li class="step solve">
+            <div class="step-label">2차 개선</div>
+            <ul class="dot">
+              <li>Container Insights는 그 지표를 쓰던 곳을 아래처럼 먼저 옮긴 뒤 꺼 <strong class="key">월 약 75달러</strong>를 줄였습니다.</li>
+            </ul>
+            <div class="tbl"><table>
+              <thead><tr><th>없어지는 지표</th><th>쓰던 곳</th><th>대체</th></tr></thead>
+              <tbody>
+                <tr><td>실행 중 태스크 수</td><td>worker 확장 기준, 태스크 0개 경보</td><td class="pick">무료 AWS/ECS 지표 LiveTaskCount</td></tr>
+                <tr><td style="white-space:nowrap">모자란 태스크, 뜨는 중 태스크</td><td>Grafana 개요</td><td class="pick">ECS 이벤트 경보로 배포 실패, 배치 실패, 비정상 종료 알림</td></tr>
+                <tr><td style="white-space:nowrap">태스크 네트워크, 임시 스토리지</td><td>컴퓨팅 대시보드</td><td class="pick">판단에 쓰지 않던 지표라 대체하지 않음</td></tr>
+              </tbody>
+            </table></div>
+            <ul class="dot">
+              <li>Fargate는 부하 시험으로 트래픽을 감당하는 최소 대수와 사양을 찾아 접수는 2 vCPU에서 1 vCPU로, 외부 시스템 목업은 2대에서 1대로 낮췄습니다. (<a href="#nv-5">05 사례</a>)</li>
+              <li>부하 시험 리소스는 전용 ECS 클러스터에 모으고 평소에는 0대로 두어 시험할 때만 비용이 생기게 했습니다.</li>
+            </ul>
+          </li>
+
+          <li class="step result">
+            <div class="step-label">결과</div>
+            <p>월 약 890달러로 추정된 목표 구조를 <strong class="key">월 약 240달러</strong>로 73% 줄여 예산 안에서 운영했습니다.</p>
             <div class="tbl"><table>
               <thead><tr><th>항목</th><th>목표 구조</th><th>현재 운영</th><th>월 절감(추정)</th></tr></thead>
               <tbody>
@@ -1335,37 +1394,11 @@ Error: <span class="d">...</span>
                 <tr><td>Container Insights</td><td>켬 (태스크 단위 지표)</td><td>끔, 무료 AWS/ECS 지표와 이벤트 경보로 대체</td><td class="pick">약 75달러</td></tr>
                 <tr><td>NAT</td><td>AZ별 NAT Gateway</td><td>AZ별 NAT 인스턴스 (fck-nat t4g.micro)</td><td class="pick">약 70달러 + 처리 요금</td></tr>
                 <tr><td>Valkey</td><td>복제본 + 자동 장애 조치</td><td>노드 1개</td><td class="pick">약 20달러</td></tr>
-                <tr><td>기타 5개</td><td colspan="2">mock 2대 → 1대, preorder 2 vCPU → 1 vCPU, Atlantis 전용 ALB → 메인 ALB 공유, 엣지 로그 내부 NLB → DNS 레코드, Flow Logs 끔</td><td class="pick">약 75달러</td></tr>
+                <tr><td>기타</td><td colspan="2">mock 2대 → 1대, preorder 2 vCPU → 1 vCPU, Atlantis 전용 ALB → 메인 ALB 공유, 엣지 로그 내부 NLB → DNS 레코드, Flow Logs 끔</td><td class="pick">약 75달러</td></tr>
               </tbody>
             </table></div>
             <p class="muted" style="font-size:14px">월 절감액은 서울 리전 정가 기준 추정치입니다.</p>
-
-            <h4>③ Container Insights를 끄기 전 경보와 확장 기준 이전</h4>
-            <ul class="dot">
-              <li>Container Insights는 끄기 전에, 그 지표를 쓰던 <strong class="key">경보와 worker 확장 기준부터 무료 지표로 옮겼습니다</strong>.</li>
-              <li>대신 서비스별 태스크 0개 경보와 ECS 이벤트 경보(배포 실패, 비정상 종료)로 장애를 알리게 했습니다.</li>
-            </ul>
-
-            <h4>④ 항목별 감수할 점과 원복 방법 문서화</h4>
-            <ul class="dot">
-              <li>NAT 인스턴스를 교체하는 동안 그 AZ의 외부 통신이 끊기는 점처럼 항목마다 감수할 점과 목표 구조로 되돌리는 방법을 문서에 남겼습니다.</li>
-            </ul>
-
-            <h4>⑤ 그 밖의 비용 관리</h4>
-            <ul class="dot">
-              <li>관측 스택은 CloudWatch 대신 EC2 한 대에 Mimir, Loki, Tempo, Pyroscope를 올리고 S3에 저장했습니다. (<a href="#nv-4">04 사례</a>)</li>
-              <li>부하 시험 리소스는 전용 ECS 클러스터에 모으고 평소에는 0대로 두어 시험할 때만 비용이 생기게 했습니다.</li>
-              <li>모든 변경을 Atlantis PR로만 적용해 콘솔에서 만든 채 잊힌 자원이 비용으로 남지 않게 했습니다. (<a href="#nv-2">02 사례</a>)</li>
-              <li>Terraform 코드는 로컬 AWS 에뮬레이터 floci에서 먼저 apply해 요금 없이 시험했습니다. (<a href="#nv-1">01 사례</a>)</li>
-            </ul>
-          </li>
-
-          <li class="step result">
-            <div class="step-label">결과</div>
-            <ul class="dot">
-              <li>한 달 약 890달러로 추정된 목표 구조를 <strong class="key">실제 청구액 약 240달러</strong>로 73% 줄여 예산 안에서 운영했습니다.</li>
-              <li>줄인 항목은 대부분 <strong class="key">변수 하나로 목표 구조로 되돌릴 수 있어</strong> 트래픽이 늘면 복구할 수 있습니다.</li>
-            </ul>
+            <p>줄인 항목 대부분은 <strong class="key">변수 값만 바꾸면 목표 구조로 돌아가</strong> 트래픽이 늘거나 예산이 생기면 절감액이 큰 항목부터 되돌릴 수 있습니다.</p>
           </li>
         </ol>
       </article>
@@ -1470,10 +1503,51 @@ Error: <span class="d">...</span>
       b.addEventListener('click', function () {
         var img = b.querySelector('img');
         var cap = b.parentNode.querySelector('figcaption');
+        dlg.classList.remove('tall');
         dimg.src = img.src; dimg.alt = img.alt;
         dcap.textContent = cap ? cap.textContent : '';
         dlg.showModal();
       });
+    });
+    // 화면 슬라이드
+    document.querySelectorAll('[data-slides]').forEach(function (f) {
+      var imgs = [].slice.call(f.querySelectorAll('.slides-view img'));
+      var view = f.querySelector('.slides-view'), tabs = f.querySelector('.slides-tabs');
+      var title = f.querySelector('.slides-title'), kind = f.querySelector('.slides-kind');
+      var count = f.querySelector('.slides-count'), cap = f.querySelector('figcaption');
+      var cur = 0;
+      function show(n) {
+        cur = (n + imgs.length) % imgs.length;
+        imgs.forEach(function (im, i) { im.hidden = i !== cur; });
+        var im = imgs[cur];
+        title.textContent = im.dataset.title;
+        kind.textContent = im.dataset.kind === '예시' ? '예시 데이터' : '실제 화면';
+        count.textContent = (cur + 1) + ' / ' + imgs.length;
+        cap.textContent = im.dataset.cap;
+        view.scrollTop = 0;
+        [].forEach.call(tabs.children, function (t, i) { t.setAttribute('aria-current', i === cur ? 'true' : 'false'); });
+      }
+      imgs.forEach(function (im, i) {
+        var t = document.createElement('button');
+        t.type = 'button'; t.textContent = im.dataset.title;
+        t.addEventListener('click', function () { show(i); });
+        tabs.appendChild(t);
+      });
+      f.querySelectorAll('.slides-nav button').forEach(function (b) {
+        b.addEventListener('click', function () { show(cur + Number(b.dataset.dir)); });
+      });
+      view.addEventListener('keydown', function (e) {
+        if (e.key === 'ArrowRight') show(cur + 1);
+        if (e.key === 'ArrowLeft') show(cur - 1);
+      });
+      view.addEventListener('click', function () {
+        var im = imgs[cur];
+        dlg.classList.add('tall');
+        dimg.src = im.src; dimg.alt = im.alt;
+        dcap.textContent = im.dataset.title + ' · ' + im.dataset.cap;
+        dlg.showModal(); dlg.scrollTop = 0;
+      });
+      show(0);
     });
     document.getElementById('zoomClose').addEventListener('click', function () { dlg.close(); });
     dlg.addEventListener('click', function (e) { if (e.target === dlg) dlg.close(); });
