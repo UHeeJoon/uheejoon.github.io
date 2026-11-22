@@ -406,6 +406,15 @@
             <li><a href="#nv-6"><span class="n">06</span><span>월 운영비 73% 절감</span></a></li>
           </ol>
         </li>
+        <li class="lv1">
+          <a href="#homelab">홈랩 Kubernetes<span class="meta">개인 프로젝트 · 2026.05 ~ 현재</span></a>
+          <ol class="lv2">
+            <li><a href="#hl-overview"><span class="n">00</span><span>프로젝트 개요</span></a></li>
+            <li><a href="#hl-1"><span class="n">01</span><span>서명 검증 GitLab CI</span></a></li>
+            <li><a href="#hl-2"><span class="n">02</span><span>CNI 전환 중 DNS 장애 분석</span></a></li>
+            <li><a href="#hl-3"><span class="n">03</span><span>Longhorn 스토리지 장애 해결</span></a></li>
+          </ol>
+        </li>
       </ol>
     </nav>
     <div class="sm-foot">
@@ -441,7 +450,7 @@
     <section class="block" id="highlights" data-title="핵심 내용 미리보기">
       <p class="sec-label">Preview</p>
       <h2>핵심 내용 미리보기</h2>
-      <p>두 프로젝트의 주요 결과입니다.<span class="no-print"> 카드를 누르면 해당 사례로 이동합니다.</span></p>
+      <p>옥타코와 NOVA의 주요 결과입니다.<span class="no-print"> 카드를 누르면 해당 사례로 이동합니다.</span></p>
       <div class="stats">
         <a class="stat" href="#oc-2">
           <div class="k">주말 동안 Pod 재시작</div>
@@ -1399,6 +1408,330 @@ Error: <span class="d">...</span>
             </table></div>
             <p class="muted" style="font-size:14px">월 절감액은 서울 리전 정가 기준 추정치입니다.</p>
             <p>줄인 항목 대부분은 <strong class="key">변수 값만 바꾸면 목표 구조로 돌아가</strong> 트래픽이 늘거나 예산이 생기면 절감액이 큰 항목부터 되돌릴 수 있습니다.</p>
+          </li>
+        </ol>
+      </article>
+    </section>
+
+    <!-- ================= 홈랩 ================= -->
+    <section class="project" id="homelab" data-title="홈랩 Kubernetes">
+      <div class="proj-head">
+        <p class="sec-label">Project 03 · 개인 프로젝트</p>
+        <h2>홈랩 Kubernetes 플랫폼</h2>
+        <p class="sub">서버 두 대에 Kubernetes를 직접 설치해 운영하는 홈랩</p>
+      </div>
+
+      <div id="hl-overview" data-title="홈랩 · 개요">
+        <dl class="facts">
+          <dt>기간</dt><dd>2026.05 ~ 현재, 1인</dd>
+          <dt>저장소</dt>
+          <dd><a href="https://github.com/sago-panda/sapari-helm-manifest" target="_blank" rel="noopener">sago-panda/sapari-helm-manifest</a></dd>
+          <dt>기술</dt>
+          <dd>
+            <ul class="tags">
+              <li>kubeadm</li><li>Cilium</li><li>Hubble</li><li>Gateway API</li><li>Cloudflare Tunnel</li><li>Longhorn</li><li>GitLab CI</li><li>cosign</li><li>Argo CD</li>
+              <li>Vault</li><li>External Secrets</li><li>Prometheus</li><li>Grafana</li><li>Loki</li>
+            </ul>
+          </dd>
+        </dl>
+
+        <h3>프로젝트 개요</h3>
+        <p class="lede" style="margin-top:14px">
+          Rocky Linux 서버 두 대에 kubeadm으로 설치한 클러스터에 개인 프로젝트 애플리케이션과 Keycloak, 데이터베이스, 모니터링 스택을 올려 운영합니다.
+          네트워크, 스토리지, 배포, 비밀 값 관리를 직접 구성했고 클러스터 안 컴포넌트는 Argo CD가 Git에서 가져와 배포합니다.
+          외부 요청은 Cloudflare Tunnel을 거쳐 공개용과 관리용 Gateway로 나뉘어 들어오고, Argo CD와 Grafana, Vault 같은 관리 도구에만 Cloudflare Access 인증을 걸었습니다.
+        </p>
+
+        <figure>
+          <button class="frame" type="button" data-zoom><img src="../images/devops/hl_ov.png" width="2205" height="1017" loading="lazy" alt="홈랩 클러스터 구조: 사용자 요청이 Cloudflare Tunnel과 Cilium Gateway를 거쳐 애플리케이션 네임스페이스의 Service, Deployment, Pod로 들어오고, GitLab의 release 브랜치를 Argo CD가 동기화해 배포하며, Vault의 값을 ExternalSecret이 읽어 Secret을 만들고, 데이터와 monitoring 네임스페이스, Longhorn, NetworkPolicy, 두 노드로 구성된 클러스터"></button>
+          <figcaption>Cloudflare Tunnel에서 Cilium Gateway로 들어오는 요청 경로와 네임스페이스별 구성</figcaption>
+        </figure>
+
+        <h4 class="print-only">주요 사례</h4>
+        <ol class="case-index print-only">
+          <li><a href="#hl-1"><span class="n">01</span><span>서명 검증을 통과한 이미지만 배포되는 GitLab CI 구성</span></a></li>
+          <li><a href="#hl-2"><span class="n">02</span><span>Hubble 통신 기록을 활용한 CNI 전환 중 DNS 장애 분석</span></a></li>
+          <li><a href="#hl-3"><span class="n">03</span><span>디스크가 남았는데도 볼륨이 만들어지지 않던 Longhorn 스토리지 장애 해결</span></a></li>
+        </ol>
+      </div>
+
+      <!-- ---------- 홈랩 01 ---------- -->
+      <article class="case" id="hl-1" data-title="홈랩 01 · GitLab CI">
+        <div class="case-head">
+          <div class="num">HOMELAB · 01</div>
+          <h3>서명 검증을 통과한 이미지만 배포되는 GitLab CI 구성</h3>
+          <ul class="outcome"><li>CI가 서명한 이미지만 배포</li><li>태그 대신 digest로 이미지 고정</li><li>앱이 늘어도 검증 CI 수정 없음</li></ul>
+        </div>
+
+        <ol class="steps">
+          <li class="step problem">
+            <div class="step-label">문제 발견</div>
+            <ul class="dot">
+              <li>helm install로 직접 올린 컴포넌트는 언제 무엇이 바뀌었는지 <strong class="key">이력이 남지 않았습니다</strong>.</li>
+              <li>이미지를 태그로 참조해 같은 태그가 다른 이미지를 가리킬 수 있었고 <strong class="key">CI를 거치지 않은 이미지가 들어와도 막을 방법이 없었습니다</strong>.</li>
+            </ul>
+            <p class="point">CI가 빌드하고 서명한 이미지만 배포되게 해야 했습니다.</p>
+          </li>
+
+          <li class="step solve">
+            <div class="step-label">해결</div>
+            <figure>
+              <button class="frame" type="button" data-zoom><img src="../images/devops/hl_ci.png?v=2" width="1959" height="1082" loading="lazy" alt="앱 저장소 GitLab CI가 검사, build, sign, bump 순서로 이미지를 빌드해 서명하고 GitOps 저장소의 이미지를 digest로 갱신하면, GitOps 저장소 CI의 verify가 Container Registry의 서명을 조회해 통과한 커밋만 release 브랜치로 옮기고 Argo CD가 release 브랜치를 동기화하는 흐름"></button>
+              <figcaption>앱 저장소 CI가 서명한 이미지를 GitOps 저장소 CI가 검증해 통과한 커밋만 release 브랜치로 옮기는 흐름</figcaption>
+            </figure>
+
+            <div class="tbl"><table>
+              <thead><tr><th>위치</th><th>단계</th><th>하는 일</th><th>신경 쓴 점</th></tr></thead>
+              <tbody>
+                <tr><td rowspan="4" style="white-space:nowrap">앱 저장소 CI</td><td style="font-weight:600;color:var(--ink)">검사</td><td>lint와 타입 검사, 의존성 취약점 점검</td><td style="white-space:nowrap">high 이상 취약점이 있으면 실패</td></tr>
+                <tr><td>build</td><td>이미지를 빌드해 push하고 digest를 다음 잡에 전달</td><td style="white-space:nowrap">뒤 단계는 태그 대신 digest로 이미지 지정</td></tr>
+                <tr><td>sign</td><td>이미지에 cosign 서명, Trivy로 만든 SBOM 첨부</td><td class="pick" style="white-space:nowrap">키 없이 GitLab CI의 OIDC 토큰 사용</td></tr>
+                <tr><td>bump</td><td>GitOps 저장소의 이미지를 digest로 바꾸는 커밋</td><td style="white-space:nowrap">CI는 직접 배포하지 않음</td></tr>
+                <tr><td rowspan="2" style="white-space:nowrap">GitOps 저장소 CI</td><td style="font-weight:600;color:var(--ink)">verify</td><td>매니페스트의 이미지마다 앱 저장소의 main 브랜치 CI가 한 서명과 digest 고정 여부 검사</td><td class="pick" style="white-space:nowrap">서명 없음, 다른 서명자, 태그 참조는 실패</td></tr>
+                <tr><td>promote</td><td>검증을 통과한 커밋을 release 브랜치로 옮김</td><td style="white-space:nowrap">강제 push 없이 fast-forward만 허용</td></tr>
+                <tr><td style="white-space:nowrap">클러스터</td><td style="font-weight:600;color:var(--ink)">Argo CD</td><td>release 브랜치만 동기화</td><td class="pick" style="white-space:nowrap">main 브랜치의 커밋은 검증 전까지 배포되지 않음</td></tr>
+              </tbody>
+            </table></div>
+            <ul class="dot">
+              <li>verify는 이미지 경로로 서명할 저장소를 알아내 앱이 늘어도 고치지 않게 했습니다.</li>
+              <li>build부터 promote까지는 GitLab CI/CD Component로 만들어 저장소마다 같은 잡을 include해 쓰게 했습니다.</li>
+              <li>취약점과 비밀 값 스캔은 GitLab 내장 템플릿을 썼습니다.</li>
+            </ul>
+          </li>
+
+          <li class="step result">
+            <div class="step-label">결과</div>
+            <div class="tbl"><table>
+              <thead><tr><th>경우</th><th>이전</th><th>이후</th></tr></thead>
+              <tbody>
+                <tr><td style="white-space:nowrap">CI를 거치지 않은 이미지</td><td>그대로 배포</td><td class="pick">verify 실패, release 브랜치에 반영되지 않음</td></tr>
+                <tr><td style="white-space:nowrap">태그로 참조한 이미지</td><td>같은 태그가 다른 이미지를 가리킬 수 있음</td><td class="pick">verify 실패</td></tr>
+                <tr><td style="white-space:nowrap">다른 저장소가 서명한 이미지</td><td>구분하지 못함</td><td class="pick">verify 실패</td></tr>
+                <tr><td>롤백</td><td>되돌릴 이력 없음</td><td class="pick">git revert</td></tr>
+              </tbody>
+            </table></div>
+          </li>
+
+          <li class="step next">
+            <div class="step-label">남은 과제</div>
+            <ul class="dot">
+              <li>클러스터에서 서명을 다시 검사하는 Kyverno는 아직 적용하지 않았습니다.</li>
+              <li>GitLab Free 티어라 Container Scanning과 Secret Detection은 리포트만 남기고 배포를 막지는 못합니다.</li>
+            </ul>
+          </li>
+        </ol>
+      </article>
+
+      <!-- ---------- 홈랩 02 ---------- -->
+      <article class="case" id="hl-2" data-title="홈랩 02 · DNS 장애">
+        <div class="case-head">
+          <div class="num">HOMELAB · 02</div>
+          <h3>Hubble 통신 기록을 활용한 CNI 전환 중 DNS 장애 분석</h3>
+          <ul class="outcome"><li>Hubble에 기록이 없어 Cilium 밖의 문제로 판단</li><li>원인은 제거하지 않고 남은 calico-node</li><li>Calico 제거로 DNS 복구</li></ul>
+        </div>
+
+        <ol class="steps">
+          <li class="step problem">
+            <div class="step-label">문제 발견</div>
+            <ul class="dot">
+              <li>Calico 무료 버전은 도메인 단위 허용을 지원하지 않아 CNI를 Cilium으로 바꿨습니다.</li>
+              <li>전환한 날 Keycloak이 메일을 보내지 못했고 시험 Pod에서 메일 서버 도메인을 조회하면 <strong class="key">timeout</strong>됐습니다.</li>
+              <li>Redis Pod의 DNS 조회만 정상이었습니다.</li>
+            </ul>
+          </li>
+
+          <li class="step trace">
+            <div class="step-label">원인 분석</div>
+
+            <h4>① 메일 서버 도메인 허용 정책</h4>
+            <ul class="dot">
+              <li>전환한 날 넣은 정책을 먼저 의심해 지우고 다시 조회했지만 timeout이었습니다.</li>
+              <li>나중에 보니 Argo CD가 지운 정책을 몇 초 만에 되살려 정책이 있는 채로 시험한 것이었습니다.</li>
+            </ul>
+
+            <h4>② kube-proxy 설정</h4>
+            <ul class="dot">
+              <li>Pod 대역 설정 때문에 응답 경로가 어긋났는지 보려고 <code>clusterCIDR</code>을 확인했지만 빈 값이라 원인이 아니었습니다.</li>
+            </ul>
+
+            <h4>③ Hubble의 DNS 통신 기록</h4>
+            <ul class="dot">
+              <li>정상인 Redis는 요청과 응답이 모두 기록됐는데 실패한 Pod의 조회는 <strong class="key">DROPPED 기록도 없었습니다</strong>.</li>
+              <li>Cilium이 막았다면 기록이 남으므로 패킷이 Cilium에 닿기 전에 막힌다고 보고 정책 대신 노드를 조사했습니다.</li>
+            </ul>
+            <figure class="codefig">
+<pre class="code"><code>$ kubectl -n kube-system exec &lt;cilium-pod&gt; -- hubble observe --port 53 --last 40
+storage/redis-node-* → coredns   to-endpoint <span class="k">FORWARDED</span> (UDP)</code></pre>
+              <figcaption>Hubble의 DNS 통신 기록 출력 일부</figcaption>
+            </figure>
+
+            <h4>④ 노드의 Pod와 CNI 설정</h4>
+            <ul class="dot">
+              <li>Cilium 밖에서 패킷을 막는 것을 찾으려고 IP가 Cilium 대역이 아닌 Pod를 추렸더니 <strong class="key">calico-node가 두 노드에서 실행 중</strong>이었습니다.</li>
+              <li>Cilium도 다른 CNI와 함께 쓰는 전환 중 설정 그대로였습니다.</li>
+            </ul>
+            <figure class="codefig">
+<pre class="code"><code>$ kubectl get pods -A -o wide | grep -v "10.244\."
+calico-node-7h4jd   kube-worker   <span class="v">Running   15d</span>
+
+$ helm -n kube-system get values cilium | grep -A4 "cni:"
+  customConf: <span class="v">true</span>
+  exclusive: <span class="v">false</span></code></pre>
+              <figcaption>노드에서 확인한 Pod와 Cilium 설정 출력 일부</figcaption>
+            </figure>
+          </li>
+
+          <li class="step trace">
+            <div class="step-label">원인</div>
+            <p>전환 절차의 마지막 단계인 Calico 제거가 남아 있어 calico-node가 <strong class="key">두 노드의 iptables 규칙을 계속 다시 썼고</strong> DNS 패킷이 Cilium에 닿기 전에 막혔습니다.</p>
+            <figure>
+              <button class="frame" type="button" data-zoom><img src="../images/devops/hl_dns.png" width="1925" height="738" loading="lazy" alt="장애 때는 노드에 남은 calico-node가 iptables 규칙을 계속 바꿔 Pod의 DNS 조회가 Cilium에 닿기 전에 막혔고, 조치 뒤에는 Cilium만 동작해 CoreDNS까지 정상으로 이어지는 비교 그림"></button>
+              <figcaption>남아 있던 calico-node 때문에 DNS 패킷이 Cilium에 닿지 못하던 장애 때와 Calico를 제거한 뒤</figcaption>
+            </figure>
+          </li>
+
+          <li class="step solve">
+            <div class="step-label">조치</div>
+            <ul class="dot">
+              <li><strong class="key">Calico를 제거하고 Cilium을 유일한 CNI로</strong> 설정했습니다.</li>
+              <li>명령으로 바꾼 값은 Git의 values 파일에도 넣어 다음 upgrade에서 되돌아가지 않게 했습니다.</li>
+            </ul>
+            <figure class="codefig">
+<pre class="code"><code>$ kubectl delete -f calico.yaml
+$ helm upgrade cilium cilium/cilium -n kube-system -f bootstrap/cilium-values.yaml \
+    --set cni.customConf=<span class="k">false</span> --set cni.exclusive=<span class="k">true</span>
+$ kubectl -n kube-system rollout restart ds/cilium</code></pre>
+              <figcaption>Calico를 제거하고 Cilium을 유일한 CNI로 설정한 명령</figcaption>
+            </figure>
+          </li>
+
+          <li class="step result">
+            <div class="step-label">결과</div>
+            <div class="tbl"><table>
+              <thead><tr><th>항목</th><th>이전</th><th>이후</th></tr></thead>
+              <tbody>
+                <tr><td>DNS 조회</td><td>Redis를 뺀 Pod에서 timeout</td><td class="pick">도메인 허용 정책을 둔 채로 정상</td></tr>
+                <tr><td style="white-space:nowrap">외부 메일 서버 허용</td><td>사설망을 뺀 모든 주소</td><td class="pick">메일 서버 도메인 하나</td></tr>
+              </tbody>
+            </table></div>
+          </li>
+
+          <li class="step next">
+            <div class="step-label">배운 점</div>
+            <ul class="dot">
+              <li>CNI를 바꿀 때는 이전 CNI를 지우는 단계까지 끝낸 뒤에 동작을 확인합니다.</li>
+              <li>Argo CD가 관리하는 리소스를 지워 시험할 때는 시험 Pod를 먼저 띄워 두고 지웁니다.</li>
+              <li>Hubble에 차단 기록이 없으면 정책보다 노드를 먼저 봅니다.</li>
+            </ul>
+          </li>
+        </ol>
+      </article>
+
+      <!-- ---------- 홈랩 03 ---------- -->
+      <article class="case" id="hl-3" data-title="홈랩 03 · Longhorn 장애">
+        <div class="case-head">
+          <div class="num">HOMELAB · 03</div>
+          <h3>디스크가 남았는데도 볼륨이 만들어지지 않던 Longhorn 스토리지 장애 해결</h3>
+          <ul class="outcome"><li>Pod 이벤트에서 볼륨 · 노드 · 디스크 순으로 추적</li><li>원인은 root 파티션만 등록된 Longhorn 디스크</li><li>/home 파티션 추가로 볼륨과 Pod 복구</li></ul>
+        </div>
+
+        <ol class="steps">
+          <li class="step problem">
+            <div class="step-label">문제 발견</div>
+            <p>Prometheus, Alertmanager, Kafka Pod가 <strong class="key">Pending과 ContainerCreating에서 멈춰</strong> 시간이 지나도 Running이 되지 않았습니다.</p>
+          </li>
+
+          <li class="step trace">
+            <div class="step-label">원인 분석</div>
+
+            <h4>① Pod 이벤트</h4>
+            <ul class="dot">
+              <li>Pod 이벤트에 볼륨을 붙이지 못했다는 경고가 반복돼 애플리케이션이 아니라 <strong class="key">볼륨 문제</strong>로 봤습니다.</li>
+            </ul>
+            <figure class="codefig">
+<pre class="code"><code>$ kubectl -n monitoring describe pod prometheus-...-0 | tail -20
+Warning  <span class="v">FailedAttachVolume</span>  volume pvc-... is not ready for workloads</code></pre>
+              <figcaption>Pod 이벤트 출력 일부</figcaption>
+            </figure>
+
+            <h4>② Longhorn 볼륨 상태</h4>
+            <ul class="dot">
+              <li>정상이 아닌 볼륨만 추려 보니 새 볼륨들이 <strong class="key">어느 노드에도 붙지 못한 faulted 상태</strong>였습니다.</li>
+            </ul>
+            <figure class="codefig">
+<pre class="code"><code>$ kubectl -n longhorn-system get volumes.longhorn.io -o custom-columns=\
+'VOL:.metadata.name,STATE:.status.state,ROBUST:.status.robustness,NODE:.status.currentNodeID,SIZE:.spec.size'
+VOL          STATE      ROBUST     NODE          SIZE
+pvc-87ab...  <span class="v">detached   faulted    &lt;none&gt;</span>        5Gi
+pvc-289b...  attached   degraded   kube-worker   10Gi</code></pre>
+              <figcaption>Longhorn 볼륨 상태 출력 일부</figcaption>
+            </figure>
+
+            <h4>③ 노드 상태</h4>
+            <ul class="dot">
+              <li>Longhorn에서 본 두 노드는 모두 Ready였고 볼륨 배치도 가능해 노드 장애는 아니었습니다.</li>
+            </ul>
+
+            <h4>④ Longhorn이 쓰는 디스크와 실제 디스크</h4>
+            <ul class="dot">
+              <li>Longhorn 데이터 경로는 <strong class="key">70GB root 파티션</strong>에 있었고 같은 디스크의 <strong class="key">391GB /home 파티션은 비어 있었습니다</strong>.</li>
+            </ul>
+            <figure class="codefig">
+<pre class="code"><code>$ df -h /var/lib/longhorn
+/dev/mapper/rl-root   <span class="v">70G</span>   25G   46G   36%   /
+
+$ lsblk
+nvme0n1      476.9G
+├─ rl-root      70G   /
+└─ rl-home     <span class="v">391G</span>   /home</code></pre>
+              <figcaption>Longhorn 데이터 경로의 파티션과 노드의 디스크 출력 일부</figcaption>
+            </figure>
+
+            <h4>⑤ 지워지지 않고 남은 볼륨</h4>
+            <ul class="dot">
+              <li>재설치하며 지운 옛 Kafka와 Redis의 볼륨이 Released 상태로 남아 root 파티션을 차지하고 있었습니다.</li>
+            </ul>
+          </li>
+
+          <li class="step trace">
+            <div class="step-label">원인</div>
+            <ul class="dot">
+              <li>Longhorn이 쓸 수 있는 공간이 <strong class="key">노드마다 root 파티션 70GB</strong>뿐이었습니다.</li>
+              <li>복제본 2개를 서로 다른 노드에 둬야 하는데 옛 볼륨까지 남아 <strong class="key">두 노드 모두 자리가 없어</strong> 새 볼륨이 faulted가 됐습니다.</li>
+            </ul>
+            <figure>
+              <button class="frame" type="button" data-zoom><img src="../images/devops/hl_lh.png?v=2" width="1925" height="803" loading="lazy" alt="장애 때는 두 노드 모두 root 70GB만 Longhorn 디스크로 등록돼 옛 볼륨이 차지하고 /home 391GB는 등록되지 않았고, 조치 뒤에는 /home 391GB에서 약 180GB를 Longhorn 디스크로 쓰고 root에는 새 볼륨을 배치하지 않는 구성"></button>
+              <figcaption>root 파티션만 쓰던 장애 때와 /home 파티션을 디스크로 추가한 조치 뒤의 Longhorn 디스크 구성</figcaption>
+            </figure>
+          </li>
+
+          <li class="step solve">
+            <div class="step-label">조치</div>
+            <ul class="dot">
+              <li>두 노드의 <strong class="key">/home 파티션을 Longhorn 디스크로 추가</strong>하고 root 파티션에는 새 볼륨이 배치되지 않게 했습니다.</li>
+              <li>Released로 남은 옛 볼륨과 faulted 볼륨을 지우고 PVC를 다시 만들었습니다.</li>
+              <li>자체 복제를 하는 Kafka는 복제본 1개에 회수 정책이 Delete인 StorageClass를 따로 만들어 옮겼습니다.</li>
+            </ul>
+          </li>
+
+          <li class="step result">
+            <div class="step-label">결과</div>
+            <div class="tbl"><table>
+              <thead><tr><th>항목</th><th>이전</th><th>이후</th></tr></thead>
+              <tbody>
+                <tr><td>Longhorn 디스크</td><td>노드마다 root 파티션 70GB</td><td class="pick">노드마다 /home 파티션에서 약 180GB</td></tr>
+                <tr><td>새 볼륨</td><td>faulted</td><td class="pick">정상이 아닌 볼륨 없음</td></tr>
+                <tr><td style="white-space:nowrap">Prometheus, Alertmanager, Kafka Pod</td><td>Pending, ContainerCreating</td><td class="pick">Running</td></tr>
+              </tbody>
+            </table></div>
+          </li>
+
+          <li class="step next">
+            <div class="step-label">배운 점</div>
+            <ul class="dot">
+              <li>Longhorn을 설치할 때는 쓸 디스크를 직접 지정합니다.</li>
+              <li>재설치가 잦은 볼륨은 회수 정책을 Retain 대신 Delete로 둡니다.</li>
+            </ul>
           </li>
         </ol>
       </article>
