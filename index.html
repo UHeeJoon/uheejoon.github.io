@@ -3,734 +3,1033 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>유희준 | Backend & DevOps Engineer</title>
-  <meta name="description" content="장애가 나도 서비스와 데이터가 버티는 구조를 만드는 백엔드·DevOps 엔지니어 유희준의 포트폴리오">
-  <meta property="og:title" content="유희준 | Backend & DevOps Engineer">
-  <meta property="og:description" content="추측하지 않고 측정하고 재현해서 문제를 확인합니다. 멀티테넌트 SSO, 선착순 사전예약, 에스크로 결제를 설계하고 운영했습니다.">
-  <meta property="og:type" content="website">
-  <meta property="og:url" content="https://uheejoon.github.io/">
+  <title>유희준 | 리모델링 중</title>
+  <meta name="description" content="포트폴리오를 새로 단장하고 있습니다.">
+  <meta name="robots" content="noindex">
   <link rel="icon" href="images/favicon.ico">
   <link rel="apple-touch-icon" href="images/apple-touch-icon.png">
-  <link rel="preconnect" href="https://cdn.jsdelivr.net">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap">
-  <link rel="stylesheet" href="assets/css/style.css?v=20261111a">
-  <script>
-    (function () {
-      try {
-        var t = localStorage.getItem('theme');
-        if (t) document.documentElement.setAttribute('data-theme', t);
-      } catch (e) {}
-    })();
-  </script>
-  <script>
-    (function () {
-      var m = {"s-logout":"projects/octaco.html","s-search":"projects/octaco.html","s-sflight":"projects/octaco.html","case-octaco":"projects/octaco.html","s-onboard":"projects/octaco.html","s-probe":"projects/octaco.html","s-gitops":"projects/octaco.html","s-authz":"projects/octaco.html","s-fallback":"projects/octaco.html","s-irsa":"projects/octaco.html","flow-t":"projects/nova.html","s-sema":"projects/nova.html","s-judge":"projects/nova.html","s-wr":"projects/nova.html","s-tf":"projects/nova.html","s-atlantis":"projects/nova.html","s-ecs":"projects/nova.html","s-obs":"projects/nova.html","s-lock":"projects/nova.html","s-iam":"projects/nova.html","fa":"projects/nova.html","s-loadtest":"projects/nova.html","s-cost":"projects/nova.html","s-limit":"projects/nova.html","case-nova":"projects/nova.html","s-outbox":"projects/nova.html","case-sp":"projects/search-platform.html","s-es":"projects/search-platform.html","s-quality":"projects/search-platform.html","s-presale":"projects/search-platform.html","s-saga":"projects/search-platform.html","s-recon":"projects/search-platform.html"};
-      var go = function () {
-        var h = location.hash.slice(1);
-        if (m[h]) location.replace(m[h] + (/^case-/.test(h) ? '' : '#' + h));
-      };
-      go();
-      window.addEventListener('hashchange', go);
-    })();
-  </script>
+  <style>
+    :root {
+      --bg-1: #fff7ee; --bg-2: #ffeef2; --bg-3: #eef4ff;
+      --ink: #2b2330; --ink-2: #6b6170; --accent: #ff8a5b; --accent-2: #ffc53d;
+      --card: rgb(255 255 255 / .72); --line: rgb(43 35 48 / .08);
+      --sans: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; height: 100%; }
+    body {
+      font-family: var(--sans); color: var(--ink); overflow-x: hidden;
+      background:
+        radial-gradient(60vmax 60vmax at 12% 8%, var(--bg-2), transparent 60%),
+        radial-gradient(55vmax 55vmax at 92% 20%, var(--bg-3), transparent 60%),
+        var(--bg-1);
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      min-height: 100svh; padding: 24px 16px 40px;
+    }
+    .stage { position: relative; width: min(560px, 100%); aspect-ratio: 1 / .74; }
+    #scene { position: absolute; inset: 0; width: 100%; height: 100%; display: block; cursor: pointer; touch-action: manipulation;
+      -webkit-mask-image: radial-gradient(ellipse 50% 50% at 50% 50%, #000 78%, transparent 100%); mask-image: radial-gradient(ellipse 50% 50% at 50% 50%, #000 78%, transparent 100%); }
+    .bubble {
+      position: absolute; left: 50%; top: 2%; transform: translateX(-50%);
+      background: #fff; border-radius: 18px; padding: 10px 16px; font-size: 15px; font-weight: 650;
+      box-shadow: 0 8px 24px -10px rgb(43 35 48 / .25); white-space: nowrap; pointer-events: none;
+      animation: pop .5s cubic-bezier(.3, 1.6, .5, 1) both;
+    }
+    .bubble::after {
+      content: ""; position: absolute; left: 50%; bottom: -8px; width: 16px; height: 16px; background: #fff;
+      transform: translateX(-50%) rotate(45deg); border-radius: 3px;
+    }
+    @keyframes pop { from { opacity: 0; transform: translateX(-50%) translateY(8px) scale(.85); } to { opacity: 1; transform: translateX(-50%) scale(1); } }
+    .copy { text-align: center; max-width: 520px; margin-top: 4px; word-break: keep-all; }
+    .tag {
+      display: inline-flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 700; color: #b8561f;
+      background: #fff1e6; border: 1px solid #ffd9bf; border-radius: 999px; padding: 4px 12px;
+    }
+    .tag i { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); animation: blink 1.4s ease-in-out infinite; }
+    @keyframes blink { 50% { opacity: .25; } }
+    h1 { font-size: clamp(26px, 5vw, 36px); letter-spacing: -.02em; margin: 14px 0 10px; }
+    p.lead { margin: 0 0 22px; color: var(--ink-2); font-size: 16px; line-height: 1.7; }
+    .progress {
+      height: 12px; border-radius: 999px; background: #fff; border: 1px solid var(--line); overflow: hidden; margin: 0 auto 24px; width: min(360px, 100%);
+    }
+    .progress span {
+      display: block; height: 100%; width: 68%; border-radius: inherit;
+      background: repeating-linear-gradient(-45deg, var(--accent-2) 0 10px, var(--accent) 10px 20px);
+      background-size: 28px 28px; animation: stripes 1s linear infinite;
+    }
+    @keyframes stripes { to { background-position: 28px 0; } }
+    .cta {
+      display: inline-flex; align-items: center; gap: 8px; text-decoration: none; color: #fff; font-weight: 700; font-size: 15px;
+      background: var(--ink); padding: 12px 22px; border-radius: 999px; box-shadow: 0 10px 24px -12px rgb(43 35 48 / .6);
+      transition: transform .15s ease, box-shadow .15s ease;
+    }
+    .cta:hover { transform: translateY(-2px); box-shadow: 0 14px 28px -12px rgb(43 35 48 / .6); }
+    .hint { margin-top: 14px; font-size: 12.5px; color: var(--ink-2); opacity: .8; }
+    .fallback { position: absolute; inset: 0; display: none; align-items: center; justify-content: center; font-size: 96px; }
+    .no-webgl .fallback { display: flex; }
+    .no-webgl #scene, .no-webgl .hint { display: none; }
+    @media (prefers-reduced-motion: reduce) {
+      .progress span, .tag i { animation: none; }
+    }
+  </style>
 </head>
 <body>
-  <a class="skip" href="#main">본문으로 건너뛰기</a>
+  <div class="stage">
+    <canvas id="scene" aria-label="공사 모자를 쓴 캐릭터가 망치질을 하는 3D 장면"></canvas>
+    <div class="fallback" aria-hidden="true">🚧</div>
+    <div class="bubble" id="bubble" aria-live="polite">뚝딱뚝딱, 새 단장 중이에요!</div>
+  </div>
 
-  <header class="nav">
-    <div class="wrap nav-inner">
-      <a class="brand" href="#top"><span class="prompt">~/</span>uheejoon</a>
-      <nav aria-label="주요 메뉴">
-        <a href="#career">경력</a>
-        <a href="#principles">일하는 방식</a>
-        <a href="#work">프로젝트</a>
-        <a href="#ai">AI 개발</a>
-        <a href="#deep">개인 프로젝트</a>
-        <a href="#stack">기술</a>
-      </nav>
-      <button class="theme-toggle" type="button" aria-label="밝은 테마와 어두운 테마 전환">
-        <svg class="i-sun" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
-        <svg class="i-moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
-      </button>
-    </div>
-  </header>
+  <div class="copy">
+    <span class="tag"><i></i>리모델링 중</span>
+    <h1>포트폴리오를 새로 꾸미고 있어요</h1>
+    <p class="lead">더 보기 좋게 다시 정리하는 중입니다. 조금만 기다려 주세요.<br>DevOps 포트폴리오는 지금 바로 볼 수 있어요.</p>
+    <div class="progress" role="progressbar" aria-label="리모델링 진행 중" aria-valuemin="0" aria-valuemax="100" aria-valuenow="68"><span></span></div>
+    <a class="cta" href="devops/">DevOps 포트폴리오 보기 <span aria-hidden="true">→</span></a>
+    <div class="hint">캐릭터를 눌러 보세요</div>
+  </div>
 
-  <main id="main">
-    <!-- HERO -->
-    <section class="hero" id="top">
-      <div class="wrap hero-grid">
-        <div class="hero-copy">
-          <p class="eyebrow mono">Backend &amp; DevOps Engineer</p>
-          <h1>장애가 나도<br><em>서비스와 데이터가 버티는</em><br>구조를 만듭니다.</h1>
-          <p class="lede">
-            유희준입니다. 옥타코에서 여러 고객사가 함께 쓰는 SSO 인증 서비스를 처음부터 만들었습니다.
-            부트캠프에서는 판매가 열리면 5,000명이 몰리는 사전예약 서비스의 AWS 인프라와 접수 서버를 맡았습니다.
-            느린 곳은 재서 고치고, 장애와 실패는 <strong>운영과 같은 조건으로 직접 재현</strong>해 확인합니다.
-          </p>
-          <div class="cta">
-            <a class="btn primary" href="https://github.com/UHeeJoon" target="_blank" rel="noopener">
-              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 .5a11.5 11.5 0 0 0-3.6 22.4c.6.1.8-.3.8-.6v-2c-3.2.7-3.9-1.5-3.9-1.5-.5-1.3-1.3-1.7-1.3-1.7-1-.7.1-.7.1-.7 1.2.1 1.8 1.2 1.8 1.2 1 1.8 2.8 1.3 3.5 1 .1-.8.4-1.3.7-1.6-2.6-.3-5.3-1.3-5.3-5.7 0-1.3.5-2.3 1.2-3.1-.1-.3-.5-1.5.1-3.1 0 0 1-.3 3.2 1.2a11 11 0 0 1 5.8 0c2.2-1.5 3.2-1.2 3.2-1.2.6 1.6.2 2.8.1 3.1.8.8 1.2 1.9 1.2 3.1 0 4.4-2.7 5.4-5.3 5.7.4.4.8 1.1.8 2.2v3.3c0 .3.2.7.8.6A11.5 11.5 0 0 0 12 .5z"/></svg>
-              GitHub
-            </a>
-            <a class="btn" href="mailto:yhjyhj3855@gmail.com">yhjyhj3855@gmail.com</a>
-            <a class="btn ghost" href="https://codding-til-theory.tistory.com" target="_blank" rel="noopener">기술 블로그 ↗</a>
-          </div>
-        </div>
+  <script type="importmap">
+    { "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js" } }
+  </script>
+  <script type="module">
+    import * as THREE from 'three';
 
-        <aside class="glance" aria-label="한눈에 보기">
-          <div class="g-career">
-            <p class="g-k">경력</p>
-            <p class="g-big">1년 7개월</p>
-            <p class="g-sub">정규직 11개월 · 인턴 8개월</p>
-          </div>
-          <div>
-            <p class="g-k">주력 기술</p>
-            <p class="g-stack"><span><img src="images/tech/java.svg" alt="" width="20" height="20">Java</span><span><img src="images/tech/springboot.svg" alt="" width="20" height="20">Spring Boot</span><span><img src="images/tech/aws.svg" alt="" width="20" height="20" class="dk">AWS</span><span><img src="images/tech/kubernetes.svg" alt="" width="20" height="20">Kubernetes</span><span><img src="images/tech/terraform.svg" alt="" width="20" height="20">Terraform</span></p>
-          </div>
-          <div>
-            <p class="g-k">자격증</p>
-            <p class="g-certs"><span>CKA</span><span>AWS SAA</span><span>정보처리기사</span><span>SQLD</span></p>
-          </div>
-          <div>
-            <p class="g-k">관심</p>
-            <p class="g-text">인증 · 데이터 정합성 · 장애 격리 · IaC</p>
-          </div>
-        </aside>
-      </div>
+    const canvas = document.getElementById('scene');
+    const bubble = document.getElementById('bubble');
+    const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-      <div class="wrap">
-        <ul class="metrics" aria-label="주요 개선 결과">
-          <li>
-            <span class="m-label">검색 쿼리 평균 실행 시간</span>
-            <span class="m-val"><b>20ms</b></span>
-            <span class="m-from">이전 987ms</span>
-            <span class="m-ctx">옥타코 · 실행 계획 분석과 인덱스</span>
-          </li>
-          <li>
-            <span class="m-label">선착순 접수 응답 p50</span>
-            <span class="m-val"><b>48ms</b></span>
-            <span class="m-from">이전 521ms</span>
-            <span class="m-ctx">사전예약 NOVA · Lock 대기 제거</span>
-          </li>
-          <li>
-            <span class="m-label">판매 오픈 첫 1분 p95</span>
-            <span class="m-val"><b>30ms</b></span>
-            <span class="m-from">첫 시험 4.67초</span>
-            <span class="m-ctx">사전예약 NOVA · 부하 시험 후 확장 조정</span>
-          </li>
-          <!-- 지금은 숨김 (Search Platform)
-          <li>
-            <span class="m-label">500만 건 검색 p95</span>
-            <span class="m-val"><b>549ms</b></span>
-            <span class="m-from">커서 + LIKE 42.7초</span>
-            <span class="m-ctx">Search Platform · Elasticsearch 전환</span>
-          </li>
-          -->
-        </ul>
-      </div>
-    </section>
+    let renderer;
+    try {
+      renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+    } catch (e) {
+      document.body.classList.add('no-webgl');
+      throw e;
+    }
+    renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+    renderer.outputColorSpace = THREE.SRGBColorSpace;
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
-    <!-- CAREER -->
-    <section class="section" id="career">
-      <div class="wrap">
-        <header class="sec-head">
-          <p class="mono sec-no">01</p>
-          <h2>경력과 교육</h2>
-        </header>
-        <div class="cv-group">
-          <h3 class="cv-h">경력 <small>총 1년 7개월 (정규직 11개월 · 인턴 8개월)</small></h3>
-          <div class="cv-list">
-            <article class="cv-item job">
-              <div class="cv-meta"><p class="cv-date mono">2025.04 – 2026.02</p><p class="cv-len">11개월</p></div>
-              <div class="cv-main">
-                <h4>(주)옥타코</h4>
-                <p class="cv-role">Backend · DevOps · 정규직 · 멀티테넌트 SSO 신규 구축 TF</p>
-                <div class="job-body">
-                  <div class="job-col"><p class="job-k">백엔드</p><ul><li>고객사 판별과 업무 앱 로그아웃까지 맡는 세션 관리 서버 개발</li><li>SpiceDB 접근 제어 설계와 권한 검사 어노테이션 개발</li><li>세션 정책 캐시 만료 순간의 DB 조회를 서버당 1회로 묶은 Single Flight</li><li>Circuit Breaker와 DB Fallback으로 Redis 장애 중에도 세션 인증 유지</li><li>50만 건 부하 시험으로 찾은 검색 쿼리를 인덱스로 987ms → 20ms 개선</li><li>고객사별 Schema 격리와 실패 시 자동으로 되돌리는 고객사 온보딩</li></ul></div>
-                  <div class="job-col"><p class="job-k">인프라</p><ul><li>EKS 전환과 Argo CD 기반 GitOps 배포 구축</li><li>IRSA로 서비스별 AWS 권한 분리</li><li>NetworkPolicy 기본 차단과 Secrets Manager 도입</li><li>Probe와 리소스 기준을 정해 Pod 재시작 반복 해소</li></ul></div>
-                </div>
-              </div>
-            </article>
-            <article class="cv-item job">
-              <div class="cv-meta"><p class="cv-date mono">2024.08 – 2025.03</p><p class="cv-len">8개월</p></div>
-              <div class="cv-main">
-                <h4>(주)모빌씨앤씨</h4>
-                <p class="cv-role">Backend · 대학 연계 인턴</p>
-                <div class="job-body">
-                  <div class="job-col"><p class="job-k">팀 리드</p><ul><li>인턴 팀 백엔드 리더로 역할 분배와 코드 리뷰</li><li>팀원 숙련도에 맞춰 역할과 예시 코드를 나눠 기한 내 완료</li></ul></div>
-                  <div class="job-col"><p class="job-k">개발</p><ul><li>온프레미스에 Docker Compose 기반 MSA 구성</li><li>Gateway와 Eureka로 라우팅과 서비스 디스커버리</li><li>Timeout과 Circuit Breaker로 장애 전파 차단</li><li>알림을 Polling에서 SSE로 바꾸고 서버 간 전달은 Redis Pub/Sub으로 처리</li></ul></div>
-                </div>
-              </div>
-            </article>
-          </div>
-        </div>
-        <div class="cv-group">
-          <h3 class="cv-h">교육과 자격</h3>
-          <div class="cv-list">
-            <article class="cv-item">
-              <div class="cv-meta"><p class="cv-date mono">2026.04 – 2026.10</p><p class="cv-len">교육</p></div>
-              <div class="cv-main">
-                <h4>LG U+ 유레카 부트캠프</h4>
-                <p class="cv-role">Java/Spring 백엔드 과정 수료</p>
-                <ul class="cv-ul"><li>과정 우수 수강생으로 선정되어 수상</li><li>7인 팀 프로젝트 NOVA에서 AWS 인프라와 선착순 접수 서버, 대기열 담당</li></ul>
-                <p class="cv-link"><a href="https://github.com/Nova-Grandis" target="_blank" rel="noopener">github.com/Nova-Grandis ↗</a></p>
-              </div>
-            </article>
-            <article class="cv-item">
-              <div class="cv-meta"><p class="cv-date mono">2026.01 – 2026.04</p><p class="cv-len">교육</p></div>
-              <div class="cv-main">
-                <h4>F-Lab 백엔드 멘토링</h4>
-                <p class="cv-role">멘토링으로 검색과 에스크로 결제 프로젝트 Search Platform 진행</p>
-                <p class="cv-link"><a href="https://github.com/UHeeJoon/search-platform" target="_blank" rel="noopener">github.com/UHeeJoon/search-platform ↗</a></p>
-              </div>
-            </article>
-            <article class="cv-item">
-              <div class="cv-meta"><p class="cv-date mono">2019.03 – 2025.02</p><p class="cv-len">학력</p></div>
-              <div class="cv-main">
-                <h4>한신대학교</h4>
-                <p class="cv-role">정보통신학부 졸업</p>
-              </div>
-            </article>
-            <article class="cv-item">
-              <div class="cv-meta"><p class="cv-len cv-only">자격증</p></div>
-              <div class="cv-main">
-                <ul class="cert-grid" aria-label="자격증">
-                  <li><b>CKA</b><span>Certified Kubernetes Administrator</span><em class="mono">2026.09</em></li>
-                  <li><b>정보처리기사</b><span>한국산업인력공단</span><em class="mono">2026.09</em></li>
-                  <li><b>AWS SAA</b><span>Solutions Architect – Associate</span><em class="mono">2026.07</em></li>
-                  <li><b>SQLD</b><span>SQL 개발자</span><em class="mono">2026.06</em></li>
-                </ul>
-              </div>
-            </article>
-          </div>
-        </div>
-      </div>
-    </section>
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(32, 1, 0.1, 100);
+    camera.position.set(0, 2.0, 8.4);
+    camera.lookAt(0, 1.05, 0);
 
-    <!-- PRINCIPLES -->
-    <section class="section" id="principles">
-      <div class="wrap">
-        <header class="sec-head">
-          <p class="mono sec-no">02</p>
-          <h2>일하는 방식</h2>
-          <p class="sec-sub">일할 때 지키는 네 가지 습관입니다. 사례를 누르면 해당 프로젝트 설명으로 이동합니다.</p>
-        </header>
-        <div class="principles">
-          <article class="pr">
-            <p class="pr-kick mono">01 · 측정</p>
-            <h3>느리면 <em>추측하지 않고 먼저 잽니다</em></h3>
-            <ol class="pr-flow"><li>계측</li><li>원인 확인</li><li>수정</li><li>다시 계측</li></ol>
-            <ul class="pr-ex">
-              <li><a href="projects/octaco.html#s-search"><span class="pr-proj mono">옥타코</span><span>맡은 기능은 아니었지만 검색 API가 느릴 때 메서드 시간과 쿼리 시간을 따로 재서 쿼리가 원인인 것부터 확인했습니다.</span></a></li>
-              <li><a href="projects/nova.html#s-lock"><span class="pr-proj mono">사전예약 NOVA</span><span>선착순 접수가 느릴 때 트레이스에서 순번 행 Lock 대기를 찾아 Lock 시점을 옮겼습니다.</span></a></li>
-            </ul>
-          </article>
-          <article class="pr">
-            <p class="pr-kick mono">02 · 재현</p>
-            <h3>운영과 같은 조건으로 <em>직접 재현해 봅니다</em></h3>
-            <ol class="pr-flow"><li>같은 경로</li><li>같은 부하</li><li>기준 미달 확인</li><li>고쳐서 다시 시험</li></ol>
-            <ul class="pr-ex">
-              <li><a href="projects/octaco.html#s-fallback"><span class="pr-proj mono">옥타코</span><span>Redis 장애를 Chaos Monkey로 직접 일으켜 인증이 멈추는 것을 확인한 뒤 DB로 우회하게 하고 같은 장애로 다시 시험했습니다.</span></a></li>
-              <li><a href="projects/nova.html#s-loadtest"><span class="pr-proj mono">사전예약 NOVA</span><span>판매 오픈 순간을 운영과 같은 경로로 보내는 부하 시험 클러스터를 만들고, 기준에 못 미친 설정을 고쳐 다시 시험했습니다.</span></a></li>
-            </ul>
-          </article>
-          <article class="pr">
-            <p class="pr-kick mono">03 · 실패</p>
-            <h3>실패하면 <em>무엇이 남는지부터 봅니다</em></h3>
-            <ol class="pr-flow"><li>중간 실패</li><li>남는 것 확인</li><li>되돌리기</li><li>다시 처리</li></ol>
-            <ul class="pr-ex">
-              <li><a href="projects/octaco.html#s-onboard"><span class="pr-proj mono">옥타코</span><span>고객사 추가가 중간에 실패하면 서브도메인, 인증서, Schema가 일부만 남는 것을 확인하고 끝난 단계를 역순으로 지우는 보상 처리를 넣었습니다.</span></a></li>
-                <li><a href="projects/nova.html#s-outbox"><span class="pr-proj mono">사전예약 NOVA</span><span>외부 등록 메시지를 보내지 못해도 DB에 남겨 다시 보내고, 끝내 처리하지 못한 메시지는 DLQ로 옮겨 한 건만 쌓여도 Slack으로 알리게 했습니다.</span></a></li>
-              <!-- 지금은 숨김 (Search Platform): <li><a href="#s-saga"><span class="pr-proj mono">Search Platform</span><span>환불이 실패하면 판매자 돈이 사라지는 경로를 찾아 보상 처리와 원장 대사를 넣었습니다.</span></a></li> -->
-            </ul>
-          </article>
-          <article class="pr">
-            <p class="pr-kick mono">04 · 기록</p>
-            <h3>결정한 이유를 <em>문서로 남깁니다</em></h3>
-            <ol class="pr-flow"><li>문제</li><li>해결안</li><li>검토한 대안</li><li>팀에 공유</li></ol>
-            <ul class="pr-ex">
-              <li><a href="projects/octaco.html"><span class="pr-proj mono">옥타코</span><span>허점이 보이면 바로 묻는 대신 문제와 해결안, 검토한 대안을 의사결정 문서로 정리해 공유했고 이 문서가 팀원들이 먼저 찾아보는 기준이 됐습니다.</span></a></li>
-              <li><a href="projects/nova.html#s-cost"><span class="pr-proj mono">사전예약 NOVA</span><span>비용을 줄인 항목마다 감수할 점과 목표 구조로 되돌리는 방법을 문서에 남겼습니다.</span></a></li>
-            </ul>
-          </article>
-        </div>
-      </div>
-    </section>
+    // ---------- 조명 ----------
+    scene.add(new THREE.HemisphereLight(0xffffff, 0xffd9c7, 1.5));
+    const key = new THREE.DirectionalLight(0xffffff, 2.4);
+    key.position.set(3, 6, 5);
+    key.castShadow = true;
+    key.shadow.mapSize.set(1024, 1024);
+    key.shadow.camera.left = -4; key.shadow.camera.right = 4;
+    key.shadow.camera.top = 4; key.shadow.camera.bottom = -4;
+    key.shadow.radius = 6;
+    scene.add(key);
+    const rim = new THREE.DirectionalLight(0xffc9e0, 1.2);
+    rim.position.set(-4, 3, -4);
+    scene.add(rim);
 
-    <!-- WORK -->
-    <section class="section" id="work">
-      <div class="wrap">
-        <header class="sec-head">
-          <p class="mono sec-no">03</p>
-          <h2>프로젝트</h2>
-          <p class="sec-sub">카드를 누르면 프로젝트별 페이지에서 찾은 문제와 해결 과정과 결과를 차례로 볼 수 있습니다.</p>
-        </header>
+    // ---------- 재질 ----------
+    const mat = (color, o = {}) => new THREE.MeshStandardMaterial({ color, roughness: 0.42, metalness: 0, ...o });
+    const M = {
+      body: mat(0xfff3e3, { roughness: 0.5, emissive: 0x3a2a1a, emissiveIntensity: 0.35 }),
+      hat: mat(0xffc53d, { roughness: 0.3 }),
+      hatDark: mat(0xf3a712, { roughness: 0.35 }),
+      eye: mat(0x2b2330, { roughness: 0.15 }),
+      shine: new THREE.MeshBasicMaterial({ color: 0xffffff }),
+      cheek: new THREE.MeshBasicMaterial({ color: 0xff9db0, transparent: true, opacity: 0.75 }),
+      wood: mat(0xc98b55, { roughness: 0.6 }),
+      metal: mat(0x9aa3b5, { roughness: 0.25, metalness: 0.7 }),
+      cone: mat(0xff7a45, { roughness: 0.45 }),
+      white: mat(0xffffff, { roughness: 0.4 }),
+      brick: mat(0xe8836b, { roughness: 0.7 }),
+      vest: mat(0xff8a5b, { roughness: 0.5 }),
+      lamp: new THREE.MeshStandardMaterial({ color: 0xfff2a8, emissive: 0xffd24d, emissiveIntensity: 1.2 }),
+    };
+    const mesh = (geo, m, shadow = true) => { const o = new THREE.Mesh(geo, m); o.castShadow = shadow; o.receiveShadow = true; return o; };
 
-        <div class="pcards" tabindex="0" aria-label="프로젝트 카드, 좌우로 넘겨 보기">
-          <a class="pcard" href="projects/octaco.html">
-            <div class="pcard-media">
-              <img src="images/diagrams/card-octaco.png" alt="옥타코 요청 경로, 배포, 자동 확장, 데이터 구성 요약 그림" loading="lazy" width="1100">
-              <div class="pcard-hover">
-                <p class="pcard-hk">맡은 일</p>
-                <ul class="pcard-role" aria-label="담당"><li>인증 서버</li><li>고객사 데이터 격리</li><li>접근 제어</li><li>EKS GitOps</li></ul>
-                <p class="pcard-hk">주요 성과</p>
-                <ul class="pcard-res" aria-label="주요 결과"><li><b>자동 복구</b><span>고객사 추가 실패</span><small>이전 사람이 찾아 삭제</small></li><li><b>서버당 1회</b><span>캐시 만료 순간 DB 조회</span><small>이전 요청 수만큼</small></li><li><b>DB로 자동 우회</b><span>Redis 장애 중 세션 인증</span><small>이전 장애 주입 시 전체 인증 실패</small></li></ul>
-              </div>
-            </div>
-            <div class="pcard-body">
-              <div class="pcard-top"><p class="pcard-kind">실무 · 2025.07 – 2026.01 · 백엔드 3명 TF</p><span class="pcard-more">자세히 보기</span></div>
-              <h3>(주)옥타코 멀티테넌트 SSO 인증 서비스</h3>
-              <p class="pcard-desc">고객사 여러 곳이 함께 쓰는 SSO 인증 서비스를 처음부터 만들었습니다. 회사 계정 하나로 Notion과 Slack 같은 업무 앱에 모두 로그인합니다.</p>
-              <p class="pcard-key"><b><s>요청 수만큼</s> → <em>서버당 1회</em></b><span>캐시 만료 순간 DB 조회</span></p>
-              <ul class="pcard-tags"><li>Java</li><li>Spring Boot</li><li>PostgreSQL</li><li>Redis</li><li>SpiceDB</li><li>AWS EKS</li><li>Argo CD</li></ul>
-            </div>
-          </a>
-          <a class="pcard" href="projects/nova.html">
-            <div class="pcard-media">
-              <img src="images/diagrams/card-nova.png" alt="사전예약 NOVA AWS 아키텍처 요약 그림" loading="lazy" width="1100">
-              <div class="pcard-hover">
-                <p class="pcard-hk">맡은 일</p>
-                <ul class="pcard-role" aria-label="담당"><li>AWS 인프라</li><li>Terraform</li><li>부하 시험</li><li>접수 서버와 대기열</li></ul>
-                <p class="pcard-hk">주요 성과</p>
-                <ul class="pcard-res" aria-label="주요 결과"><li><b>48ms</b><span>선착순 접수 p50</span><small>이전 521ms</small></li><li hidden><b>3초</b><span>대기열 입장 p95</span><small>이전 31초</small></li><li><b>30ms</b><span>판매 오픈 첫 1분 p95</span><small>첫 시험 4.67초</small></li></ul>
-              </div>
-            </div>
-            <div class="pcard-body">
-              <div class="pcard-top"><p class="pcard-kind">팀 프로젝트 · 2026.09 – 2026.10 · LG U+ 유레카 부트캠프 7인 팀</p><span class="pcard-more">자세히 보기</span></div>
-              <h3>사전예약 서비스 NOVA</h3>
-              <p class="pcard-desc">판매가 열리면 10초 안에 5,000명이 몰리는 사전예약 서비스입니다. AWS 인프라와 사전예약 접수 서버, 대기열을 맡았습니다.</p>
-              <p class="pcard-key"><b><s>521ms</s> → <em>48ms</em></b><span>선착순 접수 p50</span></p>
-              <ul class="pcard-tags"><li>Spring Boot</li><li>MySQL</li><li>Valkey</li><li>SQS</li><li>ECS Fargate</li><li>Terraform</li></ul>
-            </div>
-          </a>
-          <a class="pcard pcard-wide" href="projects/search-platform.html">
-            <div class="pcard-media">
-              <img src="images/diagrams/card-sp.png" alt="Search Platform 구조 요약 그림" loading="lazy" width="1100">
-              <div class="pcard-hover">
-                <p class="pcard-hk">맡은 일</p>
-                <ul class="pcard-role" aria-label="담당"><li>검색 성능 측정</li><li>Elasticsearch 전환</li><li>검색 정확도 개선</li><li>이중 판매 차단</li><li>환불 보상</li><!-- 원래: 환불 보상과 원장 대사 --></ul>
-                <p class="pcard-hk">주요 성과</p>
-                <ul class="pcard-res" aria-label="주요 결과"><li><b>549ms</b><span>조건이 매번 다른 검색 p95</span><small>이전 42.7초</small></li><li><b>새 중복 0건</b><span>같은 게시글 동시 결제</span><small>이전 최대 41건</small></li><!-- 지금은 숨김: <li><b>누락 1건 발견</b><span>결제별 원장 대사</span><small>합계 검사로는 정상</small></li> --></ul>
-              </div>
-            </div>
-            <div class="pcard-body">
-              <div class="pcard-top"><p class="pcard-kind">개인 프로젝트 · 2026.01 – 2026.04, 2026.09 · F-Lab 멘토링</p><span class="pcard-more">자세히 보기</span></div>
-              <h3>Search Platform, 게시글 검색과 에스크로 결제</h3>
-              <p class="pcard-desc">중고거래 게시글 500만 건 검색과 에스크로 결제를 다루는 서비스입니다. 검색은 구현마다 같은 부하로 한계를 잰 뒤 Elasticsearch로 옮겼습니다. 결제는 단계마다 실패하면 돈이 어디에 남는지부터 따졌습니다.</p>
-              <p class="pcard-key"><b><s>42.7초</s> → <em>549ms</em></b><span>검색 p95</span></p>
-              <ul class="pcard-tags"><li>Java</li><li>Spring Boot</li><li>MySQL</li><li>Elasticsearch</li><li>Kafka</li><li>Debezium</li><li>k6</li></ul>
-            </div>
-          </a>
-        </div>
-        <div class="pc-ctrl">
-          <p class="pc-hint">드래그하거나 화살표로 넘겨 보세요</p>
-          <div class="pc-btns"><button type="button" class="pc-prev" aria-label="이전 프로젝트">←</button><button type="button" class="pc-next" aria-label="다음 프로젝트">→</button></div>
-        </div>
+    // ---------- 바닥 그림자 ----------
+    const ground = new THREE.Mesh(new THREE.PlaneGeometry(20, 20), new THREE.ShadowMaterial({ opacity: 0.12 }));
+    ground.rotation.x = -Math.PI / 2;
+    ground.receiveShadow = true;
+    scene.add(ground);
 
+    const tmp = new THREE.Vector3();
+    const tmp2 = new THREE.Vector3();
+    const ease = (k) => { k = Math.min(1, Math.max(0, k)); return k * k * (3 - 2 * k); };
 
-      </div>
-    </section>
+    // ---------- 반짝이 ----------
+    const sparks = [];
+    const sparkGeo = new THREE.OctahedronGeometry(0.07);
+    const PAL = {
+      spark: [0xffd24d, 0xff8a5b, 0xffffff],
+      dust: [0xe3ddd3, 0xc9c2b6, 0xffffff],
+      paint: [0xff9db0, 0xffd24d, 0x8fd3ff],
+    };
+    function burst(at, n = 7, pal = PAL.spark, power = 1) {
+      for (let i = 0; i < n; i++) {
+        const s = new THREE.Mesh(sparkGeo, new THREE.MeshBasicMaterial({ color: pal[i % pal.length], transparent: true }));
+        s.position.copy(at);
+        s.scale.setScalar(power < 1 ? 0.7 : 1);
+        const a = Math.random() * Math.PI * 2;
+        s.userData.v = new THREE.Vector3(Math.cos(a) * 1.6 * power, (1.8 + Math.random() * 1.6) * power, Math.sin(a) * 0.8 * power);
+        s.userData.life = 0;
+        scene.add(s); sparks.push(s);
+      }
+    }
 
-    <!-- AI -->
-    <section class="section" id="ai">
-      <div class="wrap">
-        <header class="sec-head">
-          <p class="mono sec-no">04</p>
-          <h2>AI로 개발할 때 지키는 검증 순서</h2>
-          <p class="sec-sub">Claude Code로 개발할 때 늘 쓰는 방식입니다. AI가 쓴 코드는 사람이 정한 범위와 테스트를 통과해야 반영됩니다.</p>
-        </header>
-        <div class="ai-grid">
-          <article class="ai">
-            <p class="ai-kind mono">애플리케이션</p>
-            <h3>spec과 테스트로 범위를 묶고 운영과 같은 환경에서 검증</h3>
-            <ol class="ai-steps">
-              <li><b>spec 먼저</b><span>기능을 PR 하나 크기의 태스크로 나누고, 목표, 바뀌면 안 되는 동작, 범위 밖 작업, 관련 코드와 DB 제약을 먼저 적어 Claude Code는 그 안에서만 작업. 진행 상태를 남겨 대화를 새로 시작해도 이어서 작업</span></li>
-              <li><b>테스트로 고정</b><span>목표는 새 테스트로, 지킬 동작은 회귀 테스트로 고정하고 모두 통과할 때까지 AI가 수정 반복</span></li>
-              <li><b>운영과 같은 환경</b><span>Testcontainers로 운영과 같은 버전의 DB와 캐시에서 통합 테스트, Floci의 SQS와 DLQ로 메시지 재처리와 DLQ 이동 확인. GitHub Actions 워크플로는 로컬 Git 서버 Forgejo에서 먼저 돌려 확인</span></li>
-              <li><b>PR 리뷰</b><span>태스크마다 PR을 올려 CodeRabbit으로 리뷰하고, 트랜잭션 안의 외부 호출 같은 위험 코드는 설정에 적어 PR마다 확인하고, 못 고친 지적은 spec 태스크로 등록</span></li>
-            </ol>
-            <p class="ai-res">AI가 바꾼 코드는 목표 테스트와 회귀 테스트를 통과하고 리뷰를 거친 것만 병합</p>
-          </article>
-          <article class="ai">
-            <p class="ai-kind mono">인프라</p>
-            <h3>AI는 plan까지만, 실제 AWS 변경은 Atlantis만</h3>
-            <ol class="ai-steps">
-              <li><b>AI가 작성</b><span>AWS 인프라 Terraform 코드는 대부분 Claude Code로 작성</span></li>
-              <li><b>로컬에서 먼저 적용</b><span>Floci에 먼저 apply해 적용 오류를 확인</span></li>
-              <li><b>plan까지만</b><span>AI는 읽기 전용 AWS 역할로 plan까지만 실행</span></li>
-              <li><b>Atlantis만 변경</b><span>실제 AWS 변경은 PR을 거친 Atlantis만 가능</span></li>
-            </ol>
-            <p class="ai-res">AI가 잘못 쓴 코드는 로컬 확인과 PR 리뷰에서 걸러지고, 운영 AWS는 Atlantis를 거쳐야만 변경</p>
-          </article>
-        </div>
-        <ul class="tags ai-tags"><li>Claude Code</li><li>Testcontainers</li><li>Floci</li><li>CodeRabbit</li><li>Terraform</li><li>Atlantis</li></ul>
-      </div>
-    </section>
+    // ---------- 캐릭터 ----------
+    function makeChar(cfg) {
+      const bodyM = mat(cfg.color, { roughness: 0.5, emissive: cfg.color, emissiveIntensity: 0.12 });
+      const innerM = mat(cfg.inner || 0xffb6c8, { roughness: 0.55 });
+      const root = new THREE.Group(), spin = new THREE.Group(), squash = new THREE.Group(), look = new THREE.Group();
+      root.add(spin); spin.add(squash); squash.add(look);
 
-    <!-- DEEP DIVES -->
-    <section class="section" id="deep">
-      <div class="wrap">
-        <header class="sec-head">
-          <p class="mono sec-no">05</p>
-          <h2>혼자 만들고 운영하는 개인 프로젝트</h2>
-          <p class="sec-sub">회사와 팀 프로젝트에서 끝까지 해 보지 못한 주제를 혼자 만들고 운영했습니다. 카드를 누르면 어디까지 만들었고, 어떤 문제를 풀었고, 무엇을 배웠는지 볼 수 있습니다.</p>
-        </header>
-        <div class="dcards">
-          <a class="dcard" href="#p-svalinn" aria-haspopup="dialog">
-            <div class="dcard-top"><p class="dcard-area">인증 보안</p><span class="dcard-open">펼쳐 보기</span></div>
-            <h3>고객사 앱을 OIDC와 SAML로 연결하고 권한 탈취 경로를 재현해 막은 SSO 서버</h3>
-            <p class="dcard-src">Svalinn · 멀티테넌트 SSO와 권한 관리 서버 · 2026.07 – 08 · 1인</p>
-            <p class="dcard-desc">고객사가 등록한 업무 앱에 한 번 로그인으로 들어가고 고객사 사내 로그인에 로그인을 맡길 수도 있는 SSO 서버입니다. 관리자 권한 상승과 계정 탈취 시나리오를 재현해 막았습니다.</p>
-            <ul class="dstats">
-              <li><span class="hl-label">고객사 앱 연동</span><span class="hl-big">OIDC · SAML</span><span class="hl-from">앱 등록부터 로그인과 로그아웃 전파까지</span></li>
-              <li><span class="hl-label">고객사 사내 로그인</span><span class="hl-big">로그인 위임</span><span class="hl-from">Okta나 Entra ID 로그인을 받아 계정에 연결</span></li>
-              <li><span class="hl-label">권한 탈취 시나리오</span><span class="hl-big">재현 후 차단</span><span class="hl-from">관리자 권한 상승과 위조 로그인 등</span></li>
-            </ul>
-            <ul class="pcard-tags"><li>Java 21</li><li>Spring Boot 4</li><li>Spring Authorization Server</li><li>OpenSAML 5</li><li>PostgreSQL RLS</li><li>Testcontainers</li></ul>
-          </a>
-          <a class="dcard" href="#p-homelab" aria-haspopup="dialog">
-            <div class="dcard-top"><p class="dcard-area">홈랩 Kubernetes</p><span class="dcard-open">펼쳐 보기</span></div>
-            <h3>서버 두 대에 Kubernetes를 직접 설치해 운영하는 홈랩</h3>
-            <p class="dcard-src">홈랩 Kubernetes 플랫폼 · kubeadm 2노드 베어메탈 · 2026.05 – 06 · 1인</p>
-            <p class="dcard-desc">집에 있는 서버 두 대에 kubeadm으로 클러스터를 세우고 개인 프로젝트를 올려 운영합니다. 공인 IP 없이 서비스하며 서명 검증을 통과한 이미지만 배포합니다.</p>
-            <ul class="dstats">
-              <li><span class="hl-label">외부 노출</span><span class="hl-big">열린 포트 0</span><span class="hl-from">공인 IP 없이 Cloudflare Tunnel로만</span></li>
-              <li><span class="hl-label">Git의 평문 비밀번호</span><span class="hl-big">모두 제거</span><span class="hl-from">Vault와 External Secrets로 이전</span></li>
-              <li><span class="hl-label">배포되는 이미지</span><span class="hl-big">서명된 이미지만</span><span class="hl-from">cosign 서명을 검증한 뒤 release 브랜치로</span></li>
-            </ul>
-            <ul class="pcard-tags"><li>kubeadm</li><li>Cilium</li><li>Argo CD</li><li>Vault</li><li>cosign</li><li>Cloudflare Tunnel</li></ul>
-          </a>
-        </div>
-      </div>
-    </section>
+      const body = mesh(new THREE.SphereGeometry(1, 64, 48), bodyM);
+      body.scale.set(1.05, 0.95, 0.98); body.position.y = 1.15;
+      look.add(body);
 
-    <!-- STACK -->
-    <section class="section" id="stack">
-      <div class="wrap">
-        <header class="sec-head">
-          <p class="mono sec-no">06</p>
-          <h2>기술</h2>
-          <p class="sec-sub">실무나 프로젝트에서 직접 설계하고 운영해 본 것만 적었습니다.</p>
-        </header>
-        <div class="stack">
-          <div>
-            <h3>백엔드</h3>
-            <p class="tech">
-              <span><img src="images/tech/java.svg" alt="" width="18" height="18" loading="lazy">Java</span>
-              <span><img src="images/tech/springboot.svg" alt="" width="18" height="18" loading="lazy">Spring Boot</span>
-              <span><img src="images/tech/springsecurity.svg" alt="" width="18" height="18" loading="lazy">Spring Security</span>
-              <span><img src="images/tech/hibernate.svg" alt="" width="18" height="18" loading="lazy">JPA/Hibernate</span>
-              <span><img src="images/tech/flyway.svg" alt="" width="18" height="18" loading="lazy">Flyway</span>
-              <span><img src="images/tech/resilience4j.png" alt="" width="18" height="18" loading="lazy" class="dk">Resilience4j</span>
-              <!-- 지금은 숨김: <span><img src="images/tech/grpc.png" alt="" width="18" height="18" loading="lazy">gRPC</span> -->
-            </p>
-          </div>
-          <div>
-            <h3>데이터와 메시징</h3>
-            <p class="tech">
-              <span><img src="images/tech/postgresql.svg" alt="" width="18" height="18" loading="lazy">PostgreSQL</span>
-              <span><img src="images/tech/redis.svg" alt="" width="18" height="18" loading="lazy">Redis</span>
-              <!-- 지금은 숨김: <span><img src="images/tech/elasticsearch.svg" alt="" width="18" height="18" loading="lazy">Elasticsearch</span> -->
-              <span><img src="images/tech/apachekafka.svg" alt="" width="18" height="18" loading="lazy" class="dk">Kafka</span>
-              <span><img src="images/tech/mysql.png" alt="" width="18" height="18" loading="lazy">MySQL</span>
-              <span><img src="images/tech/valkey.png" alt="" width="18" height="18" loading="lazy">Valkey</span>
-              <!-- 지금은 숨김: <span class="no-ic">Debezium</span> -->
-            </p>
-          </div>
-          <div>
-            <h3>인증</h3>
-            <p class="tech">
-              <span><img src="images/tech/openid.svg" alt="" width="18" height="18" loading="lazy">OIDC</span>
-              <span class="no-ic">SAML 2.0</span>
-              <span class="no-ic">SCIM 2.0</span>
-              <span class="no-ic">Spring Authorization Server</span>
-              <span><img src="images/tech/spicedb.png" alt="" width="18" height="18" loading="lazy">SpiceDB</span>
-            </p>
-          </div>
-          <div>
-            <h3>AWS</h3>
-            <p class="tech">
-              <span><img src="images/tech/aws-vpc.png" alt="" width="18" height="18" loading="lazy">VPC</span>
-              <span><img src="images/tech/aws-alb.png" alt="" width="18" height="18" loading="lazy">ALB</span>
-              <span><img src="images/tech/aws-route53.png" alt="" width="18" height="18" loading="lazy">Route 53</span>
-              <span><img src="images/tech/aws-cloudfront.png" alt="" width="18" height="18" loading="lazy">CloudFront</span>
-              <span><img src="images/tech/aws-waf.png" alt="" width="18" height="18" loading="lazy">WAF</span>
-              <span><img src="images/tech/aws-eks.png" alt="" width="18" height="18" loading="lazy">EKS</span>
-              <span><img src="images/tech/aws-fargate.png" alt="" width="18" height="18" loading="lazy">ECS Fargate</span>
-              <span><img src="images/tech/aws-rds.png" alt="" width="18" height="18" loading="lazy">RDS</span>
-              <span><img src="images/tech/aws-elasticache.png" alt="" width="18" height="18" loading="lazy">ElastiCache</span>
-              <span><img src="images/tech/aws-sqs.png" alt="" width="18" height="18" loading="lazy">SQS</span>
-              <span><img src="images/tech/aws-iam.png" alt="" width="18" height="18" loading="lazy">IAM</span>
-              <span><img src="images/tech/aws-secretsmanager.png" alt="" width="18" height="18" loading="lazy">Secrets Manager</span>
-              <span><img src="images/tech/aws-cloudwatch.png" alt="" width="18" height="18" loading="lazy">CloudWatch</span>
-            </p>
-          </div>
-          <div>
-            <h3>Kubernetes</h3>
-            <p class="tech">
-              <span><img src="images/tech/kubernetes.svg" alt="" width="18" height="18" loading="lazy">Kubernetes</span>
-              <span><img src="images/tech/docker.svg" alt="" width="18" height="18" loading="lazy">Docker</span>
-              <!-- 지금은 숨김: <span><img src="images/tech/cilium.svg" alt="" width="18" height="18" loading="lazy">Cilium</span> -->
-              <span><img src="images/tech/helm.png" alt="" width="18" height="18" loading="lazy">Helm</span>
-              <span><img src="images/tech/containerd.png" alt="" width="18" height="18" loading="lazy" class="dk">containerd</span>
-              <!-- 지금은 숨김: <span><img src="images/tech/longhorn.png" alt="" width="18" height="18" loading="lazy">Longhorn</span> -->
-            </p>
-          </div>
-          <div>
-            <h3>배포와 IaC</h3>
-            <p class="tech">
-              <span><img src="images/tech/githubactions.svg" alt="" width="18" height="18" loading="lazy">GitHub Actions</span>
-              <span><img src="images/tech/gitlab.svg" alt="" width="18" height="18" loading="lazy">GitLab CI</span>
-              <span><img src="images/tech/argo.svg" alt="" width="18" height="18" loading="lazy">Argo CD</span>
-              <span><img src="images/tech/terraform.svg" alt="" width="18" height="18" loading="lazy">Terraform</span>
-              <span><img src="images/tech/trivy.svg" alt="" width="18" height="18" loading="lazy" class="dk">Trivy</span>
-              <span><img src="images/tech/atlantis.png" alt="" width="18" height="18" loading="lazy">Atlantis</span>
-            </p>
-          </div>
-          <div>
-            <h3>보안</h3>
-            <p class="tech">
-              <span><img src="images/tech/vault.svg" alt="" width="18" height="18" loading="lazy" class="dk">Vault</span>
-              <span><img src="images/tech/cloudflare.svg" alt="" width="18" height="18" loading="lazy">Cloudflare Tunnel</span>
-              <span class="no-ic">External Secrets</span>
-              <span class="no-ic">SOPS</span>
-              <span class="no-ic">IRSA</span>
-              <span class="no-ic">NetworkPolicy</span>
-              <span class="no-ic">cosign</span>
-            </p>
-          </div>
-          <div>
-            <h3>관측</h3>
-            <p class="tech">
-              <span><img src="images/tech/grafana.svg" alt="" width="18" height="18" loading="lazy">Grafana</span>
-              <span><img src="images/tech/prometheus.svg" alt="" width="18" height="18" loading="lazy">Prometheus</span>
-              <span><img src="images/tech/opentelemetry.svg" alt="" width="18" height="18" loading="lazy" class="dk">OpenTelemetry</span>
-              <span><img src="images/tech/tempo.png" alt="" width="18" height="18" loading="lazy">Tempo</span>
-              <span><img src="images/tech/pyroscope.svg" alt="" width="18" height="18" loading="lazy">Pyroscope</span>
-              <span><img src="images/tech/loki.png" alt="" width="18" height="18" loading="lazy">Loki</span>
-              <span><img src="images/tech/mimir.png" alt="" width="18" height="18" loading="lazy">Mimir</span>
-            </p>
-          </div>
-          <div>
-            <h3>테스트와 개발</h3>
-            <p class="tech">
-              <span><img src="images/tech/k6.svg" alt="" width="18" height="18" loading="lazy">k6</span>
-              <span><img src="images/tech/junit5.svg" alt="" width="18" height="18" loading="lazy">JUnit 5</span>
-              <span><img src="images/tech/testcontainers.svg" alt="" width="18" height="18" loading="lazy">Testcontainers</span>
-              <span><img src="images/tech/claude.svg" alt="" width="18" height="18" loading="lazy">Claude Code</span>
-              <span><img src="images/tech/chaosmonkey.png" alt="" width="18" height="18" loading="lazy" class="dk">Chaos Monkey</span>
-              <span><img src="images/tech/floci.png" alt="" width="18" height="18" loading="lazy">Floci</span>
-            </p>
-          </div>
-        </div>
-      </div>
-    </section>
-    <dialog class="pmodal" id="p-svalinn" aria-labelledby="p-svalinn-t">
-      <div class="pmodal-bar"><span class="pmodal-name">Svalinn</span><button type="button" class="pmodal-close" aria-label="닫기">닫기 <span aria-hidden="true">✕</span></button></div>
-      <div class="pmodal-body">
-          <article class="pm">
-            <header class="pm-head">
-              <div class="pm-top"><p class="pm-area">인증 보안</p><span class="pm-links"><a class="deep-repo" href="https://youtu.be/rsbc9wtljvY" target="_blank" rel="noopener">시연 영상 보기</a><a class="deep-repo" href="https://github.com/world-to-code/single-sign-on" target="_blank" rel="noopener">저장소 보기</a></span></div>
-              <h2 class="pm-title" id="p-svalinn-t">고객사 앱을 OIDC와 SAML로 연결하고 권한 탈취 경로를 재현해 막은 SSO 서버</h2>
-              <p class="pm-meta">Svalinn · 멀티테넌트 SSO와 권한 관리 서버 · 2026.07 – 08 · 1인</p>
-              <p class="pm-desc">여러 고객사가 함께 쓰는 SSO 서버입니다. 고객사 관리자가 업무 앱을 OIDC나 SAML 2.0으로 등록하면 직원은 Svalinn에 한 번 로그인해 그 앱들을 씁니다. 고객사가 Okta나 Entra ID 같은 사내 로그인을 이미 쓰고 있으면 로그인은 그쪽에 맡기고 결과만 받아 계정에 연결합니다. 옥타코에서 설계를 맡았던 SSO를 혼자 다시 만들었습니다. 설계와 검증 기준은 제가 정하고 구현은 Claude Code로 했습니다.</p>
-            </header>
-            <figure class="diagram pm-fig"><img src="images/diagrams/sv-arch.png" alt="Svalinn 전체 구조: nginx 뒤의 모듈러 모놀리스가 고객사 SaaS 앱에는 OIDC와 SAML로 로그인을 제공하고 고객사 사내 로그인(Entra ID, Okta, Google)에는 로그인을 위임하며 인사 시스템과는 SCIM으로 계정을 맞춘다" loading="lazy"><figcaption>전체 구조. 고객사 앱에는 OIDC와 SAML로 로그인을 제공하고 고객사 사내 로그인에는 로그인을 위임합니다. 인사 시스템과는 SCIM으로 계정을 맞춥니다.</figcaption></figure>
-            <section class="pm-sec">
-              <h3 class="pm-h">어디까지 만들었나</h3>
-              <dl class="pm-scope">
-              <div><dt>앱 연동</dt><dd><span>OIDC Provider</span><span>SAML 2.0 IdP</span><span>고객사별 앱 등록</span><span>OIDC 백채널 로그아웃과 SAML SLO</span></dd></div>
-              <div><dt>로그인 위임</dt><dd><span>고객사 OIDC·SAML 로그인 연결</span><span>첫 로그인 시 계정 생성</span><span>SCIM 2.0 인사 연동</span></dd></div>
-              <div><dt>권한</dt><dd><span>역할과 세부 권한</span><span>거부 규칙</span><span>하위 관리자 위임</span><span>민감 작업 재인증</span><span>MFA와 패스키</span></dd></div>
-              <div><dt>격리와 운영</dt><dd><span>PostgreSQL RLS 고객사 격리</span><span>로그아웃 전파 재시도</span><span>고객사별 인증서 자동 발급</span></dd></div>
-              <div><dt>검증</dt><dd><span>Testcontainers 통합 테스트</span><span>위조 SAML 응답 시험</span><span>관리자 API 검사 누락 CI</span><span>k6 부하 시험</span></dd></div>
-              <div><dt>기술</dt><dd><span>Java 21</span><span>Spring Boot 4</span><span>Spring Authorization Server</span><span>Spring Modulith</span><span>OpenSAML 5</span><span>PostgreSQL 17</span><span>Redis 7</span><span>React 18</span></dd></div>
-              </dl>
-            <p class="pm-note"><b>아직 못 한 것</b>다른 고객사 데이터 쓰기를 막는 것은 21개 영역 중 18개까지만 확인했습니다. refresh token으로 토큰을 갱신할 때 계정 상태를 다시 확인하지 않아 퇴사 처리 중 발급 기록 삭제가 실패하면 갱신이 계속됩니다. client secret 해시에 쓰는 서버 키를 서비스 중단 없이 바꾸는 기능도 아직 없습니다.</p>
-            </section>
-            <section class="pm-sec">
-              <h3 class="pm-h">풀어 본 문제</h3>
-            <article class="pm-case">
-              <h4><span class="pm-no">01</span>사내 로그인 위임을 악용한 고객사 관리자 계정 탈취 차단</h4>
-              <figure class="diagram pm-fig pm-fig-side"><img src="images/diagrams/sv-fed.png" alt="고객사 사내 로그인으로 위임한 결과를 검증한 뒤 저장해 둔 연결, 외부 ID, 검증된 이메일 순서로 계정을 찾고 연동 기록이 없는 관리자 계정은 자동으로 연동하지 않는 흐름. 퇴사는 SCIM으로 받아 바로 차단한다" loading="lazy"><figcaption>사내 로그인에 위임한 결과를 검증하고 계정을 찾는 순서. 연동 기록이 없는 관리자 계정은 자동으로 연동하지 않습니다.</figcaption></figure>
-              <div class="pm-flow">
-                <div><p class="pm-k">문제</p><p>고객사는 OIDC나 SAML 기반 사내 로그인 시스템을 등록해 사용자 인증을 위임할 수 있었습니다. 보안 테스트 중 사내 로그인 등록 권한을 가진 하위 관리자가 가짜 로그인 시스템을 등록하고 고객사 최고 관리자와 동일한 이메일을 인증 결과에 포함해 보내면 기존 관리자 계정에 자동 연동되어 로그인할 수 있는 취약점을 발견했습니다.</p></div>
-                <div><p class="pm-k">한 일</p><p>기존에는 사내 로그인으로 처음 접속한 사용자의 이메일이나 인사 시스템 ID가 기존 계정과 일치하면 자동으로 연동했습니다. 이를 개선해 최초 연동 대상이 관리자 계정이라면 자동 연동을 거부하도록 변경했습니다. 일반 사용자로 연동한 뒤 관리자로 승격된 계정은 기존 연동을 유지하고 연동 기록이 없는 관리자는 Svalinn 자체 로그인을 사용하도록 정책을 분리했습니다.</p><p>또한 연동 관계를 로그인 시스템의 발급자(Issuer)와 사용자 식별자(Subject) 조합으로 관리해 동일한 이메일을 사용하는 다른 로그인 시스템이 기존 연동을 가장할 수 없도록 했습니다. 발급자나 서명 인증서 변경으로 기존 연동을 무효화하는 경우에는 해당 연동으로 발급된 세션도 함께 종료하도록 처리했습니다.</p></div>
-                <div class="pm-res"><p class="pm-k">결과</p><p class="pm-big">관리자 계정 탈취 차단</p><p>가짜 로그인 시스템이나 인사 시스템 ID를 이용한 관리자 계정 자동 연동이 거부되는 것을 테스트로 확인했습니다. 추가로 SAML 응답 재전송, 서명된 응답의 사용자 정보 변조, 요청하지 않은 응답 전송 등 주요 공격 시나리오를 검증해 모두 차단되는 것을 확인했습니다.</p></div>
-              </div>
-            </article>
-            <article class="pm-case">
-              <h4><span class="pm-no">02</span>일반 로그인만으로 통과되던 민감 작업 재인증</h4>
-              <figure class="pm-dump">
-                <pre><code><span class="c"># 고치기 전: 로그인 때도 갱신되는 인증 시각 하나만 확인</span>
-long sinceAuth = now - session.get(<mark>AUTH_TIME</mark>);
-if (sinceAuth &lt;= window) return true;
+      const C = new THREE.Vector3(0, 1.15, 0);
+      const fl = cfg.faceLift || 0;
+      function onSurface(obj, x, y, lift = 0) {
+        const dir = new THREE.Vector3(x, y, Math.sqrt(Math.max(0, 1 - x * x - y * y)));
+        const p = C.clone().add(new THREE.Vector3(dir.x * 1.05, dir.y * 0.95, dir.z * 0.98).multiplyScalar(1 + lift));
+        obj.position.copy(p);
+        obj.lookAt(p.clone().add(dir));
+        look.add(obj);
+        return obj;
+      }
 
-<span class="c"># 고친 뒤: 재인증 API만 남기는 시각과 인증 수단을 함께 확인</span>
-long sinceStepUp = now - session.get(<mark>STEPUP_TIME</mark>);
-boolean strongEnough = policy.stepUpFactors().contains(session.get(<mark>STEPUP_FACTOR</mark>));
-if (strongEnough &amp;&amp; sinceStepUp &lt;= window) return true;
-return challenge(policy.stepUpFactors());</code></pre>
-                <figcaption>민감 작업을 검사하는 코드에서 발췌해 줄였습니다. 기록이 없으면 통과하지 않습니다.</figcaption>
-              </figure>
-              <div class="pm-flow">
-                <div><p class="pm-k">문제</p><p>역할 변경이나 서명 키 교체처럼 계정과 보안에 영향을 주는 관리자 작업은 OTP나 패스키 등 정책에서 정한 수단으로 재인증해야 실행되도록 설계했습니다. 하지만 기존에는 마지막 인증 시각만 확인했고 이 값은 일반 로그인에도 갱신되고 있었습니다. 그 결과 비밀번호로 로그인한 직후에는 별도의 재인증 없이 민감 작업을 실행할 수 있었고 더 강한 인증 수단을 요구하는 정책도 우회할 수 있었습니다.</p></div>
-                <div><p class="pm-k">한 일</p><p>일반 로그인과 민감 작업을 위한 재인증 기록을 분리했습니다. 재인증 API를 통해 인증을 완료한 경우에만 별도의 인증 시각과 사용한 인증 수단을 기록하고 일반 로그인으로는 해당 기록을 갱신할 수 없도록 변경했습니다. 민감 작업을 실행할 때는 재인증 기록이 정책에서 정한 유효 시간 내에 있는지, 사용한 인증 수단이 허용된 수단인지 모두 확인하도록 했으며 기록이 없거나 조건을 충족하지 못하면 실행을 거부하도록 했습니다.</p><p>추가로 재인증을 시작한 뒤 완료하지 않고 중단한 경우 진행 중이던 재인증 요구가 세션에 남아 이후 정상적인 재인증까지 차단하는 문제도 발견했습니다. 재인증 요구에 유효 시간을 적용해 중단된 인증 절차가 이후 요청에 영향을 주지 않도록 개선했습니다.</p></div>
-                <div class="pm-res"><p class="pm-k">결과</p><p class="pm-big">정책 수단으로만 통과</p><p>일반 로그인만 수행한 세션, 정책보다 약한 수단으로 재인증한 세션, 재인증 기록이 없는 세션은 민감 작업이 거부되고 정책에서 허용한 수단으로 재인증을 완료한 세션만 통과하는 것을 테스트로 확인했습니다.</p></div>
-              </div>
-            </article>
-            <article class="pm-case">
-              <h4><span class="pm-no">03</span>테스트는 통과했지만 RLS가 비활성화되어 있던 고객사 격리</h4>
-              <figure class="diagram pm-fig pm-fig-side"><img src="images/diagrams/sv-rls.png" alt="요청 Host로 고객사를 정하고 커넥션을 빌릴 때마다 고객사 값을 설정해 PostgreSQL RLS로 격리하는 구조. superuser면 기동을 거부하는 검사와 트랜잭션 중 고객사가 바뀌면 커넥션을 다시 설정하는 부분을 추가했다" loading="lazy"><figcaption>요청 주소로 고객사를 정하고 커넥션을 빌릴 때마다 RLS용 고객사 값을 설정합니다. 노란 칸이 결함을 고치며 추가한 부분입니다.</figcaption></figure>
-              <div class="pm-flow">
-                <div><p class="pm-k">문제</p><p>고객사 간 데이터 접근을 막기 위해 애플리케이션의 고객사 조건과 PostgreSQL RLS(Row Level Security)를 함께 적용했습니다. 하지만 실제로는 애플리케이션이 DB Superuser 계정으로 접속하고 있어 RLS가 적용되지 않고 있었습니다. 테스트도 동일한 권한의 계정으로 실행해 이 문제를 발견하지 못했습니다.</p><p>이후 운영과 동일한 일반 DB 계정으로 검증하는 과정에서 또 다른 문제가 드러났습니다. 하나의 트랜잭션 안에서 고객사 컨텍스트가 변경되면 이미 확보한 커넥션에는 이전 고객사 정보가 남아 있어 변경된 고객사 기준으로 조회되지 않았습니다.</p></div>
-                <div><p class="pm-k">한 일</p><p>먼저 DB 마이그레이션 계정과 애플리케이션 계정을 분리하고 애플리케이션 계정에 RLS를 우회할 수 있는 권한이 있거나 Superuser인 경우 서버가 기동되지 않도록 검사했습니다. 이를 통해 RLS가 비활성화된 상태로 서비스가 실행되는 것을 방지했습니다.</p><p>또한 커넥션을 빌릴 때마다 고객사 컨텍스트를 설정하고 트랜잭션 도중 고객사가 변경되는 경우에도 현재 사용 중인 커넥션에 변경된 고객사 정보를 다시 설정하도록 수정했습니다.</p></div>
-                <div class="pm-res"><p class="pm-k">결과</p><p class="pm-big">고객사 간 조회 차단</p><p>일반 DB 계정으로 서명 키와 사내 로그인 연동 등 21개 영역에서 다른 고객사의 데이터 조회가 차단되는 것을 확인했으며 18개 영역에서는 타 고객사 데이터에 대한 쓰기 차단까지 검증했습니다.</p></div>
-              </div>
-              <div class="pm-lesson"><p class="pm-k">배운 점</p><ul><li><b>DB 권한과 보안 정책은 테스트 환경에서도 운영과 동일한 조건으로 검증해야 합니다</b><p>DB를 모킹한 테스트나 Superuser 계정으로 실행한 테스트는 RLS가 실제로 적용되는지 검증할 수 없었습니다. 이후 통합 테스트도 운영과 동일한 일반 DB 계정으로 실행하도록 변경했습니다.</p></li></ul></div>
-            </article>
-            <article class="pm-case">
-              <h4><span class="pm-no">04</span>토큰 발급 처리량을 제한하던 Client Secret 해시 개선</h4>
-              <figure class="pm-dump">
-                <pre><code><span class="c"># 부하를 건 채 2초 간격으로 6번 덤프</span>
-$ for i in 1 2 3 4 5 6; do jstack $PID &gt; js-$i.txt; sleep 2; done
+      // 펭귄 배와 얼굴
+      if (cfg.belly) {
+        const patch = mesh(new THREE.SphereGeometry(1, 48, 32), M.white);
+        patch.scale.set(0.8, 0.86, 0.46); patch.position.set(0, 1.05, 0.6);
+        look.add(patch);
+      }
 
-<span class="c"># 요청 스레드 하나 (개선 전)</span>
-"http-nio-9000-exec-1" #59 ... RUNNABLE
-    at ...crypto.bcrypt.<mark>BCrypt.crypt_raw</mark>(BCrypt.java:558)
-    at ...crypto.bcrypt.BCrypt.checkpw(BCrypt.java:768)
-    at ...ClientSecretAuthenticationProvider.authenticate(...:125)
+      // 조끼 띠
+      const vest = mesh(new THREE.TorusGeometry(0.98, 0.07, 16, 80), mat(cfg.vest));
+      vest.rotation.x = Math.PI / 2; vest.position.y = 0.78; vest.scale.set(1.06, 1, 1);
+      look.add(vest);
 
-<span class="c"># 요청 스레드를 스택별로 분류</span>
-개선 전  request_threads=312  {'<mark>BCrypt': 269</mark>, 'JDBC': 22, 'RSA sign': 2, 'io': 2}
-개선 후  request_threads=306  {'JDBC': 53, 'io': 15, 'RSA sign': 7}  waiting_for_db_connection=220</code></pre>
-                <figcaption>실제 덤프와 분류 결과에서 발췌. 개선 전에는 요청 스레드 312개 중 269개가 BCrypt 계산 중이었습니다.</figcaption>
-              </figure>
-              <div class="pm-flow">
-                <div><p class="pm-k">문제</p><p>Client Credentials 방식의 서버 간 토큰 발급 API를 k6로 동시 사용자 50명 조건에서 측정한 결과 초당 78건의 처리량과 1,049ms의 p95 응답 시간을 기록했습니다. 동시 사용자를 늘려도 처리량은 증가하지 않고 응답 시간만 길어져 병목 원인을 분석했습니다.</p></div>
-                <div><p class="pm-k">한 일</p><p>부하가 발생하는 동안 2초 간격으로 6번의 스레드 덤프를 수집하고 요청 스레드의 스택을 분류했습니다. 전체 요청 스레드 312개 중 269개가 BCrypt 해시 계산에 머물러 있는 것을 확인했습니다.</p><p>원인은 서버가 생성하고 보관하는 Client Secret에도 사용자 비밀번호와 동일한 BCrypt를 사용하고 있었기 때문입니다. 사용자 비밀번호는 유출 시 대입 공격에 대비해 느린 해시가 필요하지만 서버가 생성하고 검증하는 Client Secret은 별도의 키를 사용하는 HMAC-SHA256으로 해시해 저장하도록 변경했습니다. 사용자 비밀번호의 BCrypt 검증은 그대로 유지했습니다.</p></div>
-                <div class="pm-res"><p class="pm-k">결과</p><p class="pm-big">초당 78건 → 563건</p><p>동일한 부하 조건에서 토큰 발급 처리량이 초당 78건에서 563건으로 약 7.2배 증가했고 p95 응답 시간은 1,049ms에서 143ms로 약 86% 감소했습니다.</p><p>개선 후 다시 수집한 스레드 덤프에서는 BCrypt 병목이 사라지고 DB 커넥션 대기가 주요 병목으로 나타났습니다. 노트북 한 대에서 측정한 결과이므로 절대 성능보다는 동일 환경에서의 개선 전후 비율에 의미를 두었습니다.</p></div>
-              </div>
-            </article>
-            </section>
-            <section class="pm-sec">
-              <h3 class="pm-h">보안 점검: 재현해 본 탈취 시나리오</h3>
-              <p class="pm-sub">관리자 위임과 사내 로그인 연동에서 관리자가 맡은 권한을 넘어서거나 남의 계정에 들어갈 수 있는 경로를 시나리오로 정해 막았습니다. 강조한 줄은 만든 뒤에 실제로 찾아 고친 결함이고 나머지는 설계 때 위협으로 정해 미리 막은 것입니다.</p>
-              <div class="table-scroll"><table class="cmp opt pm-threat"><thead><tr><th>시나리오</th><th>막은 방법</th></tr></thead><tbody>
-                <tr><td>최고 관리자와 같은 이름의 역할을 만들어 자기에게 부여</td><td>역할 이름이 아니라 실제로 부여된 세부 권한으로 판단</td></tr>
-                <tr><td>하위 관리자가 자기보다 높은 역할을 자기나 다른 사람에게 부여</td><td>줄 역할의 세부 권한이 모두 자기 권한 안에 있을 때만 허용</td></tr>
-                <tr><td>CSV 일괄 생성으로 높은 역할이 걸린 그룹에 계정 생성</td><td>그룹 지정에도 역할을 직접 줄 때와 같은 기준 적용</td></tr>
-                <tr class="pick"><td>사용자를 그룹에서 빼서 거부 규칙 해제</td><td>사용자를 그룹이나 역할에서 빼는 모든 API에서 거부 규칙 해제 권한 검사</td></tr>
-                <tr class="pick"><td>한 고객사 관리자가 모든 고객사의 공통 역할 수정</td><td>수정과 삭제 전에 소속 고객사 확인</td></tr>
-                <tr><td>관리자 API 하나에 권한 검사 누락</td><td>검사가 빠진 관리자 API가 생기면 CI 실패</td></tr>
-                <tr class="pick"><td>가짜 사내 로그인으로 최고 관리자 계정에 로그인</td><td>사내 로그인 계정을 관리자 계정에 자동 연동하지 않고 역할을 모르면 거절 (01)</td></tr>
-                <tr class="pick"><td>비밀번호로 막 로그인한 관리자가 재인증 없이 민감한 설정 변경</td><td>재인증 API에서 정책 수단으로 인증한 기록만 인정하고 기록이 없으면 거절 (02)</td></tr>
-                <tr><td>서명 인증서만 바꿔 등록해 기존 연결로 남의 계정에 로그인</td><td>발급자, 클라이언트 ID, 서명 인증서가 바뀌면 연결 삭제</td></tr>
-                <tr><td>퇴사자 메일을 이어받은 입사자가 퇴사자 계정으로 로그인</td><td>이메일 대신 사내 로그인의 사용자 ID로 찾고 이메일로 찾기는 기본으로 끔</td></tr>
-                <tr><td>SAML 응답을 재사용하거나 다른 브라우저에 넣어 로그인</td><td>한 번 쓴 응답, 요청하지 않은 응답, 로그인을 시작하지 않은 브라우저의 응답 거절</td></tr>
-                <tr class="pick"><td>퇴사 후에도 연동 앱이 refresh token으로 토큰을 계속 재발급</td><td>계정을 막을 때 세션과 함께 토큰 발급 기록 삭제</td></tr>
-                <tr><td>퇴사자가 이미 로그인한 앱을 계속 사용</td><td>퇴사 정보를 받으면 계정을 막고 연동 앱에 로그아웃 전송</td></tr>
-              </tbody></table></div>
-            </section>
-          </article>
-      </div>
-    </dialog>
-    <dialog class="pmodal" id="p-homelab" aria-labelledby="p-homelab-t">
-      <div class="pmodal-bar"><span class="pmodal-name">홈랩 Kubernetes</span><button type="button" class="pmodal-close" aria-label="닫기">닫기 <span aria-hidden="true">✕</span></button></div>
-      <div class="pmodal-body">
-          <article class="pm">
-            <header class="pm-head">
-              <div class="pm-top"><p class="pm-area">홈랩 Kubernetes</p><a class="deep-repo" href="https://github.com/sago-panda/sapari-helm-manifest" target="_blank" rel="noopener">저장소 보기</a></div>
-              <h2 class="pm-title" id="p-homelab-t">서버 두 대에 Kubernetes를 직접 설치해 운영하는 홈랩</h2>
-              <p class="pm-meta">홈랩 Kubernetes 플랫폼 · kubeadm 2노드 베어메탈 · 2026.05 – 06 · 1인</p>
-              <p class="pm-desc">집에 있는 베어메탈 서버 두 대에 kubeadm으로 Kubernetes를 직접 설치하고 개인 프로젝트를 올려 운영합니다. 공인 IP 없이 외부에 서비스하며 처음 설치하는 Cilium과 Argo CD 말고는 모든 컴포넌트를 Git 저장소 하나에서 Argo CD App of Apps로 동기화합니다.</p>
-            </header>
-            <figure class="diagram pm-fig"><img src="images/diagrams/hl-arch.png" alt="홈랩 클러스터 구조: Cloudflare Tunnel로 들어와 Cilium Gateway를 거쳐 네임스페이스별 앱, Argo CD, Vault, 데이터, 모니터링으로 이어지는 2노드 클러스터" loading="lazy"><figcaption>전체 구조. 외부 요청은 Cloudflare Tunnel로만 들어오고 클러스터 안 컴포넌트는 Argo CD가 Git에서 가져와 배포합니다.</figcaption></figure>
-            <section class="pm-sec">
-              <h3 class="pm-h">어디까지 만들었나</h3>
-              <dl class="pm-scope">
-              <div><dt>클러스터</dt><dd><span>Rocky Linux</span><span>kubeadm v1.35</span><span>containerd</span><span>Cilium</span><span>Gateway API</span></dd></div>
-              <div><dt>배포</dt><dd><span>GitLab CI</span><span>cosign 서명 검증</span><span>Argo CD App of Apps</span><span>Renovate</span></dd></div>
-              <div><dt>보안</dt><dd><span>Cloudflare Tunnel</span><span>Cloudflare Access</span><span>default-deny NetworkPolicy</span><span>Vault</span><span>External Secrets</span><span>RBAC</span></dd></div>
-              <div><dt>데이터</dt><dd><span>CloudNativePG</span><span>Strimzi Kafka</span><span>ECK Elasticsearch</span><span>Redis</span><span>MongoDB</span><span>MinIO</span><span>Longhorn</span></dd></div>
-              <div><dt>관측</dt><dd><span>Prometheus</span><span>Grafana</span><span>Loki</span><span>Tempo</span><span>Hubble</span></dd></div>
-              </dl>
-            <p class="pm-note"><b>아직 못 한 것</b>클러스터에 들어올 때 서명을 한 번 더 검사하는 Kyverno는 다음 과제입니다. GitLab Free 티어라 Container Scanning과 Secret Detection은 리포트만 남기고 배포를 막지는 못합니다.</p>
-            </section>
-            <section class="pm-sec">
-              <h3 class="pm-h">풀어 본 문제</h3>
-            <article class="pm-case">
-              <h4><span class="pm-no">01</span>누가 만든 이미지인지 확인하지 않고 배포하던 문제</h4>
-              <figure class="diagram pm-fig"><img src="images/diagrams/hl-pipeline.png" alt="앱 저장소 CI가 빌드와 서명 후 GitOps 저장소에 커밋하고, GitOps 저장소 CI가 서명을 검증해 release 브랜치로 옮기면 Argo CD가 배포하는 흐름" loading="lazy"><figcaption>앱 저장소에서 서명하고 GitOps 저장소에서 검증을 통과해야 release 브랜치로 넘어갑니다. 빨간 칸은 실패하면 멈추는 단계입니다.</figcaption></figure>
-              <div class="pm-flow">
-                <div><p class="pm-k">문제</p><p>helm install로 직접 올린 20여 개 컴포넌트는 변경 이력이 남지 않았습니다. 태그는 덮어쓸 수 있어 같은 태그가 다른 이미지를 가리킬 수 있었고 CI를 거치지 않은 이미지가 들어와도 막을 장치가 없었습니다.</p></div>
-                <div><p class="pm-k">한 일</p><p>앱 CI가 GitLab CI의 OIDC 토큰으로 이미지에 cosign 서명을 합니다. GitOps 저장소 CI는 이미지를 만든 저장소의 main CI가 서명했는지와 digest로 고정했는지 확인한 뒤 통과한 커밋만 release 브랜치로 옮깁니다. Argo CD는 release 브랜치만 동기화합니다.</p></div>
-                <div class="pm-res"><p class="pm-k">결과</p><p class="pm-big">서명된 이미지만</p><p>CI를 거치지 않았거나 태그로 참조했거나 다른 저장소가 서명한 이미지는 release 브랜치에 닿지 못합니다. 롤백은 git revert로 합니다.</p></div>
-              </div>
-              <div class="pm-lesson"><p class="pm-k">배운 점</p><ul><li><b>배포 이력이 Git에 남아야 되돌릴 수 있습니다</b><p>helm install로 올린 컴포넌트는 언제 무엇이 바뀌었는지 알 수 없었습니다. release 브랜치만 배포하게 바꾸자 배포 기록이 곧 커밋 기록이 됐고 롤백도 커밋 하나를 되돌리는 일이 됐습니다.</p></li></ul></div>
-            </article>
-            <article class="pm-case">
-              <h4><span class="pm-no">02</span>집 네트워크라 포트 하나가 곧 공격 지점이 되던 문제</h4>
-              <figure class="diagram pm-fig"><img src="images/diagrams/hl-security.png" alt="사용자는 Cloudflare Access와 Tunnel을 거쳐 Cilium Gateway로 들어오고, 네임스페이스마다 default-deny, 메일은 SMTP 도메인만 허용, 운영자는 인증서와 ClusterRole로 접근" loading="lazy"><figcaption>외부 진입과 네임스페이스 간 통신, 운영자 권한 모두 기본으로 막고 필요한 경로만 열었습니다.</figcaption></figure>
-              <div class="pm-flow">
-                <div><p class="pm-k">문제</p><p>Pod끼리 모두 통신할 수 있어 서비스 하나가 뚫리면 DB와 관리 도구까지 닿았습니다. 외부에 서비스하려면 공유기 포트를 열어야 했고 비밀번호 일부는 Git에 평문으로 있었습니다.</p></div>
-                <div><p class="pm-k">한 일</p><p>Cloudflare Tunnel로만 노출하고 관리 도구는 Access 인증을 한 번 더 거치게 했습니다. 네임스페이스마다 default-deny를 두고 필요한 경로만 열었습니다. Git에 평문으로 있던 비밀번호는 Vault로 옮기고 External Secrets로 받아 쓰게 했습니다.</p></div>
-                <div class="pm-res"><p class="pm-k">결과</p><p class="pm-big">열린 포트 0</p><p>네임스페이스 사이에는 허용한 경로로만 통신합니다. Git에는 평문 비밀번호가 남아 있지 않습니다.</p></div>
-              </div>
-              <div class="pm-lesson"><p class="pm-k">배운 점</p><ul><li><b>기본 차단은 무엇을 열어야 하는지 아는 일이었습니다</b><p>기본 차단을 켜자 평소 보이지 않던 DB 오퍼레이터의 상태 확인과 API 서버의 웹훅 호출이 먼저 막혔습니다. 이 두 통신이 막힌 것이 DB 인스턴스와 Kafka Pod가 뜨지 않은 원인이 됐습니다.</p></li><li><b>Git과 클러스터가 다르면 GitOps도 믿을 수 없습니다</b><p>정책이 없다고 생각한 네임스페이스에서 통신이 막혀 살펴보니 예전에 직접 적용한 정책이 Git 밖에 남아 있었습니다. 그 정책을 Git에 올려 둘을 맞췄습니다.</p></li></ul></div>
-            </article>
-            <article class="pm-case">
-              <h4><span class="pm-no">03</span>CNI를 바꾸다 클러스터 DNS가 멈춘 장애</h4>
-              <figure class="diagram pm-fig pm-fig-side"><img src="images/diagrams/hl-dns.png" alt="DNS 장애에서 네트워크 정책, kube-proxy 가설을 기각하고 Hubble 관찰과 전수 조사로 남은 calico-node를 찾아 복구한 순서" loading="lazy"><figcaption>가설을 하나씩 지워 간 순서</figcaption></figure>
-              <figure class="diagram pm-fig pm-fig-side"><img src="images/diagrams/hl-cilium.png" alt="Calico, kube-proxy, MetalLB, Envoy Gateway를 Cilium CNI, eBPF 서비스 처리, LB-IPAM, Cilium Gateway API로 4단계에 걸쳐 바꾼 구성" loading="lazy"><figcaption>복구 뒤 네 단계에 걸쳐 Cilium 하나로 합친 구성</figcaption></figure>
-              <div class="pm-flow">
-                <div><p class="pm-k">문제</p><p>도메인 단위로 외부 통신을 허용하려고 Calico에서 Cilium으로 노드를 하나씩 옮기던 중 여러 네임스페이스의 DNS가 한꺼번에 응답하지 않았습니다. 이상하게도 Redis만 정상이었습니다.</p></div>
-                <div><p class="pm-k">한 일</p><p>새 네트워크 정책과 kube-proxy를 차례로 의심했지만 원인이 아니었습니다. Hubble에서 실패한 요청은 차단 기록조차 없어 Cilium이 패킷을 보지 못한다고 판단했습니다. Pod를 전수 조사해 두 노드에 남아 있던 calico-node를 찾았습니다.</p></div>
-                <div class="pm-res"><p class="pm-k">결과</p><p class="pm-big">바로 복구</p><p>지우지 않은 Calico의 iptables 규칙이 원인이었습니다. Calico를 지우자 DNS가 돌아왔고 이후 kube-proxy와 MetalLB, Envoy Gateway까지 Cilium 하나로 합쳤습니다.</p></div>
-              </div>
-              <div class="pm-lesson"><p class="pm-k">배운 점</p><ul><li><b>GitOps 클러스터에서는 자동 동기화를 멈추고 원인을 시험해야 합니다</b><p>네트워크 정책이 원인인지 보려고 정책을 지웠지만 Argo CD가 몇 초 만에 다시 만들어 놓아 실제로는 정책이 있는 상태에서 시험한 셈이었습니다. 원인을 하나씩 배제할 때는 Argo CD 자동 동기화를 먼저 멈추고 바꾼 상태가 유지되는지 확인한 뒤 결과를 봐야 합니다.</p></li></ul></div>
-            </article>
-            <article class="pm-case">
-              <h4><span class="pm-no">04</span>디스크 용량은 남았지만 볼륨을 생성하지 못하던 Longhorn 스토리지 장애</h4>
-              <figure class="diagram pm-fig"><img src="images/diagrams/hl-longhorn.png?v=2" alt="노드 상태와 실제 디스크는 정상이었고 Longhorn이 root 파티션 70G만 디스크로 등록해 자리가 부족했던 원인을 찾은 순서와, /home 391G를 Longhorn 디스크로 추가하고 옛 볼륨과 복제본을 정리한 조치" loading="lazy"><figcaption>원인을 찾은 순서와 조치 뒤 Longhorn 디스크 구성</figcaption></figure>
-              <div class="pm-flow">
-                <div><p class="pm-k">문제</p><p>Prometheus와 Alertmanager, Kafka Pod가 PersistentVolume을 마운트하지 못해 시작되지 않았습니다. Longhorn에서는 새 볼륨이 Faulted 상태가 됐지만 두 노드 모두 정상이었고 실제 디스크에도 여유 공간이 남아 있었습니다.</p></div>
-                <div><p class="pm-k">한 일</p><p>노드 상태가 아닌 Longhorn의 디스크 할당 상태와 볼륨 배치 정책을 추적했습니다. 확인 결과 Longhorn은 70GB root 파티션만 스토리지로 사용하고 있었고 별도로 마운트된 391GB /home 파티션은 디스크로 등록되지 않아 활용하지 못하고 있었습니다.</p><p>여기에 볼륨 복제본을 서로 다른 노드에 두는 정책과 재설치 과정에서 Retain 정책으로 남은 기존 볼륨이 가용 공간을 점유하면서 새 볼륨을 배치할 공간이 부족해진 상황이었습니다.</p><p>두 노드의 /home 파티션을 Longhorn 디스크로 추가하고 root 파티션에는 새 볼륨이 배치되지 않도록 설정했습니다. 기존 Retain 볼륨을 정리하고 자체 복제 기능을 갖춘 Kafka는 중복 복제 비용을 줄이기 위해 Longhorn 복제본을 하나로 조정했습니다.</p></div>
-                <div class="pm-res"><p class="pm-k">결과</p><p class="pm-big">모든 볼륨 정상</p><p>Faulted 상태에 빠졌던 볼륨을 정상화하고 Prometheus와 Alertmanager, Kafka Pod를 모두 복구했습니다.</p></div>
-              </div>
-              <div class="pm-lesson"><p class="pm-k">배운 점</p><ul><li><b>스토리지는 쓸 디스크를 직접 지정해야 합니다</b><p>Longhorn은 데이터 경로가 있는 파일시스템만 보고 다른 디스크를 알아서 찾지 않았습니다. 재설치가 잦은 볼륨은 Retain 대신 Delete로 두고 애플리케이션이 직접 복제하는 데이터는 스토리지 복제를 겹쳐 두지 않습니다.</p></li></ul></div>
-            </article>
-            <article class="pm-case">
-              <h4><span class="pm-no">05</span>로컬에만 있어 잃어버리면 다시 조회해야 하던 비밀 값 관리 문제</h4>
-              <figure class="diagram pm-fig"><img src="images/diagrams/hl-vault.png" alt="이전에는 kubectl로 만든 Secret의 원본이 로컬에만 있어 잃어버리면 다시 조회해야 했고, 이후에는 Git에 ExternalSecret 참조만 두고 External Secrets가 Kubernetes 인증으로 Vault에서 값을 읽어 Secret을 만드는 구조" loading="lazy"><figcaption>비밀 값은 Vault에만 두고 Git에는 어디서 가져올지만 적었습니다.</figcaption></figure>
-              <div class="pm-flow">
-                <div><p class="pm-k">문제</p><p>비밀 값은 Git에 올리지 않고 kubectl create secret으로 클러스터에 바로 넣었기 때문에 원본이 제 로컬 파일에만 있었습니다. 로컬 파일을 잃어버리면 클러스터에서 Secret을 다시 조회해 base64를 풀어야 했고, 클러스터를 다시 만들면 값을 되찾을 곳이 없었습니다.</p></div>
-                <div><p class="pm-k">한 일</p><p>직접 만든 Secret과 로컬 파일을 모두 정리하고 비밀 값은 Vault KV v2에만 두었습니다. Git에는 Vault 경로와 키 이름만 적은 ExternalSecret을 커밋하고 Argo CD가 이를 동기화합니다.</p><p>External Secrets는 ClusterSecretStore 하나로 Vault의 Kubernetes 인증을 거쳐 값을 읽고 Secret을 만듭니다. Argo CD Secret처럼 차트가 이미 만드는 Secret은 덮어쓰지 않고 키만 합쳐 넣었습니다.</p></div>
-                <div class="pm-res"><p class="pm-k">결과</p><p class="pm-big">Git에 평문 없음</p><p>데이터 저장소와 모니터링, Argo CD, Keycloak의 비밀 값을 모두 ExternalSecret으로 받아 씁니다. 로컬 파일을 따로 챙길 필요가 없어졌고 클러스터를 다시 만들어도 Vault에서 값을 그대로 가져옵니다.</p></div>
-              </div>
-              <div class="pm-lesson"><p class="pm-k">배운 점</p><ul><li><b>Git 밖에서 따로 챙겨야 하는 값은 구조가 틀렸다는 신호였습니다</b><p>GitOps는 Git이 원본이어야 하는데 비밀 값만 예외였습니다. 로컬에서 따로 챙기는 대신 원본을 Vault로 옮겨 예외 자체를 없앴습니다. 대신 Vault가 재시작되면 봉인된 상태로 떠서 직접 unseal해야 하는 운영 부담이 생겼습니다.</p></li></ul></div>
-            </article>
-            </section>
-            </article>
-      </div>
-    </dialog>
-  </main>
+      // 귀
+      for (const s of [-1, 1]) {
+        if (cfg.ears === 'long') {
+          const g = new THREE.Group();
+          const e = mesh(new THREE.SphereGeometry(1, 32, 24), bodyM); e.scale.set(0.2, 0.62, 0.14); e.position.y = 0.5;
+          const i = mesh(new THREE.SphereGeometry(1, 32, 24), innerM, false); i.scale.set(0.11, 0.46, 0.07); i.position.set(0, 0.48, 0.08);
+          g.add(e, i); g.position.set(s * 0.36, 1.86, -0.05); g.rotation.z = s < 0 ? 0.22 : -0.55;
+          look.add(g);
+        } else if (cfg.ears === 'round') {
+          const e = mesh(new THREE.SphereGeometry(0.3, 32, 24), bodyM); e.scale.set(1, 1, 0.6); e.position.set(s * 0.74, 1.84, -0.05);
+          const i = mesh(new THREE.SphereGeometry(0.17, 24, 16), innerM, false); i.scale.set(1, 1, 0.4); i.position.set(s * 0.74, 1.83, 0.1);
+          look.add(e, i);
+        } else if (cfg.ears === 'pointy') {
+          const g = new THREE.Group();
+          const e = mesh(new THREE.ConeGeometry(0.27, 0.5, 24), bodyM); e.position.y = 0.2; e.scale.z = 0.6;
+          const i = mesh(new THREE.ConeGeometry(0.15, 0.3, 24), innerM, false); i.position.set(0, 0.15, 0.09); i.scale.z = 0.4;
+          g.add(e, i); g.position.set(s * 0.62, 1.82, -0.02); g.rotation.z = -s * 0.42;
+          look.add(g);
+        } else if (cfg.ears === 'tiny') {
+          const e = mesh(new THREE.SphereGeometry(0.2, 24, 16), bodyM); e.scale.set(1, 1, 0.6); e.position.set(s * 0.76, 1.76, 0.02);
+          const i = mesh(new THREE.SphereGeometry(0.11, 24, 16), innerM, false); i.scale.set(1, 1, 0.4); i.position.set(s * 0.76, 1.75, 0.12);
+          look.add(e, i);
+        }
+      }
 
-  <footer class="footer">
-    <div class="wrap footer-inner">
-      <p class="mono"><span class="prompt">$</span> echo "함께 이야기 나눠요"</p>
-      <div class="footer-links">
-        <a href="mailto:yhjyhj3855@gmail.com">Email</a>
-        <a href="https://github.com/UHeeJoon" target="_blank" rel="noopener">GitHub</a>
-        <a href="https://codding-til-theory.tistory.com" target="_blank" rel="noopener">Blog</a>
-      </div>
-      <p class="copy">© 2026 유희준</p>
-    </div>
-  </footer>
+      // 눈
+      const eyes = [];
+      for (const s of [-1, 1]) {
+        const eye = new THREE.Group();
+        const ball = mesh(new THREE.SphereGeometry(0.15, 32, 24), M.eye, false);
+        ball.scale.set(1, 1.25, 0.55);
+        const shine = new THREE.Mesh(new THREE.SphereGeometry(0.045, 16, 12), M.shine);
+        shine.position.set(0.045, 0.07, 0.07);
+        const shine2 = new THREE.Mesh(new THREE.SphereGeometry(0.022, 12, 8), M.shine);
+        shine2.position.set(-0.04, -0.05, 0.07);
+        eye.add(ball, shine, shine2);
+        if (cfg.frog) {
+          const bump = mesh(new THREE.SphereGeometry(0.3, 32, 24), bodyM);
+          onSurface(bump, s * 0.4, 0.42, -0.1);
+          eye.position.copy(bump.position).add(new THREE.Vector3(0, 0.04, 0.26));
+          look.add(eye);
+        } else {
+          onSurface(eye, s * 0.32, 0.1, fl);
+        }
+        eyes.push(eye);
 
-  <script src="assets/js/main.js?v=20261110b" defer></script>
+        if (cfg.pouch) {
+          const p = mesh(new THREE.SphereGeometry(0.3, 32, 24), mat(cfg.pouch, { roughness: 0.5 }));
+          p.scale.set(1, 0.85, 0.6);
+          onSurface(p, s * 0.58, -0.2, -0.04);
+        }
+        const cheek = new THREE.Mesh(new THREE.CircleGeometry(0.13, 32), M.cheek);
+        onSurface(cheek, s * 0.56, -0.13, 0.012 + fl + (cfg.pouch ? 0.1 : 0));
+
+        if (cfg.whiskers) {
+          for (const k of [-1, 1]) {
+            const w = new THREE.Mesh(new THREE.CylinderGeometry(0.008, 0.008, 0.3, 6).rotateZ(Math.PI / 2), M.eye);
+            onSurface(w, s * 0.7, -0.06 + k * 0.06, 0.02);
+            w.rotateZ(k * 0.18 * s);
+          }
+        }
+      }
+
+      // 입
+      if (cfg.beak) {
+        const beak = mesh(new THREE.ConeGeometry(0.11, 0.24, 24).rotateX(Math.PI / 2), mat(cfg.beak));
+        onSurface(beak, 0, -0.08, fl + 0.06);
+      } else {
+        if (cfg.muzzle) {
+          const mz = mesh(new THREE.SphereGeometry(0.3, 32, 24), mat(cfg.muzzle, { roughness: 0.55 }));
+          mz.scale.set(1.15, 0.8, 0.55);
+          onSurface(mz, 0, -0.16, -0.08);
+          const nose = mesh(new THREE.SphereGeometry(0.075, 24, 16), M.eye, false);
+          nose.scale.set(1.3, 0.9, 0.8);
+          onSurface(nose, 0, -0.07, 0.09);
+        }
+        const r = cfg.frog ? 0.17 : 0.085;
+        const mouth = new THREE.Mesh(new THREE.TorusGeometry(r, 0.024, 12, 32, Math.PI), M.eye);
+        onSurface(mouth, 0, cfg.muzzle ? -0.2 : -0.1, cfg.muzzle ? 0.075 : 0.01 + fl);
+        mouth.rotateZ(Math.PI);
+      }
+
+      // 꼬리
+      if (cfg.tail) {
+        const tail = mesh(new THREE.TorusGeometry(0.3, 0.08, 12, 32, Math.PI * 1.25), bodyM);
+        tail.position.set(0.25, 0.7, -0.95); tail.rotation.set(0, Math.PI / 2, 0.4);
+        look.add(tail);
+      }
+
+      // 안전모
+      const hat = new THREE.Group();
+      const hatM = mat(cfg.hat, { roughness: 0.3 });
+      const dome = mesh(new THREE.SphereGeometry(0.78, 48, 24, 0, Math.PI * 2, 0, Math.PI / 2), hatM);
+      dome.scale.set(1, 0.82, 1);
+      const brim = mesh(new THREE.CylinderGeometry(0.98, 1.0, 0.07, 48), hatM);
+      brim.position.set(0, 0.02, 0.12);
+      const ridge = mesh(new THREE.TorusGeometry(0.62, 0.06, 12, 48, Math.PI), hatM);
+      ridge.rotation.y = Math.PI / 2; ridge.scale.set(1, 1.05, 1);
+      const lampBase = mesh(new THREE.CylinderGeometry(0.13, 0.15, 0.1, 24), M.eye);
+      lampBase.rotation.x = Math.PI / 2 - 0.5; lampBase.position.set(0, 0.42, 0.62);
+      const lamp = new THREE.Mesh(new THREE.SphereGeometry(0.1, 24, 16), M.lamp);
+      lamp.position.set(0, 0.45, 0.68);
+      hat.add(dome, brim, ridge, lampBase, lamp);
+      hat.scale.setScalar(0.8);
+      hat.position.set(0, 1.93, -0.02);
+      hat.rotation.set(-0.08, 0, 0.1);
+      look.add(hat);
+
+      // 팔과 발
+      function arm(side) {
+        const pivot = new THREE.Group();
+        pivot.position.set(side * 0.98, 1.05, 0.05);
+        const upper = mesh(new THREE.CylinderGeometry(0.12, 0.13, 0.5, 20), bodyM);
+        upper.position.y = -0.25;
+        const hand = mesh(new THREE.SphereGeometry(0.18, 24, 16), bodyM);
+        hand.position.y = -0.55;
+        pivot.add(upper, hand);
+        squash.add(pivot);
+        return { pivot, hand };
+      }
+      const armL = arm(-1), armR = arm(1);
+      const footM = cfg.feet ? mat(cfg.feet) : bodyM;
+      for (const s of [-1, 1]) {
+        const foot = mesh(new THREE.SphereGeometry(0.26, 24, 16), footM);
+        foot.scale.set(1, 0.55, 1.3);
+        foot.position.set(s * 0.42, 0.14, 0.15);
+        squash.add(foot);
+      }
+      return { root, spin, squash, look, armL, armR, eyes };
+    }
+
+    // ---------- 공용 소품 ----------
+    function cone(x, z, s = 1) {
+      const g = new THREE.Group();
+      const base = mesh(new THREE.BoxGeometry(0.9, 0.08, 0.9), M.cone);
+      base.position.y = 0.04;
+      const c = mesh(new THREE.ConeGeometry(0.34, 1.05, 32), M.cone);
+      c.position.y = 0.58;
+      const band1 = mesh(new THREE.CylinderGeometry(0.255, 0.285, 0.13, 32), M.white);
+      band1.position.y = 0.42;
+      const band2 = mesh(new THREE.CylinderGeometry(0.15, 0.18, 0.11, 32), M.white);
+      band2.position.y = 0.78;
+      g.add(base, c, band1, band2);
+      g.position.set(x, 0, z); g.scale.setScalar(s); g.rotation.y = 0.4;
+      scene.add(g);
+      return g;
+    }
+    const bgeo = new THREE.BoxGeometry(0.62, 0.28, 0.32);
+    const popScale = (k) => 1 + 2.70158 * Math.pow(k - 1, 3) + 1.70158 * Math.pow(k - 1, 2);
+
+    // ---------- 하는 일 ----------
+    const JOBS = {
+      // 망치질
+      hammer(ch) {
+        scene.add(ch.root);
+        cone(-2.25, 0.2, 1); cone(-2.85, -0.9, 0.75);
+        const tool = new THREE.Group();
+        const handle = mesh(new THREE.CylinderGeometry(0.05, 0.055, 0.85, 16), M.wood);
+        handle.position.y = -0.3;
+        const head = mesh(new THREE.BoxGeometry(0.42, 0.18, 0.18), M.metal);
+        head.position.y = -0.72;
+        tool.add(handle, head); tool.position.y = -0.5;
+        ch.armR.pivot.add(tool);
+        const bricks = new THREE.Group();
+        [[-0.33, 0.14, 0], [0.33, 0.14, 0], [0, 0.42, 0.02]].forEach(([x, y, z], i) => {
+          const b = mesh(bgeo, M.brick); b.position.set(x, y, z); b.rotation.y = (i - 1) * 0.06; bricks.add(b);
+        });
+        bricks.position.set(2.05, 0, 0.75); bricks.rotation.y = -0.35;
+        scene.add(bricks);
+        let prev = -1;
+        return {
+          hop: 0.1,
+          update(t) {
+            ch.armL.pivot.rotation.set(-0.25, 0, -2.6 + Math.sin(t * 6) * 0.35);
+            const phase = (t * 1.3) % 1;
+            const swing = phase < 0.7 ? phase / 0.7 : 1 - (phase - 0.7) / 0.3;
+            ch.armR.pivot.rotation.set(0, -0.45, 2.5 - ease(swing) * 1.2);
+            const k = Math.floor(t * 1.3 - 0.7);
+            if (k > prev) { head.getWorldPosition(tmp); burst(tmp, 5); bricks.scale.y = 0.9; }
+            prev = k;
+            bricks.scale.y += (1 - bricks.scale.y) * 0.2;
+          },
+        };
+      },
+
+      // 벽돌 쌓기
+      bricklay(ch) {
+        scene.add(ch.root);
+        ch.root.position.set(-0.5, 0, 0.35); ch.root.rotation.y = 0.5;
+        cone(-2.5, -0.6, 0.85);
+        const held = mesh(bgeo, M.brick);
+        held.position.set(0, -0.62, 0.05); held.rotation.z = Math.PI / 2;
+        ch.armR.pivot.add(held);
+        const supply = new THREE.Group();
+        for (let i = 0; i < 4; i++) { const b = mesh(bgeo, M.brick); b.position.set(0, 0.14 + i * 0.28, 0); b.rotation.y = i * 0.15; supply.add(b); }
+        supply.position.set(-1.9, 0, 0.6); supply.rotation.y = 0.3;
+        scene.add(supply);
+        const wall = new THREE.Group();
+        wall.position.set(1.65, 0, -0.4); wall.rotation.y = -0.35;
+        scene.add(wall);
+        const slots = [];
+        for (let r = 0; r < 3; r++) for (let c = 0; c < 3; c++) {
+          const b = mesh(bgeo, M.brick);
+          b.position.set((c - 1) * 0.64 + (r % 2 ? 0.16 : -0.16), 0.14 + r * 0.29, 0);
+          b.visible = false; b.userData.pop = 1;
+          wall.add(b); slots.push(b);
+        }
+        let n = 0, clearAt = -1, lastK = Math.floor(-0.5);
+        return {
+          hop: 0.08,
+          lookBase: -0.35,
+          update(t, dt, now) {
+            ch.armL.pivot.rotation.set(-0.25, 0, -2.6 + Math.sin(t * 6) * 0.35);
+            const phase = (t * 0.8) % 1;
+            const reach = phase < 0.5 ? ease(phase / 0.5) : 1 - ease((phase - 0.5) / 0.5);
+            ch.armR.pivot.rotation.set(0, 0, 0.25 + reach * 1.25);
+            const k = Math.floor(t * 0.8 - 0.5);
+            if (k > lastK && clearAt < 0) {
+              const b = slots[n++];
+              b.visible = true; b.userData.pop = 0;
+              b.getWorldPosition(tmp); burst(tmp, 4, PAL.dust, 0.6);
+              held.visible = false;
+              if (n === slots.length) clearAt = now + 1.8;
+            }
+            lastK = k;
+            if (phase >= 0.85 || phase < 0.5) held.visible = clearAt < 0;
+            for (const b of slots) {
+              if (b.userData.pop < 1) { b.userData.pop = Math.min(1, b.userData.pop + dt * 4); b.scale.setScalar(Math.max(0.001, popScale(b.userData.pop))); }
+            }
+            if (clearAt > 0 && now > clearAt) {
+              wall.getWorldPosition(tmp); tmp.y += 0.5; burst(tmp, 12, PAL.spark);
+              slots.forEach((b) => (b.visible = false));
+              n = 0; clearAt = -1; held.visible = true;
+            }
+          },
+        };
+      },
+
+      // 페인트칠
+      paint(ch) {
+        const g = new THREE.Group();
+        g.position.set(-0.55, 0, 0.3); g.rotation.y = 0.7;
+        scene.add(g); g.add(ch.root);
+        cone(-2.4, 0.1, 0.9);
+        const colors = [0xffb3c7, 0xa8dcff, 0xb9f0b5, 0xffe08a, 0xd7c4ff];
+        let ci = 0;
+        const wallM = mat(0xf4f1ec, { roughness: 0.8 });
+        const wall = mesh(new THREE.BoxGeometry(0.08, 1.7, 1.6), wallM);
+        wall.position.set(2.21, 0.95, 0.05);
+        g.add(wall);
+        const paintM = new THREE.MeshStandardMaterial({ color: colors[0], roughness: 0.6 });
+        const coat = new THREE.Mesh(new THREE.PlaneGeometry(1.5, 1.3).translate(0, 0.65, 0), paintM);
+        coat.rotation.y = -Math.PI / 2; coat.position.set(2.165, 0.38, 0.05); coat.scale.y = 0.001;
+        g.add(coat);
+        const pole = mesh(new THREE.CylinderGeometry(0.035, 0.035, 1, 12), M.wood);
+        const roller = new THREE.Group();
+        const fur = mesh(new THREE.CylinderGeometry(0.12, 0.12, 0.55, 24).rotateX(Math.PI / 2), paintM);
+        const frame = mesh(new THREE.TorusGeometry(0.16, 0.02, 8, 16, Math.PI), M.metal);
+        frame.rotation.set(0, Math.PI / 2, 0);
+        roller.add(fur);
+        ch.armR.pivot.add(pole, roller);
+        const bucket = mesh(new THREE.CylinderGeometry(0.26, 0.22, 0.42, 24), mat(0xffffff, { roughness: 0.4 }));
+        bucket.position.set(1.0, 0.21, 0.9);
+        const paintTop = new THREE.Mesh(new THREE.CircleGeometry(0.24, 24), paintM);
+        paintTop.rotation.x = -Math.PI / 2; paintTop.position.set(1.0, 0.4, 0.9);
+        g.add(bucket, paintTop);
+        let progress = 0, lastCyc = 0;
+        return {
+          hop: 0.06,
+          lookBase: -0.6,
+          update(t, dt) {
+            ch.armL.pivot.rotation.set(-0.25, 0, -2.6 + Math.sin(t * 6) * 0.35);
+            const th = 1.55 + 0.5 * Math.sin(t * 2.4);
+            ch.armR.pivot.rotation.set(0, 0, th);
+            const L = (2.05 - 0.98) / Math.sin(th) - 0.55;
+            pole.scale.y = L; pole.position.y = -0.55 - L / 2;
+            roller.position.y = -0.55 - L;
+            const cyc = Math.floor(t / 8);
+            progress = (t % 8) / 7;
+            coat.scale.y = Math.max(0.001, Math.min(1, progress));
+            if (cyc > lastCyc) {
+              lastCyc = cyc;
+              wallM.color.set(colors[ci]);
+              ci = (ci + 1) % colors.length;
+              paintM.color.set(colors[ci]);
+              coat.scale.y = 0.001;
+              wall.getWorldPosition(tmp); tmp.y += 0.6; burst(tmp, 10, PAL.paint);
+            }
+          },
+        };
+      },
+
+      // 공구리 치기
+      concrete(ch) {
+        scene.add(ch.root);
+        ch.root.position.set(-0.6, 0, 0.3); ch.root.rotation.y = 0.25;
+        cone(-2.4, -0.4, 0.9);
+        const greyM = mat(0xbdb7ae, { roughness: 0.95 });
+        // 삽
+        const shovel = new THREE.Group();
+        const handle = mesh(new THREE.CylinderGeometry(0.04, 0.04, 0.95, 12), M.wood);
+        handle.position.y = -0.55 - 0.475;
+        const blade = mesh(new THREE.BoxGeometry(0.34, 0.4, 0.04), M.metal);
+        blade.position.y = -0.55 - 0.95 - 0.18;
+        const lump = mesh(new THREE.SphereGeometry(0.16, 16, 12), greyM);
+        lump.scale.set(1, 0.8, 0.6); lump.position.set(0, blade.position.y, 0.1);
+        shovel.add(handle, blade, lump);
+        ch.armR.pivot.add(shovel);
+        // 시멘트 더미
+        const pile = new THREE.Group();
+        [[0, 0, 0, 0.45], [0.35, 0, 0.15, 0.32], [-0.3, 0, 0.2, 0.3]].forEach(([x, y, z, r]) => {
+          const m = mesh(new THREE.SphereGeometry(r, 24, 16), greyM); m.scale.y = 0.45; m.position.set(x, y, z); pile.add(m);
+        });
+        pile.position.set(1.45, 0, -0.1);
+        scene.add(pile);
+        // 믹서
+        const mixer = new THREE.Group();
+        const frameM = mat(0x5b6273, { roughness: 0.5 });
+        const base = mesh(new THREE.BoxGeometry(1.0, 0.12, 0.7), frameM); base.position.y = 0.3;
+        const legL = mesh(new THREE.BoxGeometry(0.08, 0.9, 0.08), frameM); legL.position.set(0.25, 0.75, 0.3);
+        const legR = legL.clone(); legR.position.z = -0.3;
+        const wheel = mesh(new THREE.CylinderGeometry(0.22, 0.22, 0.12, 24).rotateX(Math.PI / 2), M.eye); wheel.position.set(-0.35, 0.22, 0.38);
+        const wheel2 = wheel.clone(); wheel2.position.z = -0.38;
+        const stand = mesh(new THREE.BoxGeometry(0.08, 0.3, 0.08), frameM); stand.position.set(0.4, 0.15, 0);
+        mixer.add(base, legL, legR, wheel, wheel2, stand);
+        const tilt = new THREE.Group(); tilt.position.set(0, 1.2, 0); tilt.rotation.z = 0.6;
+        const drum = new THREE.Group();
+        const pts = [[0.05, -0.62], [0.42, -0.58], [0.62, -0.25], [0.64, 0.12], [0.4, 0.55], [0.26, 0.72]].map(([r, y]) => new THREE.Vector2(r, y));
+        drum.add(mesh(new THREE.LatheGeometry(pts, 40), mat(0xff9f43, { roughness: 0.35, side: THREE.DoubleSide })));
+        for (const [y, r] of [[-0.3, 0.6], [0.0, 0.645], [0.3, 0.55]]) {
+          const ring = mesh(new THREE.TorusGeometry(r, 0.03, 8, 40), mat(0xffffff, { roughness: 0.4 }));
+          ring.rotation.x = Math.PI / 2; ring.position.y = y; drum.add(ring);
+        }
+        for (let i = 0; i < 4; i++) {
+          const fin = mesh(new THREE.BoxGeometry(0.06, 0.5, 0.06), frameM);
+          const a = (i / 4) * Math.PI * 2;
+          fin.position.set(Math.cos(a) * 0.63, -0.05, Math.sin(a) * 0.63); fin.rotation.z = 0.3;
+          drum.add(fin);
+        }
+        const mouth = new THREE.Object3D(); mouth.position.y = 0.75;
+        tilt.add(drum, mouth); mixer.add(tilt);
+        mixer.position.set(2.45, 0, -1.25); mixer.rotation.y = -0.3;
+        scene.add(mixer);
+        const flying = [];
+        let prev = 0, tossK = -1;
+        return {
+          hop: 0.08,
+          lookBase: -0.2,
+          update(t, dt) {
+            ch.armL.pivot.rotation.set(-0.25, 0, -2.6 + Math.sin(t * 6) * 0.35);
+            drum.rotation.y += dt * 2.2;
+            const phase = (t * 0.75) % 1;
+            let th;
+            if (phase < 0.25) th = 0.82 + Math.sin(phase / 0.25 * Math.PI) * 0.08;
+            else if (phase < 0.6) th = 0.82 + ease((phase - 0.25) / 0.35) * 1.65;
+            else th = 2.47 - ease((phase - 0.6) / 0.4) * 1.65;
+            ch.armR.pivot.rotation.set(0, 0, th);
+            const k = Math.floor(t * 0.75 - 0.6);
+            if (k > tossK) {
+              tossK = k;
+              lump.getWorldPosition(tmp); mouth.getWorldPosition(tmp2);
+              const b = mesh(new THREE.SphereGeometry(0.14, 16, 12), greyM);
+              b.position.copy(tmp); scene.add(b);
+              flying.push({ b, from: tmp.clone(), to: tmp2.clone(), k: 0 });
+              lump.visible = false;
+            }
+            if (prev < 0.25 && phase >= 0 && phase < 0.25) lump.visible = true;
+            if (phase < prev) { lump.visible = true; pile.getWorldPosition(tmp); tmp.y += 0.2; burst(tmp, 3, PAL.dust, 0.5); }
+            prev = phase;
+            for (let i = flying.length - 1; i >= 0; i--) {
+              const f = flying[i];
+              f.k += dt / 0.6;
+              f.b.position.lerpVectors(f.from, f.to, Math.min(1, f.k));
+              f.b.position.y += Math.sin(Math.min(1, f.k) * Math.PI) * 0.7;
+              if (f.k >= 1) { burst(f.to, 5, PAL.dust, 0.6); scene.remove(f.b); flying.splice(i, 1); }
+            }
+          },
+        };
+      },
+
+      // 지게차 운전
+      forklift(ch) {
+        const Y = mat(0xffc53d, { roughness: 0.35 }), Yd = mat(0xe8a417, { roughness: 0.4 });
+        const K = mat(0x2f3040, { roughness: 0.6 }), G = mat(0x9aa3b5, { roughness: 0.3, metalness: 0.5 });
+        const fk = new THREE.Group();
+        fk.position.set(-1.2, 0, 0.35);
+        scene.add(fk);
+        cone(-2.7, -1.5, 0.8); cone(2.8, -1.6, 0.8);
+        const chassis = mesh(new THREE.BoxGeometry(1.5, 0.45, 1.0), Y); chassis.position.set(0, 0.5, 0);
+        const cw = mesh(new THREE.BoxGeometry(0.4, 0.62, 1.02), Yd); cw.position.set(-0.72, 0.6, 0);
+        fk.add(chassis, cw);
+        const wheels = [];
+        for (const [x, z] of [[0.45, 0.52], [0.45, -0.52], [-0.5, 0.52], [-0.5, -0.52]]) {
+          const w = new THREE.Group(); w.rotation.x = Math.PI / 2; w.position.set(x, 0.27, z);
+          const tire = mesh(new THREE.CylinderGeometry(0.27, 0.27, 0.2, 24), K);
+          const hub = mesh(new THREE.CylinderGeometry(0.12, 0.12, 0.21, 16), G);
+          const spoke = mesh(new THREE.BoxGeometry(0.34, 0.215, 0.05), G);
+          w.add(tire, hub, spoke); fk.add(w); wheels.push(w);
+        }
+        const seat = mesh(new THREE.BoxGeometry(0.5, 0.12, 0.6), K); seat.position.set(-0.22, 0.78, 0);
+        const back = mesh(new THREE.BoxGeometry(0.1, 0.5, 0.6), K); back.position.set(-0.5, 1.02, 0);
+        fk.add(seat, back);
+        for (const [x, z] of [[0.45, 0.46], [0.45, -0.46], [-0.62, 0.46], [-0.62, -0.46]]) {
+          const p = mesh(new THREE.CylinderGeometry(0.035, 0.035, 1.6, 10), K); p.position.set(x, 1.5, z); fk.add(p);
+        }
+        const roof = mesh(new THREE.BoxGeometry(1.2, 0.06, 1.0), Yd); roof.position.set(-0.08, 2.3, 0); fk.add(roof);
+        const revM = new THREE.MeshStandardMaterial({ color: 0xffa94d, emissive: 0xff7a1a, emissiveIntensity: 0.1 });
+        const rev = new THREE.Mesh(new THREE.SphereGeometry(0.08, 16, 12), revM); rev.position.set(-0.6, 2.38, 0); fk.add(rev);
+        const col = mesh(new THREE.CylinderGeometry(0.03, 0.03, 0.5, 10), K); col.position.set(0.42, 0.95, 0); col.rotation.z = 0.5; fk.add(col);
+        const steer = mesh(new THREE.TorusGeometry(0.15, 0.028, 10, 28), K); steer.position.set(0.32, 1.17, 0); steer.rotation.set(0, Math.PI / 2, 0.5); fk.add(steer);
+        for (const z of [0.3, -0.3]) { const m = mesh(new THREE.BoxGeometry(0.07, 1.95, 0.07), G); m.position.set(0.82, 1.08, z); fk.add(m); }
+        const carriage = new THREE.Group(); carriage.position.set(0.88, 0.15, 0); fk.add(carriage);
+        const plate = mesh(new THREE.BoxGeometry(0.05, 0.42, 0.75), K); plate.position.y = 0.2;
+        carriage.add(plate);
+        for (const z of [0.22, -0.22]) { const f = mesh(new THREE.BoxGeometry(0.78, 0.05, 0.1), G); f.position.set(0.4, 0, z); carriage.add(f); }
+        const pallet = mesh(new THREE.BoxGeometry(0.64, 0.1, 0.64), M.wood); pallet.position.set(0.42, 0.08, 0);
+        const crate = mesh(new THREE.BoxGeometry(0.52, 0.46, 0.52), mat(0xdba56b, { roughness: 0.8 })); crate.position.set(0.42, 0.36, 0);
+        const tape = mesh(new THREE.BoxGeometry(0.1, 0.01, 0.53), mat(0xfff4dc)); tape.position.set(0.42, 0.595, 0);
+        carriage.add(pallet, crate, tape);
+        ch.root.scale.setScalar(0.52);
+        ch.root.position.set(-0.22, 0.84, 0);
+        ch.root.rotation.y = Math.PI / 2;
+        fk.add(ch.root);
+        let lastX = fk.position.x, beeped = false;
+        return {
+          hop: 0.04,
+          lookBase: -1.25,
+          update(t, dt, now) {
+            const p = now % 8;
+            let x, lift = 0, reverse = false;
+            if (p < 2.6) x = -1.2 + 1.8 * ease(p / 2.6);
+            else if (p < 3.6) { x = 0.6; lift = ease(p - 2.6); }
+            else if (p < 6.4) { x = 0.6 - 1.8 * ease((p - 3.6) / 2.8); lift = 1 - ease((p - 4.2) / 1.4); reverse = true; }
+            else x = -1.2;
+            fk.position.x = x;
+            const dx = x - lastX; lastX = x;
+            wheels.forEach((w) => (w.rotation.y -= dx / 0.27));
+            fk.position.y = Math.abs(dx) > 0.001 ? Math.abs(Math.sin(now * 25)) * 0.015 : 0;
+            carriage.position.y = 0.15 + lift * 0.85;
+            revM.emissiveIntensity = reverse ? (Math.sin(now * 14) > 0 ? 2.2 : 0.1) : 0.1;
+            if (reverse && !beeped) { beeped = true; this.onBeep && this.onBeep(); }
+            if (!reverse) beeped = false;
+            ch.armL.pivot.rotation.set(-1.1 + Math.sin(now * 3) * 0.05, 0, 0.35);
+            ch.armR.pivot.rotation.set(-1.1 - Math.sin(now * 3) * 0.05, 0, -0.35);
+            steer.rotation.x = Math.sin(now * 3) * 0.2;
+          },
+        };
+      },
+
+      // 착암기
+      drill(ch) {
+        scene.add(ch.root);
+        ch.root.position.set(-0.45, 0, 0.3);
+        cone(-2.35, 0.1, 0.95); cone(-2.9, -1.0, 0.7);
+        // 손잡이가 오른손에 오도록 팔에 붙이고 팔 각도만큼 되돌려 항상 똑바로 세운다
+        const ARM = 0.45, JS = 1.2;
+        const jh = new THREE.Group();
+        const bit = mesh(new THREE.CylinderGeometry(0.04, 0.012, 0.11, 12), M.metal); bit.position.y = 0.055;
+        const bodyJ = mesh(new THREE.CylinderGeometry(0.13, 0.15, 0.27, 24), mat(0xffc53d, { roughness: 0.35 })); bodyJ.position.y = 0.23;
+        const band = mesh(new THREE.CylinderGeometry(0.152, 0.152, 0.05, 24), M.eye); band.position.y = 0.14;
+        const cap = mesh(new THREE.CylinderGeometry(0.1, 0.13, 0.07, 24), M.eye); cap.position.y = 0.4;
+        const post = mesh(new THREE.CylinderGeometry(0.03, 0.03, 0.08, 10), M.eye); post.position.y = 0.45;
+        const bar = mesh(new THREE.CylinderGeometry(0.035, 0.035, 0.5, 12).rotateX(Math.PI / 2), M.eye); bar.position.y = 0.48;
+        for (const z of [0.21, -0.21]) { const g = mesh(new THREE.CylinderGeometry(0.045, 0.045, 0.1, 12).rotateX(Math.PI / 2), mat(0xff6b6b)); g.position.set(0, 0.48, z); jh.add(g); }
+        jh.add(bit, bodyJ, band, cap, post, bar);
+        const holder = new THREE.Group();
+        holder.position.y = -0.55;
+        jh.scale.setScalar(JS); jh.position.y = -0.48 * JS;
+        holder.add(jh);
+        ch.armR.pivot.add(holder);
+        const hx = -0.45 + 0.98 + 0.55 * Math.sin(ARM);
+        const cracks = new THREE.Group();
+        for (let i = 0; i < 6; i++) {
+          const c = new THREE.Mesh(new THREE.BoxGeometry(0.28 + Math.random() * 0.22, 0.005, 0.025), M.eye);
+          const a = (i / 6) * Math.PI * 2 + Math.random() * 0.4;
+          c.position.set(Math.cos(a) * 0.26, 0.004, Math.sin(a) * 0.26); c.rotation.y = -a;
+          cracks.add(c);
+        }
+        cracks.position.set(hx, 0, 0.35); cracks.scale.setScalar(0.001);
+        scene.add(cracks);
+        let lastDust = 0;
+        const job = {
+          hop: 0.1,
+          update(t, dt, now) {
+            const on = now % 3.4 < 2.4;
+            const buzz = on ? Math.sin(now * 70) : 0;
+            const armZ = ARM + buzz * 0.025;
+            ch.armR.pivot.rotation.set(0, 0, armZ);
+            holder.rotation.z = -armZ;
+            jh.position.y = -0.48 * JS + (on ? Math.abs(Math.sin(now * 35)) * 0.035 : 0);
+            ch.root.position.x = -0.45 + buzz * 0.012;
+            if (on) {
+              ch.armL.pivot.rotation.set(0, 0, -1.15 + buzz * 0.06);
+              cracks.scale.setScalar(Math.min(1, cracks.scale.x + dt * 0.5));
+              if (now - lastDust > 0.12) { lastDust = now; tmp.set(hx, 0.05, 0.35); burst(tmp, 2, PAL.dust, 0.55); }
+              job.hop = 0.012;
+            } else {
+              ch.armL.pivot.rotation.set(-0.6, 0, -2.5 + Math.sin(now * 8) * 0.25);
+              job.hop = 0.06;
+              if (now % 3.4 > 3.3) cracks.scale.setScalar(0.001);
+            }
+          },
+        };
+        return job;
+      },
+    };
+
+    // ---------- 배경 ----------
+    function box(w, h, d, color, x, y, z, ry = 0, parent = scene) {
+      const m = mesh(new THREE.BoxGeometry(w, h, d), typeof color === 'number' ? mat(color) : color);
+      m.position.set(x, y, z); m.rotation.y = ry; parent.add(m); return m;
+    }
+    function textTex(text, bg, fg, w = 512, h = 192) {
+      const c = document.createElement('canvas'); c.width = w; c.height = h;
+      const g = c.getContext('2d');
+      g.fillStyle = bg; g.fillRect(0, 0, w, h);
+      g.strokeStyle = fg; g.lineWidth = 10; g.strokeRect(14, 14, w - 28, h - 28);
+      g.fillStyle = fg; g.font = `800 ${Math.round(h * 0.42)}px "Pretendard Variable", Pretendard, "Apple SD Gothic Neo", "Noto Sans KR", sans-serif`;
+      g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText(text, w / 2, h / 2 + 4);
+      const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 4;
+      return t;
+    }
+    function sign(text, x, y, z, ry = 0, w = 1.1, h = 0.42, bg = '#ffd23f', fg = '#2b2330') {
+      const g = new THREE.Group();
+      const board = mesh(new THREE.BoxGeometry(w, h, 0.05), [M.white, M.white, M.white, M.white,
+        new THREE.MeshStandardMaterial({ map: textTex(text, bg, fg), roughness: 0.5 }), M.white]);
+      board.position.y = y;
+      g.add(board);
+      for (const s of [-1, 1]) { const p = mesh(new THREE.CylinderGeometry(0.03, 0.03, y, 8), M.metal); p.position.set(s * w * 0.35, y / 2, -0.04); g.add(p); }
+      g.position.set(x, 0, z); g.rotation.y = ry; scene.add(g);
+      return g;
+    }
+    function platform(top, side) {
+      const p = mesh(new THREE.CylinderGeometry(3.6, 3.7, 0.16, 72), mat(side, { roughness: 0.8 }));
+      p.position.set(0, -0.08, -0.6); p.castShadow = false; scene.add(p);
+      const t = mesh(new THREE.CircleGeometry(3.6, 72), mat(top, { roughness: 0.9 }), false);
+      t.rotation.x = -Math.PI / 2; t.position.set(0, 0.002, -0.6); scene.add(t);
+      return t;
+    }
+    function barricade(x, z, ry = 0, s = 1) {
+      const g = new THREE.Group();
+      for (const k of [-1, 1]) {
+        const leg = mesh(new THREE.BoxGeometry(0.06, 0.9, 0.06), M.white); leg.position.set(k * 0.6, 0.45, 0); leg.rotation.x = 0.15; g.add(leg);
+        const leg2 = leg.clone(); leg2.rotation.x = -0.15; g.add(leg2);
+      }
+      for (let i = 0; i < 8; i++) box(0.18, 0.2, 0.05, i % 2 ? M.white : M.cone, -0.63 + i * 0.18, 0.72, 0.05, 0, g);
+      g.position.set(x, 0, z); g.rotation.y = ry; g.scale.setScalar(s); scene.add(g);
+      return g;
+    }
+    function warnLamp(parent, x, y, z) {
+      const m = new THREE.MeshStandardMaterial({ color: 0xffb347, emissive: 0xff8a1a, emissiveIntensity: 0.2 });
+      const l = new THREE.Mesh(new THREE.SphereGeometry(0.09, 16, 12), m); l.position.set(x, y, z); parent.add(l);
+      return m;
+    }
+
+    const BACKDROPS = {
+      // 집 뼈대를 세우는 공사장
+      hammer() {
+        platform(0xd5ebbf, 0xb7d69c);
+        const wood = mat(0xd9a46c, { roughness: 0.7 });
+        const frame = new THREE.Group(); frame.position.set(-0.6, 0, -2.6); scene.add(frame);
+        for (const x of [-1.5, -0.5, 0.5, 1.5]) box(0.14, 2.1, 0.14, wood, x, 1.05, 0, 0, frame);
+        box(3.3, 0.14, 0.16, wood, 0, 2.12, 0, 0, frame);
+        box(3.3, 0.12, 0.14, wood, 0, 1.05, 0, 0, frame);
+        for (const s of [-1, 1]) { const r = box(1.95, 0.13, 0.15, wood, s * 0.82, 2.72, 0, 0, frame); r.rotation.z = -s * 0.62; }
+        const brace = box(1.3, 0.1, 0.1, wood, -1.0, 0.55, 0.02, 0, frame); brace.rotation.z = 0.65;
+        barricade(2.4, -1.7, -0.25);
+        sign('공사 중', 2.4, 1.45, -1.75, -0.25);
+        for (const [x, z] of [[-1.1, 1.6], [1.0, 1.9]]) { const b = mesh(new THREE.SphereGeometry(0.28, 16, 12), mat(0x9fd18b)); b.scale.y = 0.6; b.position.set(x, 0.1, z); scene.add(b); }
+      },
+
+      // 반쯤 올라간 벽돌집
+      bricklay() {
+        platform(0xf3e2c0, 0xe0c99c);
+        const wall = new THREE.Group(); wall.position.set(-0.4, 0, -2.5); scene.add(wall);
+        const shades = [0xe8836b, 0xdc7560, 0xef9378];
+        for (let r = 0; r < 5; r++) {
+          const cols = 7 - r;
+          for (let c = 0; c < cols; c++) {
+            box(0.62, 0.28, 0.32, shades[(r + c) % 3], -2.0 + c * 0.64 + (r % 2 ? 0.32 : 0), 0.14 + r * 0.29, 0, 0, wall);
+          }
+        }
+        const pole = mat(0x8f96a3, { roughness: 0.3, metalness: 0.5 });
+        const plank = mat(0xd9a46c, { roughness: 0.7 });
+        const sc = new THREE.Group(); sc.position.set(2.3, 0, -2.2); sc.rotation.y = -0.3; scene.add(sc);
+        for (const x of [-0.6, 0.6]) for (const z of [-0.3, 0.3]) box(0.06, 2.4, 0.06, pole, x, 1.2, z, 0, sc);
+        for (const y of [1.0, 2.0]) { box(1.4, 0.06, 0.7, plank, 0, y, 0, 0, sc); box(1.3, 0.05, 0.05, pole, 0, y + 0.45, 0.32, 0, sc); }
+        const sand = mesh(new THREE.ConeGeometry(0.75, 0.6, 32), mat(0xf0d391, { roughness: 1 })); sand.position.set(-2.4, 0.3, -1.3); scene.add(sand);
+      },
+
+      // 칠하는 중인 방
+      paint() {
+        platform(0xeed6b4, 0xd8b98f);
+        const floor = new THREE.Group(); scene.add(floor);
+        for (let i = -5; i <= 5; i++) box(0.02, 0.003, 7, 0xd9bd95, i * 0.62, 0.004, -0.6, 0, floor);
+        const back = new THREE.Group(); back.position.set(0, 0, -2.6); scene.add(back);
+        box(6.4, 3.3, 0.12, 0xfbf6ee, 0, 1.65, 0, 0, back);
+        box(4.2, 1.2, 0.02, 0xbfe6d6, -1.1, 0.6, 0.07, 0, back);
+        const win = new THREE.Group(); win.position.set(1.3, 1.85, 0.08); back.add(win);
+        box(1.3, 1.1, 0.04, 0xbfe3ff, 0, 0, 0, 0, win);
+        box(1.42, 0.08, 0.08, M.white, 0, 0.58, 0.02, 0, win); box(1.42, 0.08, 0.08, M.white, 0, -0.58, 0.02, 0, win);
+        box(0.08, 1.2, 0.08, M.white, 0.68, 0, 0.02, 0, win); box(0.08, 1.2, 0.08, M.white, -0.68, 0, 0.02, 0, win);
+        box(0.05, 1.1, 0.06, M.white, 0, 0, 0.02, 0, win); box(1.3, 0.05, 0.06, M.white, 0, 0, 0.02, 0, win);
+        const pic = box(0.7, 0.5, 0.04, 0xffd6e0, -1.6, 2.1, 0.08, 0, back); pic.rotation.z = 0.12;
+        const lad = new THREE.Group(); lad.position.set(-2.3, 0, -1.9); lad.rotation.set(-0.18, 0.3, 0); scene.add(lad);
+        const wood = mat(0xd9a46c, { roughness: 0.7 });
+        for (const x of [-0.3, 0.3]) box(0.07, 2.3, 0.07, wood, x, 1.15, 0, 0, lad);
+        for (let i = 0; i < 6; i++) box(0.6, 0.05, 0.06, wood, 0, 0.3 + i * 0.36, 0, 0, lad);
+        const cloth = mesh(new THREE.PlaneGeometry(2.2, 1.2), mat(0xe9eef3, { roughness: 1 }), false);
+        cloth.rotation.set(-Math.PI / 2, 0, 0.15); cloth.position.set(0.9, 0.008, -1.4); scene.add(cloth);
+        [[0xffb3c7, 0.6, -1.3, 0.16], [0xa8dcff, 1.3, -1.6, 0.11], [0xffe08a, 0.2, -1.7, 0.09]].forEach(([c, x, z, r]) => {
+          const d = new THREE.Mesh(new THREE.CircleGeometry(r, 20), mat(c)); d.rotation.x = -Math.PI / 2; d.position.set(x, 0.012, z); scene.add(d);
+        });
+      },
+
+      // 크레인이 있는 현장
+      concrete() {
+        platform(0xe6d3b5, 0xcdb58f);
+        const Y = mat(0xffc53d, { roughness: 0.35 });
+        const crane = new THREE.Group(); crane.position.set(-2.1, 0, -2.9); scene.add(crane);
+        for (const x of [-0.14, 0.14]) for (const z of [-0.14, 0.14]) box(0.05, 2.7, 0.05, Y, x, 1.35, z, 0, crane);
+        for (let i = 0; i < 9; i++) { const b = box(0.4, 0.04, 0.04, Y, 0, 0.15 + i * 0.3, 0.15, 0, crane); b.rotation.z = i % 2 ? 0.6 : -0.6; }
+        box(0.36, 0.36, 0.4, 0xffffff, 0.25, 2.55, 0.05, 0, crane);
+        const jib = new THREE.Group(); jib.position.y = 2.8; crane.add(jib);
+        box(4.0, 0.12, 0.12, Y, 1.4, 0, 0, 0, jib);
+        box(0.9, 0.12, 0.12, Y, -0.9, 0, 0, 0, jib);
+        box(0.35, 0.3, 0.3, 0x5b6273, -1.2, -0.12, 0, 0, jib);
+        const hook = new THREE.Group(); hook.position.set(2.6, 0, 0); jib.add(hook);
+        const cable = mesh(new THREE.CylinderGeometry(0.01, 0.01, 1.3, 6), M.eye); cable.position.y = -0.65; hook.add(cable);
+        box(0.5, 0.18, 0.32, M.brick, 0, -1.35, 0, 0, hook);
+        for (const [x, z, r, c] of [[2.4, -2.0, 0.6, 0xd4cbbd], [1.6, -2.6, 0.45, 0xc6b79f]]) {
+          const g = mesh(new THREE.ConeGeometry(r, r * 0.9, 28), mat(c, { roughness: 1 })); g.position.set(x, r * 0.45, z); scene.add(g);
+        }
+        barricade(-0.3, -2.4, 0.05, 0.9);
+        return (t) => { jib.rotation.y = Math.sin(t * 0.35) * 0.35; hook.rotation.z = Math.sin(t * 1.4) * 0.08; };
+      },
+
+      // 창고
+      forklift() {
+        platform(0xdfe2e8, 0xc4c8d1);
+        const lane = mat(0xffd23f);
+        for (const z of [-0.35, 1.05]) box(6.2, 0.006, 0.07, lane, 0, 0.006, z);
+        const rack = new THREE.Group(); rack.position.set(0, 0, -2.6); scene.add(rack);
+        const up = mat(0x4d7cc7, { roughness: 0.4 }), beam = mat(0xff8a3d, { roughness: 0.4 });
+        for (const x of [-2.7, -0.9, 0.9, 2.7]) for (const z of [-0.35, 0.35]) box(0.08, 2.9, 0.08, up, x, 1.45, z, 0, rack);
+        const boxes = [0xdba56b, 0xe8bd85, 0xc99358, 0xf1cfa0];
+        for (const y of [0.15, 1.15, 2.15]) {
+          for (const z of [-0.35, 0.35]) box(5.5, 0.08, 0.08, beam, 0, y, z, 0, rack);
+          for (let b = 0; b < 6; b++) {
+            if ((b + y * 3) % 5 < 1) continue;
+            const h = 0.4 + ((b * 7 + y * 10) % 3) * 0.12;
+            box(0.62, h, 0.6, boxes[b % 4], -2.25 + b * 0.9, y + 0.04 + h / 2, 0, (b % 2) * 0.08, rack);
+          }
+        }
+        sign('창고', -2.3, 2.95, -2.15, 0, 0.9, 0.36, '#2b2330', '#ffd23f');
+      },
+
+      // 도로 공사
+      drill() {
+        platform(0xb9bfca, 0xa3aab6);
+        const dash = mat(0xffffff);
+        for (let i = -4; i <= 4; i++) box(0.45, 0.006, 0.08, dash, i * 0.8, 0.006, 1.3);
+        const patch = new THREE.Mesh(new THREE.CircleGeometry(0.9, 32), mat(0x9aa1ad, { roughness: 1 }));
+        patch.rotation.x = -Math.PI / 2; patch.position.set(0.25, 0.005, 0.35); patch.scale.set(1.2, 0.8, 1); scene.add(patch);
+        const lamps = [];
+        for (const [x, z, ry] of [[-1.4, -2.0, 0.1], [1.4, -2.1, -0.1]]) {
+          barricade(x, z, ry);
+          lamps.push(warnLamp(scene, x + 0.55, 1.0, z));
+        }
+        const pole = mesh(new THREE.CylinderGeometry(0.04, 0.04, 2.2, 10), M.metal); pole.position.set(2.6, 1.1, -1.4); scene.add(pole);
+        const diamond = mesh(new THREE.BoxGeometry(0.72, 0.72, 0.04), [M.white, M.white, M.white, M.white,
+          new THREE.MeshStandardMaterial({ map: textTex('공사', '#ffd23f', '#2b2330', 256, 256), roughness: 0.5 }), M.white]);
+        diamond.position.set(2.6, 2.05, -1.36); scene.add(diamond);
+        const manhole = new THREE.Mesh(new THREE.CircleGeometry(0.32, 28), mat(0x6f7684, { roughness: 0.6 }));
+        manhole.rotation.x = -Math.PI / 2; manhole.position.set(-1.7, 0.007, 1.0); scene.add(manhole);
+        return (t) => lamps.forEach((m, i) => (m.emissiveIntensity = Math.sin(t * 6 + i * Math.PI) > 0 ? 2.4 : 0.15));
+      },
+    };
+
+    // ---------- 일꾼 목록 ----------
+    const COMMON = ['조금만 기다려 주세요!', 'DevOps 포트폴리오는 먼저 볼 수 있어요', '새로고침하면 다른 친구가 와요'];
+    const CHARS = [
+      { name: '몽실', kind: '토끼', job: 'hammer', color: 0xe6dcff, inner: 0xffb8cf, ears: 'long', hat: 0xffc53d, vest: 0xff8a5b,
+        lines: ['몽실이가 뚝딱뚝딱 고치는 중이에요!', '못 하나만 더 박을게요!'] },
+      { name: '도토리', kind: '곰', job: 'bricklay', color: 0xc99b6e, inner: 0xf2c9a5, ears: 'round', muzzle: 0xf5e1c8, hat: 0x6ec6ff, vest: 0xffd23f,
+        lines: ['도토리가 벽돌을 차곡차곡 쌓는 중이에요!', '한 장, 두 장, 세 장…'] },
+      { name: '치즈', kind: '고양이', job: 'paint', color: 0xffc983, inner: 0xffa9b8, ears: 'pointy', whiskers: true, tail: true, hat: 0xff8fb1, vest: 0x7bd389,
+        lines: ['치즈가 벽을 새로 칠하는 중이에요!', '이번엔 무슨 색으로 칠할까요?'] },
+      { name: '퐁당', kind: '개구리', job: 'concrete', color: 0xa9e5a0, frog: true, hat: 0xffc53d, vest: 0xff8a5b,
+        lines: ['퐁당이가 공구리 치는 중이에요!', '시멘트 굳기 전에 서둘러요!'] },
+      { name: '뽀글', kind: '펭귄', job: 'forklift', color: 0x5d6e98, belly: true, beak: 0xffa53d, feet: 0xffa53d, faceLift: 0.1, hat: 0xffc53d, vest: 0xff6b6b,
+        lines: ['뽀글이가 지게차로 짐을 나르는 중이에요!', '짐 조심하세요!'] },
+      { name: '콩떡', kind: '햄스터', job: 'drill', color: 0xffe1bf, inner: 0xffb8c6, ears: 'tiny', pouch: 0xfff4e8, hat: 0xffc53d, vest: 0x4dabf7,
+        lines: ['콩떡이가 바닥을 새로 까는 중이에요!', '두두두두두두!'] },
+    ];
+
+    let idx = parseInt(new URLSearchParams(location.search).get('worker'), 10);
+    if (!(idx >= 0 && idx < CHARS.length)) {
+      let last = -1;
+      try { const v = localStorage.getItem('worker-last'); if (v !== null) last = +v; } catch (e) {}
+      do { idx = Math.floor(Math.random() * CHARS.length); } while (idx === last);
+      try { localStorage.setItem('worker-last', String(idx)); } catch (e) {}
+    }
+    const cfg = CHARS[idx];
+    const ch = makeChar(cfg);
+    const job = JOBS[cfg.job](ch);
+    const bgUpdate = BACKDROPS[cfg.job] ? BACKDROPS[cfg.job]() : null;
+    const baseY = ch.root.position.y;
+    canvas.setAttribute('aria-label', `안전모를 쓴 ${cfg.kind} ${cfg.name}가 일하는 3D 장면`);
+    document.querySelector('.hint').textContent = `오늘의 일꾼은 ${cfg.kind} ${cfg.name} · 눌러 보세요 · 새로고침하면 다른 친구가 와요`;
+    // ---------- 크기 ----------
+    function resize() {
+      const w = canvas.clientWidth, h = canvas.clientHeight;
+      renderer.setSize(w, h, false);
+      camera.aspect = w / h;
+      camera.updateProjectionMatrix();
+    }
+    new ResizeObserver(resize).observe(canvas);
+    resize();
+
+    // ---------- 상호작용 ----------
+    const pointer = new THREE.Vector2(0, 0);
+    addEventListener('pointermove', (e) => {
+      pointer.x = (e.clientX / innerWidth) * 2 - 1;
+      pointer.y = -((e.clientY / innerHeight) * 2 - 1);
+    });
+
+    const lines = [...cfg.lines, ...COMMON];
+    let line = 0, jumpT = -1;
+    function say(text) {
+      bubble.textContent = text;
+      bubble.style.animation = 'none';
+      void bubble.offsetWidth;
+      bubble.style.animation = '';
+    }
+    say(lines[0]);
+    job.onBeep = () => { if (jumpT < 0) say('삐- 삐- 후진합니다!'); };
+    canvas.addEventListener('click', () => {
+      if (jumpT >= 0) return;
+      jumpT = 0;
+      line = (line + 1) % lines.length;
+      say(lines[line]);
+      ch.look.getWorldPosition(tmp); tmp.y += 2.2 * ch.root.scale.y;
+      burst(tmp, 12);
+    });
+    setInterval(() => { if (jumpT < 0) { line = (line + 1) % lines.length; say(lines[line]); } }, 5200);
+
+    // ---------- 애니메이션 ----------
+    const clock = new THREE.Clock();
+    const speed = reduce ? 0.35 : 1;
+    let nextBlink = 1.5, blinkT = -1;
+
+    function tick() {
+      const dt = Math.min(clock.getDelta(), 0.05);
+      const now = clock.elapsedTime * speed;
+      const t = now;
+
+      // 통통 튀는 기본 동작
+      const hop = Math.abs(Math.sin(t * 2.4));
+      let y = hop * job.hop;
+      const sq = 1 - (1 - hop) * job.hop * 0.5;
+
+      // 클릭하면 점프하며 한 바퀴
+      if (jumpT >= 0) {
+        jumpT += dt * 1.6;
+        const k = Math.min(jumpT, 1);
+        y += Math.sin(k * Math.PI) * 1.1;
+        ch.spin.rotation.y = k * Math.PI * 2;
+        if (jumpT >= 1) { jumpT = -1; ch.spin.rotation.y = 0; }
+      }
+      ch.root.position.y = baseY + y;
+      ch.squash.scale.set(1 + (1 - sq) * 0.8, sq, 1 + (1 - sq) * 0.8);
+
+      // 시선 따라가기
+      const lb = job.lookBase || 0;
+      ch.look.rotation.y += (lb + pointer.x * 0.55 - ch.look.rotation.y) * 0.08;
+      ch.look.rotation.x += (-pointer.y * 0.18 - ch.look.rotation.x) * 0.08;
+
+      job.update(t, dt, now);
+      if (bgUpdate) bgUpdate(t);
+
+      // 눈 깜빡임
+      if (blinkT < 0 && now > nextBlink) blinkT = 0;
+      if (blinkT >= 0) {
+        blinkT += dt * 9;
+        const s = blinkT < 1 ? 1 - blinkT : blinkT < 2 ? blinkT - 1 : 1;
+        ch.eyes.forEach((e) => (e.scale.y = Math.max(0.08, s)));
+        if (blinkT >= 2) { blinkT = -1; nextBlink = now + 2 + Math.random() * 3; }
+      }
+
+      // 안전모 램프
+      M.lamp.emissiveIntensity = 0.8 + Math.sin(t * 5) * 0.5;
+
+      // 반짝이
+      for (let i = sparks.length - 1; i >= 0; i--) {
+        const s = sparks[i];
+        s.userData.life += dt;
+        s.userData.v.y -= 6 * dt;
+        s.position.addScaledVector(s.userData.v, dt);
+        s.rotation.x += dt * 6; s.rotation.y += dt * 4;
+        s.material.opacity = Math.max(0, 1 - s.userData.life / 0.8);
+        if (s.userData.life > 0.8) { scene.remove(s); s.material.dispose(); sparks.splice(i, 1); }
+      }
+
+      renderer.render(scene, camera);
+      requestAnimationFrame(tick);
+    }
+    tick();
+  </script>
+  <script>
+    // three.js를 불러오지 못하면 대체 그림 표시
+    setTimeout(function () {
+      var c = document.getElementById('scene');
+      if (!c.width || c.width === 300 && c.height === 150) document.body.classList.add('no-webgl');
+    }, 4000);
+  </script>
 </body>
 </html>
