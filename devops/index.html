@@ -405,18 +405,15 @@
           <ol class="lv2">
             <li><a href="#nv-1"><span class="n">01</span><span>YAML 기반 인프라 자동화</span></a></li>
             <li><a href="#nv-2"><span class="n">02</span><span>Atlantis 인프라 변경 관리</span></a></li>
-            <li><a href="#nv-3"><span class="n">03</span><span>IAM Role · OIDC · 비밀 값</span></a></li>
-            <li><a href="#nv-4"><span class="n">04</span><span>통합 모니터링과 개선</span></a></li>
-            <li><a href="#nv-5"><span class="n">05</span><span>급증 트래픽 ECS 확장</span></a></li>
-            <li><a href="#nv-6"><span class="n">06</span><span>월 운영비 73% 절감</span></a></li>
+            <li><a href="#nv-3"><span class="n">03</span><span>통합 모니터링과 개선</span></a></li>
+            <li><a href="#nv-4"><span class="n">04</span><span>월 운영비 73% 절감</span></a></li>
           </ol>
         </li>
         <li class="lv1">
           <a href="#homelab">홈랩 Kubernetes<span class="meta">개인 프로젝트 · 2026.05 ~ 현재</span></a>
           <ol class="lv2">
-            <li><a href="#hl-1"><span class="n">01</span><span>서명 검증 GitLab CI</span></a></li>
-            <li><a href="#hl-2"><span class="n">02</span><span>CNI 전환 중 DNS 장애 분석</span></a></li>
-            <li><a href="#hl-3"><span class="n">03</span><span>Longhorn 스토리지 장애 해결</span></a></li>
+            <li><a href="#hl-1"><span class="n">01</span><span>CNI 전환 중 DNS 장애 분석</span></a></li>
+            <li><a href="#hl-2"><span class="n">02</span><span>Longhorn 스토리지 장애 해결</span></a></li>
           </ol>
         </li>
       </ol>
@@ -469,28 +466,16 @@
           <div class="p">NOVA · 01</div>
         </a>
         <a class="stat" href="#nv-3">
-          <div class="k">CI와 서비스의 장기 액세스 키</div>
-          <div class="v">0개</div>
-          <div class="d">CI는 OIDC, 서비스는 서비스별 IAM Role로 임시 자격 증명만 사용</div>
-          <div class="p">NOVA · 03</div>
-        </a>
-        <a class="stat" href="#nv-4">
           <div class="k">장애 원인 분석 시간</div>
           <div class="v"><span class="from">수십 분</span><span class="arr">→</span>수 분</div>
           <div class="d">지표, 로그, 트레이스를 Grafana 한 화면에서 요청 시작부터 DB까지 추적</div>
-          <div class="p">NOVA · 04</div>
+          <div class="p">NOVA · 03</div>
         </a>
-        <a class="stat" href="#nv-5">
-          <div class="k">ECS 확장 기준</div>
-          <div class="v"><span class="from">CPU</span><span class="arr">→</span>사전 증설과 큐 대기 건수</div>
-          <div class="d">트래픽이 몰리는 판매 오픈 15분 전에 서버를 미리 늘리고 worker는 큐에 쌓인 메시지 수로 확장</div>
-          <div class="p">NOVA · 05</div>
-        </a>
-        <a class="stat" href="#nv-6">
+        <a class="stat" href="#nv-4">
           <div class="k">AWS 월 운영비</div>
           <div class="v"><span class="from">$890</span><span class="arr">→</span>$240<span class="from" style="font-size:13px"> /월</span></div>
           <div class="d">비용이 큰 선택을 Terraform 변수로 빼 트래픽이 늘면 변수 하나로 목표 구조로 전환</div>
-          <div class="p">NOVA · 06</div>
+          <div class="p">NOVA · 04</div>
         </a>
       </div>
     </section>
@@ -653,10 +638,6 @@
                 <tr><td>CPU requests</td><td>평상시 사용량 그대로</td><td>노드에 예약하는 자원은 늘리지 않음</td></tr>
               </tbody>
             </table></div>
-            <figure>
-              <button class="frame" type="button" data-zoom><img src="../images/devops/probe_tl.png" width="1616" height="869" loading="lazy" alt="기동 시간 축 위에서 처음 liveness가 너무 일찍 검사해 재시작, 1차 startupProbe 설정으로 기동 완료, CPU throttling으로 기동이 느려져 재발, 2차 CPU limit 2 core 상향으로 재시작 없음을 비교한 그림"></button>
-              <figcaption>기동 시간 축으로 본 재시작 원인과 1차, 2차 조치. 막대 길이는 실측값이 아닌 비율입니다.</figcaption>
-            </figure>
           </li>
 
           <li class="step result">
@@ -710,10 +691,6 @@
           <li class="step solve">
             <div class="step-label">구현</div>
             <p>기준은 <a class="ext" href="https://kubernetes.io/docs/concepts/security/pod-security-standards/" target="_blank" rel="noopener">Pod Security Standards</a>를 참고해 보안 항목을 고르고 시간대와 JVM 메모리처럼 회사에서 필요한 항목을 더해 정했습니다.</p>
-            <figure>
-              <button class="frame" type="button" data-zoom><img src="../images/devops/vap2.png" width="1641" height="474" loading="lazy" alt="배포 요청이 EKS API 서버에서 Admission Webhook 서버의 Mutating 단계로 기본값을 삽입받고 Validating 단계에서 기준을 검사받아 Pod로 생성되거나 거절되는 흐름"></button>
-              <figcaption>API 서버가 Admission Webhook을 호출해 기본값 자동 삽입과 기준 검사를 거쳐 생성하거나 거절하는 흐름</figcaption>
-            </figure>
             <p>Webhook 서버는 Pod 여러 개로 띄워 Pod 하나에 장애가 나도 요청 처리가 이어지게 했습니다.</p>
 
             <h4>Mutating Webhook으로 빠진 기본값만 삽입</h4>
@@ -953,10 +930,8 @@ Error from server: admission webhook <span class="d">"..."</span> denied the req
         <ol class="case-index print-only">
           <li><a href="#nv-1"><span class="n">01</span><span>YAML 설정 하나로 AWS 인프라가 만들어지는 Terraform 자동화</span></a></li>
           <li><a href="#nv-2"><span class="n">02</span><span>Atlantis를 활용한 AWS 인프라 변경 관리</span></a></li>
-          <li><a href="#nv-3"><span class="n">03</span><span>IAM Role과 OIDC를 활용한 AWS 권한과 비밀 값 관리</span></a></li>
-          <li><a href="#nv-4"><span class="n">04</span><span>원인 분석을 수십 분에서 수 분으로 줄인 OpenTelemetry와 Grafana 통합 모니터링</span></a></li>
-          <li><a href="#nv-5"><span class="n">05</span><span>판매 오픈의 급증 트래픽과 큐에 쌓인 메시지에 맞춰 늘어나는 ECS Fargate 확장 구조</span></a></li>
-          <li><a href="#nv-6"><span class="n">06</span><span>목표 구조는 코드에 남기고 월 운영비를 73% 줄인 Terraform 변수 기반 비용 절감</span></a></li>
+          <li><a href="#nv-3"><span class="n">03</span><span>원인 분석을 수십 분에서 수 분으로 줄인 OpenTelemetry와 Grafana 통합 모니터링</span></a></li>
+          <li><a href="#nv-4"><span class="n">04</span><span>목표 구조는 코드에 남기고 월 운영비를 73% 줄인 Terraform 변수 기반 비용 절감</span></a></li>
         </ol>
       </div>
 
@@ -1125,72 +1100,10 @@ Error: <span class="d">...</span>
       </article>
 
       <!-- ---------- NOVA 03 ---------- -->
-      <article class="case" id="nv-3" data-title="NOVA 03 · IAM · 비밀 값">
+      <!-- ---------- NOVA 04 ---------- -->
+      <article class="case" id="nv-3" data-title="NOVA 03 · 모니터링">
         <div class="case-head">
           <div class="num">NOVA · 03</div>
-          <h3>IAM Role과 OIDC를 활용한 AWS 권한과 비밀 값 관리</h3>
-          <ul class="outcome"><li>사람 · CI · 서비스마다 Role 분리</li><li>OIDC로 장기 액세스 키 없이 배포</li><li>비밀 값은 태스크 기동 때 주입</li></ul>
-        </div>
-
-        <ol class="steps">
-          <li class="step problem">
-            <div class="step-label">설계 배경</div>
-            <ul class="dot">
-              <li>AWS 계정을 새로 만들면서 팀원, CI, 서비스가 AWS에 접근하는 방식을 정해야 했습니다.</li>
-              <li>액세스 키를 발급해 함께 쓰거나 비밀 값을 설정 파일에 평문으로 두면 <strong class="key">한 번의 유출로 계정 전체가 노출</strong>될 수 있어 장기 액세스 키와 평문 비밀 값이 없는 구조가 필요했습니다.</li>
-              <li>서비스가 같은 권한을 나눠 쓰면 하나가 뚫렸을 때 다른 서비스의 큐와 데이터까지 접근할 수 있어 서비스마다 권한을 나눠야 했습니다.</li>
-            </ul>
-          </li>
-
-          <li class="step solve">
-            <div class="step-label">구현 방식</div>
-            <figure>
-              <button class="frame" type="button" data-zoom><img src="../images/devops/iam2.png" width="4009" height="1690" loading="lazy" alt="사람은 읽기 전용 역할, Atlantis는 변경 역할, GitHub Actions는 OIDC 배포 역할, 서비스는 task 역할을 받고, 비밀 값은 SOPS와 KMS, Secrets Manager를 거쳐 ECS 태스크 기동 시 주입되는 구조"></button>
-              <figcaption>사람 · CI · 서비스가 받는 Role과 SOPS · KMS · Secrets Manager를 거쳐 기동할 때 주입되는 비밀 값</figcaption>
-            </figure>
-
-            <h4>① 사람 · CI · 서비스마다 Role 분리</h4>
-            <p>주체마다 Role을 아래처럼 나눴습니다.</p>
-            <div class="tbl"><table>
-              <thead><tr><th>주체</th><th>받는 권한</th></tr></thead>
-              <tbody>
-                <tr><td>팀원</td><td>읽기 전용 Role, 콘솔과 로컬 모두 조회와 plan까지</td></tr>
-                <tr><td>Atlantis</td><td>인프라 변경 Role, IAM은 <code>nova-</code>로 시작하는 자원만 다루고 자기 권한 수정은 거부</td></tr>
-                <tr><td>GitHub Actions</td><td>OIDC로 main 브랜치에서만 받는 배포 Role, ECR 푸시와 재배포까지</td></tr>
-                <tr><td>서비스</td><td>서비스마다 다른 Role, service.yml에 적은 큐와 업로드 버킷까지</td></tr>
-              </tbody>
-            </table></div>
-            <ul class="dot">
-              <li>GitHub Actions에는 액세스 키를 저장하지 않고 main 브랜치 <strong class="key">워크플로가 실행될 때만 OIDC 토큰으로 배포 Role을 받게</strong> 했습니다.</li>
-              <li>Role과 비밀 값 위치가 들어 있는 태스크 정의는 CI에 등록 권한을 주지 않고 <strong class="key">Terraform에서만 바꾸게</strong> 했습니다.</li>
-              <li>서비스를 추가하면 service.yml에 적은 자원만 허용하는 Role이 함께 만들어지게 했습니다.</li>
-            </ul>
-
-
-            <h4>② 비밀 값을 Secrets Manager에 넣고 태스크 기동 때 주입</h4>
-            <ul class="dot">
-              <li>외부에서 받은 비밀 값만 <strong class="key">KMS 키로 SOPS 암호화해 Git에 두고</strong> 복호화는 Atlantis와 관리자 Role로 한정했습니다.</li>
-              <li>JWT 키, 서비스 공용 비밀, 관리자 비밀번호는 apply 때 무작위로 생성해 사람이 값을 보거나 전달하지 않게 했습니다.</li>
-              <li>복호화하거나 생성한 값은 <strong class="key">Terraform state에 평문이 남지 않도록</strong> state에 저장되지 않는 write-only 속성으로 넣었습니다.</li>
-              <li>태스크 정의에는 <strong class="key">값 대신 비밀 값의 위치만 적어</strong> ECS가 태스크를 띄울 때 읽어 환경변수로 주입하게 했습니다.</li>
-              <li>ECS가 비밀 값을 읽는 Role은 앱과 서비스 DB 계정 비밀만 읽고 DB 관리자, Grafana, Slack 같은 운영 비밀은 읽지 못하게 했습니다.</li>
-            </ul>
-          </li>
-
-          <li class="step result">
-            <div class="step-label">검증과 결과</div>
-            <ul class="dot">
-              <li>선언하지 않은 큐와 버킷 접근, 운영 비밀 읽기, 읽기 전용 Role로의 변경을 직접 시도해 <strong class="key">모두 거부되는 것을 확인</strong>했습니다.</li>
-              <li>CI와 서비스가 실행할 때마다 임시 자격 증명을 받아 <strong class="key">장기 액세스 키를 하나도 만들지 않고 운영</strong>했습니다.</li>
-            </ul>
-          </li>
-        </ol>
-      </article>
-
-      <!-- ---------- NOVA 04 ---------- -->
-      <article class="case" id="nv-4" data-title="NOVA 04 · 모니터링">
-        <div class="case-head">
-          <div class="num">NOVA · 04</div>
           <h3>원인 분석을 수십 분에서 수 분으로 줄인 OpenTelemetry와 Grafana 통합 모니터링</h3>
           <ul class="outcome"><li>지표 · 로그 · 트레이스를 한곳에 수집</li><li>요청 시작부터 DB까지 한 화면에서 추적</li><li>원인 분석 수십 분 → 수 분</li></ul>
         </div>
@@ -1262,7 +1175,7 @@ Error: <span class="d">...</span>
               <thead><tr><th>찾은 문제</th><th>근거</th><th>조치</th></tr></thead>
               <tbody>
                 <tr><td>접수 응답 지연</td><td>경보에서 트레이스로 따라가 DB 행 잠금 대기 468ms 확인</td><td class="pick">잠금을 커밋 직전으로 옮겨 <span style="white-space:nowrap">p50 521ms → 48ms</span></td></tr>
-                <tr><td>급증 뒤에야 붙는 증설</td><td>CPU와 경보 시각을 같은 시간축에서 비교해 약 3분 지연 확인</td><td class="pick">오픈 전 사전 증설로 변경 (<a href="#nv-5">05 사례</a>)</td></tr>
+                <tr><td>급증 뒤에야 붙는 증설</td><td>CPU와 경보 시각을 같은 시간축에서 비교해 약 3분 지연 확인</td><td class="pick">오픈 전 사전 증설로 변경</td></tr>
                 <tr><td style="white-space:nowrap">대기열과 상품 조회 CPU 포화</td><td>서비스별 CPU 그래프에서 포화된 서비스 확인</td><td class="pick">태스크 사양과 최소 대수 상향</td></tr>
                 <tr><td>반복되는 배포 롤백</td><td>새 태스크가 CPU 부족으로 기동을 반복하다 롤백되는 것 확인</td><td class="pick">CPU 할당 조정</td></tr>
               </tbody>
@@ -1272,78 +1185,10 @@ Error: <span class="d">...</span>
       </article>
 
       <!-- ---------- NOVA 05 ---------- -->
-      <article class="case" id="nv-5" data-title="NOVA 05 · ECS 확장">
-        <div class="case-head">
-          <div class="num">NOVA · 05</div>
-          <h3>판매 오픈의 급증 트래픽과 큐에 쌓인 메시지에 맞춰 늘어나는 ECS Fargate 확장 구조</h3>
-          <ul class="outcome"><li>증설 6~10분 → 약 4분 30초</li><li>오픈 15분 전 사전 증설</li><li>worker는 큐에 쌓인 메시지 기준 확장</li><li>실패한 배포 자동 롤백</li></ul>
-        </div>
-
-        <ol class="steps">
-          <li class="step problem">
-            <div class="step-label">설계 배경</div>
-            <ul class="dot">
-              <li>판매 오픈 때 대기열, 접수, 상품 조회에 트래픽이 몰리는데 CPU 목표 추적은 <strong class="key">증설까지 6~10분</strong>이 걸려 먼저 503이 발생했습니다.</li>
-              <li>worker 4대의 처리량 초당 128건이 입장 속도 150건보다 낮아 큐가 쌓이는데 CPU는 낮아 <strong class="key">CPU가 아닌 확장 기준</strong>이 필요했습니다.</li>
-              <li>판매 중 배포가 실패해도 서비스가 유지되도록 자동 롤백이 필요했습니다.</li>
-            </ul>
-          </li>
-
-          <li class="step solve">
-            <div class="step-label">구조</div>
-            <figure>
-              <button class="frame" type="button" data-zoom><img src="../images/diagrams/nv-ecs.png" width="2200" height="888" loading="lazy" alt="HTTP 서비스(waitingroom 3~10대, preorder 1~10대, catalog 2~8대)는 CPU 60% 목표 추적과 오픈 15분 전 사전 증설로, worker(1~6대)는 SQS 큐 3개에 쌓인 메시지를 실행 태스크 수로 나눈 지표로 태스크당 50건을 목표로 확장하는 ECS 구성"></button>
-              <figcaption>HTTP 서비스는 CPU와 오픈 전 사전 증설로, worker는 SQS에 쌓인 메시지로 늘어나는 ECS 구성</figcaption>
-            </figure>
-
-            <h4>① HTTP 서비스는 CPU와 요청 수, worker는 큐에 쌓인 메시지 기준으로 확장</h4>
-            <ul class="dot">
-              <li>HTTP 서비스는 CPU 60% 목표 추적을 기본으로 두고 축소는 5분 간격으로만 하게 했습니다.</li>
-              <li>CPU나 태스크당 요청 수가 기준을 넘으면 <strong class="key">1분 지표 1~2번만 보고 대수를 2~3배로 늘리는</strong> Step Scaling을 추가했습니다.</li>
-              <li>worker는 큐 3개의 메시지 합을 태스크 수로 나눈 지표를 만들어 <strong class="key">태스크당 50건</strong>을 넘으면 늘어나게 했습니다.</li>
-            </ul>
-
-            <h4>② 오픈 전 사전 증설과 부하 시험으로 정한 값</h4>
-            <ul class="dot">
-              <li>Step Scaling을 더해도 증설까지 4분 넘게 걸려 사전예약 앱이 <strong class="key">오픈 15분 전부터</strong> 대기열과 접수의 최소 대수를 올리게 했습니다.</li>
-            </ul>
-            <div class="tbl"><table>
-              <thead><tr><th>항목</th><th>부하 시험에서 확인한 것</th><th>변경</th></tr></thead>
-              <tbody>
-                <tr><td>대기열 최소 대수</td><td>1대가 10초에 5,000명 진입으로 CPU 포화</td><td class="pick">1대 → 3대</td></tr>
-                <tr><td>상품 조회 최소 대수</td><td>1대가 급증 트래픽에 CPU 포화</td><td class="pick">1대 → 2대</td></tr>
-                <tr><td>상품 조회 최대 대수</td><td>증설이 4대 상한에 바로 도달</td><td class="pick">4대 → 8대</td></tr>
-                <tr><td>대기열 Step Scaling 기준</td><td>태스크 한 대가 분당 6,000건에서 포화</td><td class="pick">분당 3,500건</td></tr>
-              </tbody>
-            </table></div>
-
-            <h4>③ 무중단 배포와 자동 롤백</h4>
-            <ul class="dot">
-              <li>ALB 뒤 서비스는 ECS Blue/Green으로 배포하고 이전 버전을 5분 남겨 바로 되돌릴 수 있게 했습니다.</li>
-              <li>모든 서비스에 deployment circuit breaker를 켜 새 태스크가 계속 실패하면 <strong class="key">이전 버전으로 자동 롤백</strong>되게 했습니다.</li>
-            </ul>
-          </li>
-
-          <li class="step result">
-            <div class="step-label">결과</div>
-            <p>6~10분 걸리던 증설을 <strong class="key">약 4분 30초</strong>로 줄였고 판매 오픈은 사전 증설로 증설을 기다리지 않게 했습니다.</p>
-            <div class="tbl"><table>
-              <thead><tr><th>항목</th><th>이전</th><th>이후</th></tr></thead>
-              <tbody>
-                <tr><td>급증 뒤 증설까지 걸린 시간</td><td>CPU 목표 추적만으로 6~10분</td><td class="pick">Step Scaling 추가 뒤 약 4분 30초</td></tr>
-                <tr><td>오픈 첫 1분 p99</td><td>1대로 받은 대기열 11.9초, 5xx 142건</td><td class="pick">미리 3대로 늘린 접수 0.44초</td></tr>
-                <tr><td>worker 확장 기준</td><td>CPU, 큐가 쌓여도 늘지 않음</td><td class="pick">태스크당 큐 메시지 50건</td></tr>
-              </tbody>
-            </table></div>
-            <p>CPU 부족으로 기동에 실패한 배포는 deployment circuit breaker가 이전 버전으로 자동 롤백했습니다.</p>
-          </li>
-        </ol>
-      </article>
-
       <!-- ---------- NOVA 06 ---------- -->
-      <article class="case" id="nv-6" data-title="NOVA 06 · 비용 절감">
+      <article class="case" id="nv-4" data-title="NOVA 04 · 비용 절감">
         <div class="case-head">
-          <div class="num">NOVA · 06</div>
+          <div class="num">NOVA · 04</div>
           <h3>목표 구조는 코드에 남기고 월 운영비를 73% 줄인 Terraform 변수 기반 비용 절감</h3>
           <ul class="outcome"><li>월 운영비 약 $890 → $240</li><li>변수 하나로 목표 구조 원복</li><li>6주 예산 40만 원 안에서 운영</li></ul>
         </div>
@@ -1364,7 +1209,7 @@ Error: <span class="d">...</span>
               <li>NAT 방식, Multi-AZ, VPC 엔드포인트처럼 비용이 큰 항목을 <code>nat_mode</code>, <code>multi_az</code>, <code>enable_interface_endpoints</code> 같은 <strong class="key">Terraform 변수로 분리</strong>하고 기본값만 비용이 낮은 쪽으로 두었습니다.</li>
               <li>목표 구조 코드는 그대로 남아 있어 <strong class="key">변수 값만 바꾸면 목표 구조로 돌아가게</strong> 했습니다.</li>
               <li>NAT 인스턴스를 교체하는 동안 그 AZ의 외부 통신이 끊기는 점처럼 항목마다 감수할 점과 목표 구조로 되돌리는 방법을 문서에 남겼습니다.</li>
-              <li>모니터링 스택은 CloudWatch 대신 EC2 한 대에 Mimir, Loki, Tempo, Pyroscope를 올리고 S3에 저장했습니다. (<a href="#nv-4">04 사례</a>)</li>
+              <li>모니터링 스택은 CloudWatch 대신 EC2 한 대에 Mimir, Loki, Tempo, Pyroscope를 올리고 S3에 저장했습니다. (<a href="#nv-3">03 사례</a>)</li>
             </ul>
           </li>
 
@@ -1390,7 +1235,7 @@ Error: <span class="d">...</span>
               </tbody>
             </table></div>
             <ul class="dot">
-              <li>Fargate는 부하 시험으로 트래픽을 감당하는 최소 대수와 사양을 찾아 접수는 2 vCPU에서 1 vCPU로, 외부 시스템 목업은 2대에서 1대로 낮췄습니다. (<a href="#nv-5">05 사례</a>)</li>
+              <li>Fargate는 부하 시험으로 트래픽을 감당하는 최소 대수와 사양을 찾아 접수는 2 vCPU에서 1 vCPU로, 외부 시스템 목업은 2대에서 1대로 낮췄습니다.</li>
               <li>부하 시험 리소스는 전용 ECS 클러스터에 모으고 평소에는 0대로 두어 시험할 때만 비용이 생기게 했습니다.</li>
             </ul>
           </li>
@@ -1453,83 +1298,16 @@ Error: <span class="d">...</span>
 
         <h4 class="print-only">주요 사례</h4>
         <ol class="case-index print-only">
-          <li><a href="#hl-1"><span class="n">01</span><span>서명 검증을 통과한 이미지만 배포되는 GitLab CI 구성</span></a></li>
-          <li><a href="#hl-2"><span class="n">02</span><span>Hubble 통신 기록을 활용한 CNI 전환 중 DNS 장애 분석</span></a></li>
-          <li><a href="#hl-3"><span class="n">03</span><span>디스크가 남았는데도 볼륨이 만들어지지 않던 Longhorn 스토리지 장애 해결</span></a></li>
+          <li><a href="#hl-1"><span class="n">01</span><span>Hubble 통신 기록을 활용한 CNI 전환 중 DNS 장애 분석</span></a></li>
+          <li><a href="#hl-2"><span class="n">02</span><span>디스크가 남았는데도 볼륨이 만들어지지 않던 Longhorn 스토리지 장애 해결</span></a></li>
         </ol>
       </div>
 
       <!-- ---------- 홈랩 01 ---------- -->
-      <article class="case" id="hl-1" data-title="홈랩 01 · GitLab CI">
+      <!-- ---------- 홈랩 02 ---------- -->
+      <article class="case" id="hl-1" data-title="홈랩 01 · DNS 장애">
         <div class="case-head">
           <div class="num">HOMELAB · 01</div>
-          <h3>서명 검증을 통과한 이미지만 배포되는 GitLab CI 구성</h3>
-          <ul class="outcome"><li>CI가 서명한 이미지만 배포</li><li>태그 대신 digest로 이미지 고정</li><li>앱이 늘어도 검증 CI 수정 없음</li></ul>
-        </div>
-
-        <ol class="steps">
-          <li class="step problem">
-            <div class="step-label">문제 발견</div>
-            <ul class="dot">
-              <li>helm install로 직접 올린 컴포넌트는 언제 무엇이 바뀌었는지 <strong class="key">이력이 남지 않았습니다</strong>.</li>
-              <li>이미지를 태그로 참조해 같은 태그가 다른 이미지를 가리킬 수 있었고 <strong class="key">CI를 거치지 않은 이미지가 들어와도 막을 방법이 없었습니다</strong>.</li>
-            </ul>
-            <p class="point">CI가 빌드하고 서명한 이미지만 배포되게 해야 했습니다.</p>
-          </li>
-
-          <li class="step solve">
-            <div class="step-label">해결</div>
-            <figure>
-              <button class="frame" type="button" data-zoom><img src="../images/devops/hl_ci.png?v=2" width="1959" height="1082" loading="lazy" alt="앱 저장소 GitLab CI가 검사, build, sign, bump 순서로 이미지를 빌드해 서명하고 GitOps 저장소의 이미지를 digest로 갱신하면, GitOps 저장소 CI의 verify가 Container Registry의 서명을 조회해 통과한 커밋만 release 브랜치로 옮기고 Argo CD가 release 브랜치를 동기화하는 흐름"></button>
-              <figcaption>앱 저장소 CI가 서명한 이미지를 GitOps 저장소 CI가 검증해 통과한 커밋만 release 브랜치로 옮기는 흐름</figcaption>
-            </figure>
-
-            <div class="tbl"><table>
-              <thead><tr><th>위치</th><th>단계</th><th>하는 일</th><th>신경 쓴 점</th></tr></thead>
-              <tbody>
-                <tr><td rowspan="4" style="white-space:nowrap">앱 저장소 CI</td><td style="font-weight:600;color:var(--ink)">검사</td><td>lint와 타입 검사, 의존성 취약점 점검</td><td style="white-space:nowrap">high 이상 취약점이 있으면 실패</td></tr>
-                <tr><td>build</td><td>이미지를 빌드해 push하고 digest를 다음 잡에 전달</td><td style="white-space:nowrap">뒤 단계는 태그 대신 digest로 이미지 지정</td></tr>
-                <tr><td>sign</td><td>이미지에 cosign 서명, Trivy로 만든 SBOM 첨부</td><td class="pick" style="white-space:nowrap">키 없이 GitLab CI의 OIDC 토큰 사용</td></tr>
-                <tr><td>bump</td><td>GitOps 저장소의 이미지를 digest로 바꾸는 커밋</td><td style="white-space:nowrap">CI는 직접 배포하지 않음</td></tr>
-                <tr><td rowspan="2" style="white-space:nowrap">GitOps 저장소 CI</td><td style="font-weight:600;color:var(--ink)">verify</td><td>매니페스트의 이미지마다 앱 저장소의 main 브랜치 CI가 한 서명과 digest 고정 여부 검사</td><td class="pick" style="white-space:nowrap">서명 없음, 다른 서명자, 태그 참조는 실패</td></tr>
-                <tr><td>promote</td><td>검증을 통과한 커밋을 release 브랜치로 옮김</td><td style="white-space:nowrap">강제 push 없이 fast-forward만 허용</td></tr>
-                <tr><td style="white-space:nowrap">클러스터</td><td style="font-weight:600;color:var(--ink)">Argo CD</td><td>release 브랜치만 동기화</td><td class="pick" style="white-space:nowrap">main 브랜치의 커밋은 검증 전까지 배포되지 않음</td></tr>
-              </tbody>
-            </table></div>
-            <ul class="dot">
-              <li>verify는 이미지 경로로 서명할 저장소를 알아내 앱이 늘어도 고치지 않게 했습니다.</li>
-              <li>build부터 promote까지는 GitLab CI/CD Component로 만들어 저장소마다 같은 잡을 include해 쓰게 했습니다.</li>
-              <li>취약점과 비밀 값 스캔은 GitLab 내장 템플릿을 썼습니다.</li>
-            </ul>
-          </li>
-
-          <li class="step result">
-            <div class="step-label">결과</div>
-            <div class="tbl"><table>
-              <thead><tr><th>경우</th><th>이전</th><th>이후</th></tr></thead>
-              <tbody>
-                <tr><td style="white-space:nowrap">CI를 거치지 않은 이미지</td><td>그대로 배포</td><td class="pick">verify 실패, release 브랜치에 반영되지 않음</td></tr>
-                <tr><td style="white-space:nowrap">태그로 참조한 이미지</td><td>같은 태그가 다른 이미지를 가리킬 수 있음</td><td class="pick">verify 실패</td></tr>
-                <tr><td style="white-space:nowrap">다른 저장소가 서명한 이미지</td><td>구분하지 못함</td><td class="pick">verify 실패</td></tr>
-                <tr><td>롤백</td><td>되돌릴 이력 없음</td><td class="pick">git revert</td></tr>
-              </tbody>
-            </table></div>
-          </li>
-
-          <li class="step next">
-            <div class="step-label">남은 과제</div>
-            <ul class="dot">
-              <li>클러스터에서 서명을 다시 검사하는 Kyverno는 아직 적용하지 않았습니다.</li>
-              <li>GitLab Free 티어라 Container Scanning과 Secret Detection은 리포트만 남기고 배포를 막지는 못합니다.</li>
-            </ul>
-          </li>
-        </ol>
-      </article>
-
-      <!-- ---------- 홈랩 02 ---------- -->
-      <article class="case" id="hl-2" data-title="홈랩 02 · DNS 장애">
-        <div class="case-head">
-          <div class="num">HOMELAB · 02</div>
           <h3>Hubble 통신 기록을 활용한 CNI 전환 중 DNS 장애 분석</h3>
           <ul class="outcome"><li>Hubble에 기록이 없어 Cilium 밖의 문제로 판단</li><li>원인은 제거하지 않고 남은 calico-node</li><li>Calico 제거로 DNS 복구</li></ul>
         </div>
@@ -1632,9 +1410,9 @@ $ kubectl -n kube-system rollout restart ds/cilium</code></pre>
       </article>
 
       <!-- ---------- 홈랩 03 ---------- -->
-      <article class="case" id="hl-3" data-title="홈랩 03 · Longhorn 장애">
+      <article class="case" id="hl-2" data-title="홈랩 02 · Longhorn 장애">
         <div class="case-head">
-          <div class="num">HOMELAB · 03</div>
+          <div class="num">HOMELAB · 02</div>
           <h3>디스크가 남았는데도 볼륨이 만들어지지 않던 Longhorn 스토리지 장애 해결</h3>
           <ul class="outcome"><li>Pod 이벤트에서 볼륨 · 노드 · 디스크 순으로 추적</li><li>원인은 root 파티션만 등록된 Longhorn 디스크</li><li>/home 파티션 추가로 볼륨과 Pod 복구</li></ul>
         </div>
