@@ -405,8 +405,9 @@
           <ol class="lv2">
             <li><a href="#nv-1"><span class="n">01</span><span>YAML 기반 인프라 자동화</span></a></li>
             <li><a href="#nv-2"><span class="n">02</span><span>Atlantis 인프라 변경 관리</span></a></li>
-            <li><a href="#nv-3"><span class="n">03</span><span>통합 모니터링과 개선</span></a></li>
-            <li><a href="#nv-4"><span class="n">04</span><span>월 운영비 73% 절감</span></a></li>
+            <li><a href="#nv-3"><span class="n">03</span><span>CloudFront · WAF 엣지 구성</span></a></li>
+            <li><a href="#nv-4"><span class="n">04</span><span>통합 모니터링과 개선</span></a></li>
+            <li><a href="#nv-5"><span class="n">05</span><span>월 운영비 73% 절감</span></a></li>
           </ol>
         </li>
         <li class="lv1">
@@ -465,17 +466,17 @@
           <div class="d">service.yml 하나로 ECS 서비스, ALB 규칙, 보안 그룹, IAM Role 생성</div>
           <div class="p">NOVA · 01</div>
         </a>
-        <a class="stat" href="#nv-3">
+        <a class="stat" href="#nv-4">
           <div class="k">장애 원인 분석 시간</div>
           <div class="v"><span class="from">수십 분</span><span class="arr">→</span>수 분</div>
           <div class="d">지표, 로그, 트레이스를 Grafana 한 화면에서 요청 시작부터 DB까지 추적</div>
-          <div class="p">NOVA · 03</div>
+          <div class="p">NOVA · 04</div>
         </a>
-        <a class="stat" href="#nv-4">
+        <a class="stat" href="#nv-5">
           <div class="k">AWS 월 운영비</div>
           <div class="v"><span class="from">$890</span><span class="arr">→</span>$240<span class="from" style="font-size:13px"> /월</span></div>
           <div class="d">비용이 큰 선택을 Terraform 변수로 빼 트래픽이 늘면 변수 하나로 목표 구조로 전환</div>
-          <div class="p">NOVA · 04</div>
+          <div class="p">NOVA · 05</div>
         </a>
       </div>
     </section>
@@ -930,8 +931,9 @@ Error from server: admission webhook <span class="d">"..."</span> denied the req
         <ol class="case-index print-only">
           <li><a href="#nv-1"><span class="n">01</span><span>YAML 설정 하나로 AWS 인프라가 만들어지는 Terraform 자동화</span></a></li>
           <li><a href="#nv-2"><span class="n">02</span><span>Atlantis를 활용한 AWS 인프라 변경 관리</span></a></li>
-          <li><a href="#nv-3"><span class="n">03</span><span>원인 분석을 수십 분에서 수 분으로 줄인 OpenTelemetry와 Grafana 통합 모니터링</span></a></li>
-          <li><a href="#nv-4"><span class="n">04</span><span>목표 구조는 코드에 남기고 월 운영비를 73% 줄인 Terraform 변수 기반 비용 절감</span></a></li>
+          <li><a href="#nv-3"><span class="n">03</span><span>ALB 앞에 CloudFront를 붙여 엣지에서 거르는 WAF 구성과 경로별 규칙 조정</span></a></li>
+          <li><a href="#nv-4"><span class="n">04</span><span>원인 분석을 수십 분에서 수 분으로 줄인 OpenTelemetry와 Grafana 통합 모니터링</span></a></li>
+          <li><a href="#nv-5"><span class="n">05</span><span>목표 구조는 코드에 남기고 월 운영비를 73% 줄인 Terraform 변수 기반 비용 절감</span></a></li>
         </ol>
       </div>
 
@@ -1100,10 +1102,92 @@ Error: <span class="d">...</span>
       </article>
 
       <!-- ---------- NOVA 03 ---------- -->
-      <!-- ---------- NOVA 04 ---------- -->
-      <article class="case" id="nv-3" data-title="NOVA 03 · 모니터링">
+      <article class="case" id="nv-3" data-title="NOVA 03 · CloudFront · WAF">
         <div class="case-head">
           <div class="num">NOVA · 03</div>
+          <h3>ALB 앞에 CloudFront를 붙여 엣지에서 거르는 WAF 구성과 경로별 규칙 조정</h3>
+          <ul class="outcome"><li>WAF 검사를 ALB 앞 엣지로 이동</li><li>ALB는 CloudFront를 거친 요청만 허용</li><li>정상 요청을 막던 규칙은 경로별로 조정</li></ul>
+        </div>
+
+        <ol class="steps">
+          <li class="step problem">
+            <div class="step-label">설계 배경</div>
+            <ul class="dot">
+              <li>처음에는 ALB가 인터넷에서 API를 직접 받아 <strong class="key">연결과 공격 요청을 모두 서울 리전의 ALB가 받아 낸 뒤에야</strong> ALB에 붙인 WAF로 걸러지는 구조였습니다.</li>
+              <li>판매가 열리면 10초 사이에 예약 5,000건이 몰리기 때문에 이 순간의 연결과 과한 요청을 ALB보다 앞에서 받아 낼 곳이 필요했습니다.</li>
+            </ul>
+          </li>
+
+          <li class="step trace">
+            <div class="step-label">설계 판단</div>
+            <p>처음 구성과 ALB 앞에 CloudFront를 붙인 구성을 비교했습니다.</p>
+            <div class="tbl"><table>
+              <thead><tr><th>항목</th><th>처음 구성</th><th class="chosen-col">바꾼 구성</th></tr></thead>
+              <tbody>
+                <tr><td>API 경로</td><td>사용자 → ALB(+WAF) → ECS</td><td class="pick">사용자 → CloudFront + WAF → ALB → ECS</td></tr>
+                <tr><td>ALB가 받는 연결</td><td>사용자마다 새 TLS 연결</td><td class="pick">TLS는 엣지에서 끝내고 ALB 구간은 연결 재사용</td></tr>
+                <tr><td>막힌 요청이 닿는 곳</td><td>VPC 안 ALB까지 들어온 뒤 차단</td><td class="pick">VPC 밖 엣지에서 차단, ALB에 닿지 않음</td></tr>
+                <tr><td>새로 생기는 위험</td><td class="muted">없음</td><td>ALB를 직접 부르면 WAF를 우회, ①에서 차단</td></tr>
+              </tbody>
+            </table></div>
+            <p class="point">API는 캐시하지 않지만 엣지에서 먼저 거르려고 WAF를 CloudFront로 옮겼고, 이때 생기는 ALB 직접 호출 경로는 CloudFront를 거친 요청만 받게 해 막았습니다.</p>
+          </li>
+
+          <li class="step solve">
+            <div class="step-label">구현</div>
+            <h4>① CloudFront로 옮기며 생긴 우회 경로 차단</h4>
+            <ul class="dot">
+              <li>ALB 보안 그룹은 <strong class="key">CloudFront 관리형 prefix list만 허용</strong>해 다른 IP에서는 연결부터 맺어지지 않게 했습니다.</li>
+              <li>prefix list는 모든 CloudFront 배포의 대역이라 다른 사람의 배포를 거친 요청은 NOVA 배포가 붙인 무작위 40자 <strong class="key">비밀 헤더가 없으면 ALB가 404</strong>로 돌려보내게 했습니다.</li>
+              <li>공개 PR의 plan 출력에 비밀 헤더 값이 찍힌 것을 발견해 당일 값을 바꾸고 <code>sensitive</code>로 지정해 이후 plan에 나오지 않게 했습니다.</li>
+            </ul>
+
+            <h4>② 같은 IP 뒤 대기자를 막지 않는 요청 수 제한</h4>
+            <ul class="dot">
+              <li><code>/api/</code>는 IP당 5분 3,000건으로 제한했는데, 통신사 CGNAT나 학교, 회사처럼 <strong class="key">공인 IP 하나 뒤에 대기자가 몰리면 정상 사용자가 한꺼번에 막힐 수 있었습니다</strong>.</li>
+              <li>대기열 경로는 이 제한에서 빼고 IP당 5분 300,000건으로 따로 제한했습니다.</li>
+              <li>이 값은 대기자 한 명이 2~4초마다 순번을 조회해 5분에 약 100건을 보내는 것을 기준으로 <strong class="key">IP 하나 뒤 약 3,000명</strong>을 받도록 계산했습니다.</li>
+            </ul>
+
+            <h4>③ 오탐 경로는 통째로 열지 않고 크기 상한으로 대신 검사</h4>
+            <p>CloudFront의 WAF에는 AWS 관리형 규칙 3종(Common, Known Bad Inputs, IP Reputation)을 적용했는데, 실제로 쓰는 중에 아래 세 경로가 막혔습니다.</p>
+            <div class="tbl"><table>
+              <thead><tr><th>막힌 경로</th><th>걸린 규칙</th></tr></thead>
+              <tbody>
+                <tr><td>카카오 로그인 콜백</td><td>본문의 <code>redirectUri</code>를 SSRF로 판단</td></tr>
+                <tr><td>상품 사진 업로드</td><td>XSS, LFI 규칙과 본문 8KB 상한</td></tr>
+                <tr><td>관리자 상품 등록</td><td>본문 8KB 상한</td></tr>
+              </tbody>
+            </table></div>
+            <ul class="dot">
+              <li>관리형 규칙은 <strong class="key">Count 모드로 라벨만 붙이고</strong> 다음 규칙에서 경로와 라벨을 함께 보고 차단할지 정하게 해 예외를 경로 단위로 줄 수 있게 했습니다.</li>
+              <li>예외 경로가 아니면 라벨이 붙은 요청을 차단하고 예외로 둔 경로는 검사 없이 열리지 않도록 업로드 10MiB, 관리자 API 512KB처럼 <strong class="key">경로마다 정한 본문 크기 상한으로 대신 검사</strong>했습니다.</li>
+            </ul>
+          </li>
+
+          <li class="step result">
+            <div class="step-label">결과</div>
+            <ul class="dot">
+              <li>ALB로 가는 요청이 모두 <strong class="key">CloudFront와 WAF를 거치게</strong> 되어 막힌 요청은 VPC 안의 ALB까지 오지 않았습니다.</li>
+              <li>카카오 로그인과 사진 업로드, 관리자 상품 등록이 더 이상 막히지 않았고 업로드와 관리자 API에는 본문 크기 검사가 남았습니다.</li>
+              <li>실제 사용자와 같은 CloudFront, WAF, ALB 경로로 보낸 판매 오픈 부하 시험에서 첫 1분 동안 <strong class="key">5xx 없이 초당 약 2,090건</strong>을 처리했습니다.</li>
+            </ul>
+          </li>
+
+          <li class="step next">
+            <div class="step-label">개선할 점</div>
+            <ul class="dot">
+              <li>ALB가 아직 public subnet에 있어 CloudFront VPC origin으로 <strong class="key">ALB를 private subnet에 옮기면</strong> 비밀 헤더와 prefix list 없이도 인터넷에서 ALB로 가는 경로 자체를 없앨 수 있습니다.</li>
+              <li>WAF 로그를 수집하지 않아 오탐 원인을 샘플 요청으로만 확인했기 때문에 <strong class="key">WAF 로그를 S3로 모으면</strong> 차단된 요청을 규칙과 경로별로 바로 확인할 수 있습니다.</li>
+            </ul>
+          </li>
+        </ol>
+      </article>
+
+      <!-- ---------- NOVA 04 ---------- -->
+      <article class="case" id="nv-4" data-title="NOVA 04 · 모니터링">
+        <div class="case-head">
+          <div class="num">NOVA · 04</div>
           <h3>원인 분석을 수십 분에서 수 분으로 줄인 OpenTelemetry와 Grafana 통합 모니터링</h3>
           <ul class="outcome"><li>지표 · 로그 · 트레이스를 한곳에 수집</li><li>요청 시작부터 DB까지 한 화면에서 추적</li><li>원인 분석 수십 분 → 수 분</li></ul>
         </div>
@@ -1185,10 +1269,9 @@ Error: <span class="d">...</span>
       </article>
 
       <!-- ---------- NOVA 05 ---------- -->
-      <!-- ---------- NOVA 06 ---------- -->
-      <article class="case" id="nv-4" data-title="NOVA 04 · 비용 절감">
+      <article class="case" id="nv-5" data-title="NOVA 05 · 비용 절감">
         <div class="case-head">
-          <div class="num">NOVA · 04</div>
+          <div class="num">NOVA · 05</div>
           <h3>목표 구조는 코드에 남기고 월 운영비를 73% 줄인 Terraform 변수 기반 비용 절감</h3>
           <ul class="outcome"><li>월 운영비 약 $890 → $240</li><li>변수 하나로 목표 구조 원복</li><li>6주 예산 40만 원 안에서 운영</li></ul>
         </div>
@@ -1209,7 +1292,7 @@ Error: <span class="d">...</span>
               <li>NAT 방식, Multi-AZ, VPC 엔드포인트처럼 비용이 큰 항목을 <code>nat_mode</code>, <code>multi_az</code>, <code>enable_interface_endpoints</code> 같은 <strong class="key">Terraform 변수로 분리</strong>하고 기본값만 비용이 낮은 쪽으로 두었습니다.</li>
               <li>목표 구조 코드는 그대로 남아 있어 <strong class="key">변수 값만 바꾸면 목표 구조로 돌아가게</strong> 했습니다.</li>
               <li>NAT 인스턴스를 교체하는 동안 그 AZ의 외부 통신이 끊기는 점처럼 항목마다 감수할 점과 목표 구조로 되돌리는 방법을 문서에 남겼습니다.</li>
-              <li>모니터링 스택은 CloudWatch 대신 EC2 한 대에 Mimir, Loki, Tempo, Pyroscope를 올리고 S3에 저장했습니다. (<a href="#nv-3">03 사례</a>)</li>
+              <li>모니터링 스택은 CloudWatch 대신 EC2 한 대에 Mimir, Loki, Tempo, Pyroscope를 올리고 S3에 저장했습니다. (<a href="#nv-4">04 사례</a>)</li>
             </ul>
           </li>
 
