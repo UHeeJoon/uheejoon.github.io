@@ -353,6 +353,11 @@
       .facts { padding: 12px 16px; font-size: 9.5pt; margin-bottom: 18px; break-inside: avoid; }
       .lede { font-size: 10.5pt; }
       .case-index a { padding: 7px 4px; font-size: 10pt; }
+      .ptoc { padding-top: 22px; }
+      .ptoc .pt-proj { margin-top: 18px; break-inside: avoid; }
+      .ptoc h3 { margin: 0 0 2px; }
+      .ptoc .sub { color: var(--ink-3); font-size: 9.5pt; margin: 0; }
+      .ptoc .case-index { margin-top: 10px; }
       article.case { padding-top: 30px; }
       .outcome li { font-size: 8.5pt; padding: 2px 9px; }
       figure, figure.wide { margin: 14px 0 16px; break-inside: avoid; }
@@ -407,7 +412,8 @@
             <li><a href="#nv-2"><span class="n">02</span><span>Atlantis 인프라 변경 관리</span></a></li>
             <li><a href="#nv-3"><span class="n">03</span><span>CloudFront · WAF 엣지 구성</span></a></li>
             <li><a href="#nv-4"><span class="n">04</span><span>통합 모니터링과 개선</span></a></li>
-            <li><a href="#nv-5"><span class="n">05</span><span>월 운영비 73% 절감</span></a></li>
+            <li><a href="#nv-5"><span class="n">05</span><span>k6 부하 시험 플랫폼</span></a></li>
+            <li><a href="#nv-6"><span class="n">06</span><span>월 운영비 73% 절감</span></a></li>
           </ol>
         </li>
         <li class="lv1">
@@ -445,11 +451,17 @@
       <ul class="contact">
         <li><a href="mailto:yhjyhj3855@gmail.com"><span class="k">Email</span>yhjyhj3855@gmail.com</a></li>
         <li><a href="https://github.com/UHeeJoon" target="_blank" rel="noopener"><span class="k">GitHub</span>UHeeJoon</a></li>
+        <li class="print-only"><a href="https://uheejoon.github.io/devops/"><span class="k">Web</span>uheejoon.github.io/devops</a></li>
       </ul>
     </header>
 
+    <!-- PDF 첫 장 목차: 각 프로젝트의 사례 목록을 스크립트로 복사해 채운다 -->
+    <section class="block ptoc print-only" id="ptoc" aria-hidden="true">
+      <h2>목차</h2>
+    </section>
+
     <!-- ================= 성과 요약 ================= -->
-    <section class="block" id="highlights" data-title="핵심 내용 미리보기">
+    <section class="block no-print" id="highlights" data-title="핵심 내용 미리보기">
       <p class="sec-label">Preview</p>
       <h2>핵심 내용 미리보기</h2>
       <p>옥타코와 NOVA의 주요 결과입니다.<span class="no-print"> 카드를 누르면 해당 사례로 이동합니다.</span></p>
@@ -472,11 +484,11 @@
           <div class="d">지표, 로그, 트레이스를 Grafana 한 화면에서 요청 시작부터 DB까지 추적</div>
           <div class="p">NOVA · 04</div>
         </a>
-        <a class="stat" href="#nv-5">
+        <a class="stat" href="#nv-6">
           <div class="k">AWS 월 운영비</div>
           <div class="v"><span class="from">$890</span><span class="arr">→</span>$240<span class="from" style="font-size:13px"> /월</span></div>
           <div class="d">비용이 큰 선택을 Terraform 변수로 빼 트래픽이 늘면 변수 하나로 목표 구조로 전환</div>
-          <div class="p">NOVA · 05</div>
+          <div class="p">NOVA · 06</div>
         </a>
       </div>
     </section>
@@ -514,14 +526,6 @@
           <figcaption>업무를 바탕으로 재구성한 옥타코의 요청 경로와 배포, 플랫폼 구성 요소, 데이터 구성</figcaption>
         </figure>
 
-        <h4 class="print-only">주요 사례</h4>
-        <ol class="case-index print-only">
-          <li><a href="#oc-1"><span class="n">01</span><span>서비스별 AWS 권한 분리로 탈취 피해를 한 서비스 안으로 제한</span></a></li>
-          <li><a href="#oc-2"><span class="n">02</span><span>Probe와 CPU limit 조정으로 수백 번 반복되던 Pod 재시작을 0번으로 해소</span></a></li>
-          <li><a href="#oc-3"><span class="n">03</span><span>Admission Webhook 개발로 배포 경로와 관계없이 같은 배포 기준 적용</span></a></li>
-          <li><a href="#oc-4"><span class="n">04</span><span>GitOps 전환으로 배포 덮어쓰기를 없애고 Argo Rollouts로 무중단 배포 구성</span></a></li>
-          <li><a href="#oc-5"><span class="n">05</span><span>장애 주입 시험으로 미리 찾은 Redis SPOF를 Circuit Breaker와 DB 우회로 해결</span></a></li>
-        </ol>
       </div>
 
       <!-- ---------- 옥타코 01 ---------- -->
@@ -927,14 +931,6 @@ Error from server: admission webhook <span class="d">"..."</span> denied the req
           <figcaption>CloudFront와 ALB를 거쳐 ECS Fargate로 들어오는 요청 경로와 데이터, 배포, 모니터링 구성</figcaption>
         </figure>
 
-        <h4 class="print-only">주요 사례</h4>
-        <ol class="case-index print-only">
-          <li><a href="#nv-1"><span class="n">01</span><span>YAML 설정 하나로 AWS 인프라가 만들어지는 Terraform 자동화</span></a></li>
-          <li><a href="#nv-2"><span class="n">02</span><span>Atlantis를 활용한 AWS 인프라 변경 관리</span></a></li>
-          <li><a href="#nv-3"><span class="n">03</span><span>ALB 앞에 CloudFront를 붙여 엣지에서 거르는 WAF 구성과 경로별 규칙 조정</span></a></li>
-          <li><a href="#nv-4"><span class="n">04</span><span>원인 분석을 수십 분에서 수 분으로 줄인 OpenTelemetry와 Grafana 통합 모니터링</span></a></li>
-          <li><a href="#nv-5"><span class="n">05</span><span>목표 구조는 코드에 남기고 월 운영비를 73% 줄인 Terraform 변수 기반 비용 절감</span></a></li>
-        </ol>
       </div>
 
       <!-- ---------- NOVA 01 ---------- -->
@@ -1170,7 +1166,7 @@ Error: <span class="d">...</span>
             <ul class="dot">
               <li>ALB로 가는 요청이 모두 <strong class="key">CloudFront와 WAF를 거치게</strong> 되어 막힌 요청은 VPC 안의 ALB까지 오지 않았습니다.</li>
               <li>카카오 로그인과 사진 업로드, 관리자 상품 등록이 더 이상 막히지 않았고 업로드와 관리자 API에는 본문 크기 검사가 남았습니다.</li>
-              <li>실제 사용자와 같은 CloudFront, WAF, ALB 경로로 보낸 판매 오픈 부하 시험에서 첫 1분 동안 <strong class="key">5xx 없이 초당 약 2,090건</strong>을 처리했습니다.</li>
+              <li>실제 사용자와 같은 CloudFront, WAF, ALB 경로로 보낸 판매 오픈 부하 시험에서 첫 1분 동안 <strong class="key">5xx 없이 초당 약 2,090건</strong>을 처리했습니다. (<a href="#nv-5">05 사례</a>)</li>
             </ul>
           </li>
 
@@ -1269,9 +1265,105 @@ Error: <span class="d">...</span>
       </article>
 
       <!-- ---------- NOVA 05 ---------- -->
-      <article class="case" id="nv-5" data-title="NOVA 05 · 비용 절감">
+      <article class="case" id="nv-5" data-title="NOVA 05 · 부하 시험">
         <div class="case-head">
           <div class="num">NOVA · 05</div>
+          <h3>운영 경로 그대로 판매 오픈을 재현하는 ECS 기반 k6 부하 시험 플랫폼</h3>
+          <ul class="outcome"><li>7가지 시나리오로 판매 오픈 재현</li><li>운영 SLO와 같은 기준을 흐름별로 판정</li><li>여러 대의 결과는 Mimir 히스토그램으로 합산</li></ul>
+        </div>
+
+        <ol class="steps">
+          <li class="step problem">
+            <div class="step-label">설계 배경</div>
+            <ul class="dot">
+              <li>판매 오픈 몰림에 운영 인프라가 어떻게 반응하는지는 <strong class="key">운영 경로로 실제 부하를 보내야</strong> 알 수 있었습니다.</li>
+              <li>대기열에 선 회원은 입장할 때까지 k6 VU를 하나씩 잡고 있어 판매 오픈을 재현하려면 <strong class="key">VU를 최대 15,000개까지</strong> 띄워야 했습니다.</li>
+              <li>VU 하나가 1~5MB를 써서 부하를 만드는 쪽에만 메모리가 수십 GB 필요했습니다.</li>
+            </ul>
+          </li>
+
+          <li class="step trace">
+            <div class="step-label">설계 판단</div>
+            <div class="tbl"><table>
+              <thead><tr><th>항목</th><th>결정</th><th>이유</th></tr></thead>
+              <tbody>
+                <tr><td>실행 위치</td><td class="pick">평소 0대인 시험 전용 ECS 클러스터</td><td>시험마다 필요한 대수만 띄우고 끝나면 비용 없음</td></tr>
+                <tr><td>k6 태스크</td><td class="pick">4 vCPU 8GB 온디맨드 태스크를 부하에 맞춰 N대</td><td>VU 메모리는 대수로 늘리고 Spot 회수로 시험이 끊기지 않게 함</td></tr>
+                <tr><td>vCPU 할당량</td><td class="pick">Fargate vCPU 할당량 상향 요청</td><td>운영 서비스와 같은 할당량을 써서 k6를 늘리면 운영 증설 여유가 줄어듦</td></tr>
+                <tr><td>부하 경로</td><td class="pick">CloudFront → WAF → ALB → 서비스</td><td>실제 사용자와 같은 경로</td></tr>
+                <tr><td>k6 네트워크</td><td class="pick">public 서브넷의 공인 IP</td><td>NAT를 거치면 서비스보다 NAT가 먼저 막힘</td></tr>
+                <tr><td>실행 방법</td><td class="pick">GitHub Actions 수동 실행과 승인</td><td>상시 서버 없이 OIDC로 실행하고 실행 기록이 남음</td></tr>
+              </tbody>
+            </table></div>
+            <p class="point">부하를 만드는 쪽이 먼저 막히면 서비스의 한계를 잴 수 없어 NAT와 Spot 회수, vCPU 할당량처럼 시험 도구가 병목이 될 곳을 먼저 없앴습니다.</p>
+          </li>
+
+          <li class="step solve">
+            <div class="step-label">구현</div>
+            <figure>
+              <button class="frame" type="button" data-zoom><img src="../images/devops/lt_arch.png" width="2200" height="731" loading="lazy" alt="GitHub Actions가 OIDC 역할로 평소 0대인 nova-prod-loadtest 클러스터에 컨트롤러를 띄우고, 컨트롤러가 k6 N대를 같은 시각에 시작시켜 공인 IP로 NAT를 거치지 않고 CloudFront, WAF, ALB를 지나 운영 서비스로 부하를 보내며, k6 지표는 Mimir에 모여 컨트롤러가 히스토그램을 합쳐 판정하는 구성"></button>
+              <figcaption>평소 0대인 시험 클러스터에서 k6를 띄워 운영과 같은 경로로 부하를 보내고 Mimir에서 판정하는 구성</figcaption>
+            </figure>
+            <h4>① 실행 구조와 시험 회원</h4>
+            <ul class="dot">
+              <li>GitHub Actions에서 시나리오를 실행하고 승인하면 VPC 안의 컨트롤러가 k6를 띄우고 Mimir 지표로 판정하게 만들었습니다.</li>
+              <li>예약은 회원 한 명당 1건이라 <strong class="key">시험 회원 10만 명</strong>을 DB에 미리 넣어 두고 한 시험에서 회원 한 명은 한 번만 진입하게 했습니다.</li>
+              <li>카카오 로그인은 자동화할 수 없어 토큰 발급기가 AWS 안에서 시험마다 필요한 회원의 토큰을 k6 태스크별로 겹치지 않게 만들었습니다.</li>
+            </ul>
+
+            <h4>② 최대 15,000명의 동시 요청 만들기</h4>
+            <ul class="dot">
+              <li>k6의 실행 구간 기능으로 부하와 VU를 N대에 똑같이 나눠 초당 500건이면 5대가 100건씩 보내게 했습니다.</li>
+              <li>태스크 대수는 초당 요청 수가 아니라 <strong class="key">동시에 기다리는 회원 수에 VU당 메모리를 곱해</strong> 정하고 30% 여유를 두었습니다.</li>
+              <li>응답 본문은 대기열과 접수처럼 꼭 필요한 요청만 받아 VU 하나가 쓰는 메모리를 줄였습니다.</li>
+              <li>Fargate 태스크는 뜨는 시간이 30~60초씩 달라 컨트롤러가 약 2분 뒤의 시작 시각을 정해 넘기고 k6 이미지에 넣은 Go 시작 프로그램이 <strong class="key">그 시각까지 기다렸다가 함께 시작</strong>하게 했습니다.</li>
+              <li>1만 명 queue 시험에서 입장이 늦어지자 예상치만큼만 잡아 둔 VU가 모자라 <strong class="key">2,124명이 시작하지 못해</strong> VU를 인원만큼 늘릴 수 있게 하고 태스크 대수도 그 VU에 맞춰 계산하도록 고쳤습니다.</li>
+            </ul>
+
+            <h4>③ 시험 방법</h4>
+            <p>평시부터 판매 오픈과 한계 상황까지 7가지 시나리오로 나눠 시험했습니다.</p>
+            <div class="tbl"><table>
+              <thead><tr><th>시나리오</th><th>목적</th><th>부하</th></tr></thead>
+              <tbody>
+                <tr><td>smoke</td><td>적은 부하에서 모든 흐름이 오류 없이 끝나는지</td><td>평시 수준을 2분</td></tr>
+                <tr><td>load</td><td>평시의 2배를 오래 받아도 기준 안에서 처리하는지</td><td>평시의 2배를 30분</td></tr>
+                <tr><td>spike</td><td>판매 오픈 10초 몰림을 기준 안에서 처리하는지</td><td>10초 동안 진입 5,000건 뒤 10분 관찰</td></tr>
+                <tr><td>rush</td><td>몰린 회원이 진입부터 결제 시도까지 끝내는지</td><td>spike와 같은 몰림에서 절반이 결제 시도</td></tr>
+                <tr><td>queue</td><td>입력한 인원이 모두 대기열을 지나 접수되는지</td><td>5,000명을 초당 500명씩 진입</td></tr>
+                <tr><td>stress</td><td>부하를 올릴 때 가장 먼저 막히는 곳</td><td>평시의 1·2·4·6·8배를 5분씩</td></tr>
+                <tr><td>soak</td><td>4시간 동안 커넥션과 메모리, 캐시 키가 새지 않는지</td><td>평시 수준을 4시간</td></tr>
+              </tbody>
+            </table></div>
+            <ul class="dot">
+              <li>모든 시나리오는 <strong class="key">평시 사용자 비율</strong>(상품 조회 80 : 예약 조회 10 : 진입과 접수 5 : 주문과 결제 5 : 취소 1)로 요청을 섞고 흐름마다 프론트 화면과 같은 순서로 API를 불렀습니다.</li>
+              <li>부하는 동시 사용자 수가 아니라 <strong class="key">초당 들어오는 사용자 수</strong>로 정해 서버가 느려져도 보내는 양이 줄지 않게 했습니다.</li>
+            </ul>
+
+            <h4>④ 통과 조건과 판정</h4>
+            <ul class="dot">
+              <li>합격 기준은 운영 SLO와 같은 <strong class="key">p95 0.5초 이하와 5xx 0.1% 이하</strong>로 정했습니다.</li>
+              <li>요청의 80%가 가벼운 상품 조회라 전체 p95만 보면 접수가 느려도 합격으로 나올 수 있어 <strong class="key">접수나 결제 같은 흐름마다 따로</strong> 기준을 적용했습니다.</li>
+              <li>k6 여러 대가 각자 계산한 p95는 평균을 내도 전체 p95가 되지 않아 응답 시간을 히스토그램으로 Mimir에 모아 한 번에 계산했습니다.</li>
+              <li>히스토그램의 p95는 근사값이라 0.5초를 구간 경계로 두고 "0.5초 안에 끝난 요청이 95% 이상인가"로 판정해 오차를 없앴습니다.</li>
+            </ul>
+            <p>결과가 서비스의 문제인지 부하 도구의 문제인지 구분할 수 있게 판정을 네 가지로 나눴습니다.</p>
+            <div class="tbl"><table>
+              <thead><tr><th>판정</th><th>조건</th></tr></thead>
+              <tbody>
+                <tr><td>합격</td><td>모든 k6가 끝까지 돌고 전체와 흐름별 기준을 모두 지킴</td></tr>
+                <tr><td>불합격</td><td>전체나 흐름별 기준 중 하나라도 넘음</td></tr>
+                <tr><td>판정 불가</td><td>지표가 1분 이상 끊기거나 k6가 계획한 부하를 다 보내지 못함</td></tr>
+                <tr><td>한계 측정</td><td>stress에서 기준을 지킨 마지막 단계와 처음 막힌 곳을 기록</td></tr>
+              </tbody>
+            </table></div>
+          </li>
+        </ol>
+      </article>
+
+      <!-- ---------- NOVA 06 ---------- -->
+      <article class="case" id="nv-6" data-title="NOVA 06 · 비용 절감">
+        <div class="case-head">
+          <div class="num">NOVA · 06</div>
           <h3>목표 구조는 코드에 남기고 월 운영비를 73% 줄인 Terraform 변수 기반 비용 절감</h3>
           <ul class="outcome"><li>월 운영비 약 $890 → $240</li><li>변수 하나로 목표 구조 원복</li><li>6주 예산 40만 원 안에서 운영</li></ul>
         </div>
@@ -1379,11 +1471,6 @@ Error: <span class="d">...</span>
           <figcaption>Cloudflare Tunnel에서 Cilium Gateway로 들어오는 요청 경로와 네임스페이스별 구성</figcaption>
         </figure>
 
-        <h4 class="print-only">주요 사례</h4>
-        <ol class="case-index print-only">
-          <li><a href="#hl-1"><span class="n">01</span><span>Hubble 통신 기록을 활용한 CNI 전환 중 DNS 장애 분석</span></a></li>
-          <li><a href="#hl-2"><span class="n">02</span><span>디스크가 남았는데도 볼륨이 만들어지지 않던 Longhorn 스토리지 장애 해결</span></a></li>
-        </ol>
       </div>
 
       <!-- ---------- 홈랩 01 ---------- -->
@@ -1613,6 +1700,41 @@ nvme0n1      476.9G
 </dialog>
 
 <script>
+(function () {
+  // PDF 첫 장 목차를 사이드 메뉴의 프로젝트 정보와 각 사례 제목으로 만든다
+  var toc = document.getElementById('ptoc');
+  if (!toc) return;
+  document.querySelectorAll('section.project').forEach(function (sec) {
+    var cases = sec.querySelectorAll('article.case');
+    if (!cases.length) return;
+    var navLink = document.querySelector('.sitemap a[href="#' + sec.id + '"]');
+    var meta = navLink && navLink.querySelector('.meta');
+    var box = document.createElement('div');
+    box.className = 'pt-proj';
+    var h = document.createElement('h3');
+    h.textContent = sec.querySelector('.proj-head h2').textContent;
+    var sub = document.createElement('p');
+    sub.className = 'sub';
+    sub.textContent = meta ? meta.textContent : '';
+    var ol = document.createElement('ol');
+    ol.className = 'case-index';
+    cases.forEach(function (c, i) {
+      var li = document.createElement('li');
+      var a = document.createElement('a');
+      a.href = '#' + c.id;
+      var n = document.createElement('span');
+      n.className = 'n';
+      n.textContent = String(i + 1).padStart(2, '0');
+      var t = document.createElement('span');
+      t.textContent = c.querySelector('.case-head h3').textContent;
+      a.append(n, t);
+      li.appendChild(a);
+      ol.appendChild(li);
+    });
+    box.append(h, sub, ol);
+    toc.appendChild(box);
+  });
+})();
 (function () {
   var links = Array.prototype.slice.call(document.querySelectorAll('.sitemap nav a[href^="#"]'));
   var targets = links.map(function (a) { return document.getElementById(a.getAttribute('href').slice(1)); });
